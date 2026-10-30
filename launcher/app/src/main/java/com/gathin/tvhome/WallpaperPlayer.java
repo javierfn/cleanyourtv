@@ -59,10 +59,12 @@ final class WallpaperPlayer {
     private final Map<String, Set<String>> moods;
     /** config.xml latitude and longitude for the sun's times, and today's {sunrise, sunset} once worked out. */
     private final String latitude, longitude;
+    private final Context context;
     private LocalDate sunDay;
     private int[] sun;
 
     WallpaperPlayer(Context context, FrameLayout root, Config config) {
+        this.context = context.getApplicationContext();
         this.root = root;
         backgroundColor = config.backgroundColor;
         files = new ArrayList<>(config.wallpapers);
@@ -131,10 +133,127 @@ final class WallpaperPlayer {
     void start() {
         active = true;
         update();
+        startMotion();
     }
 
     void stop() {
         active = false;
+        stopMotion();
+    }
+
+    /**
+     * Slow zoom towards points of the picture ("Ken Burns"), switched in Launcher settings (WallpaperMotion).
+     * The motion is a chain of random legs, never a back-and-forth: zoom in towards a random point (the zoom centre
+     * drifting a little), then ease most of the way out while the centre moves to the next random point, and so on.
+     * The centre (pivot, as fractions of the screen) moves mostly while the picture is near its widest, so it reads
+     * as a new approach rather than a pan. With the pivot inside the screen and a scale above 1 the picture always
+     * covers the screen.
+     */
+    private android.animation.ValueAnimator motion;
+    private float motionScale = 1.02f;
+    private float pivotX = 0.5f;
+    private float pivotY = 0.5f;
+
+    private void startMotion() {
+        if (!WallpaperMotion.enabled(context)) {
+            resetMotion();
+            return;
+        }
+        if (motion != null || image.getParent() == null) return;
+        nextLeg();
+    }
+
+    private void nextLeg() {
+        boolean zoomIn = motionScale < 1.08f;
+        float fromScale = motionScale, fromX = pivotX, fromY = pivotY;
+        float toScale, toX, toY;
+        long duration;
+        if (zoomIn) {
+            toScale = 1.12f + (WallpaperMotion.MAX_SCALE - 1.12f) * random.nextFloat();
+            toX = clamp(fromX + (random.nextFloat() - 0.5f) * 0.16f, 0.25f, 0.75f);
+            toY = clamp(fromY + (random.nextFloat() - 0.5f) * 0.12f, 0.3f, 0.66f);
+            duration = (long) (WallpaperMotion.CYCLE_MS * (0.6f + 0.2f * random.nextFloat()));
+        } else {
+            toScale = 1.02f + 0.03f * random.nextFloat();
+            float[] p = randomFocus(fromX, fromY);
+            toX = p[0];
+            toY = p[1];
+            duration = (long) (WallpaperMotion.CYCLE_MS * (0.45f + 0.15f * random.nextFloat()));
+        }
+        android.animation.ValueAnimator leg = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        leg.setDuration(duration);
+        leg.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+        leg.addUpdateListener(a -> {
+            float v = (float) a.getAnimatedValue();
+            // Zooming out, the centre moves late, once the picture is nearly at its widest.
+            float m = zoomIn ? v : v * v;
+            applyMotion(fromScale + (toScale - fromScale) * v,
+                    fromX + (toX - fromX) * m, fromY + (toY - fromY) * m);
+        });
+        leg.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (motion != leg) return;
+                motion = null;
+                nextLeg();
+            }
+        });
+        motion = leg;
+        leg.start();
+    }
+
+    private void applyMotion(float scale, float x, float y) {
+        motionScale = scale;
+        pivotX = x;
+        pivotY = y;
+        image.setTranslationX(0f);
+        image.setTranslationY(0f);
+        image.setPivotX(x * image.getWidth());
+        image.setPivotY(y * image.getHeight());
+        image.setScaleX(scale);
+        image.setScaleY(scale);
+    }
+
+    /** A random focus point away from the edges, at least a little away from the current one. */
+    private float[] randomFocus(float fromX, float fromY) {
+        float x = 0.5f, y = 0.5f;
+        for (int i = 0; i < 6; i++) {
+            x = 0.28f + 0.44f * random.nextFloat();
+            y = 0.32f + 0.32f * random.nextFloat();
+            if (Math.abs(x - fromX) + Math.abs(y - fromY) > 0.15f) break;
+        }
+        return new float[] {x, y};
+    }
+
+    private static float clamp(float v, float min, float max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    /** A new picture: start from its widest view at a random focus point. */
+    private void nextRoute() {
+        float[] p = randomFocus(pivotX, pivotY);
+        boolean running = motion != null;
+        stopMotion();
+        motionScale = 1.02f;
+        pivotX = p[0];
+        pivotY = p[1];
+        if (running) startMotion();
+    }
+
+    private void stopMotion() {
+        if (motion == null) return;
+        android.animation.ValueAnimator running = motion;
+        motion = null; // first, so the cancelled leg does not chain the next one
+        running.cancel();
+    }
+
+    /** Settings changed while Home was hidden: start or stop the motion on the next start(). */
+    void resetMotion() {
+        stopMotion();
+        image.setScaleX(1f);
+        image.setScaleY(1f);
+        image.setTranslationX(0f);
+        image.setTranslationY(0f);
     }
 
     /** Drops the wallpaper texture when Home is hidden and Android asks the process to free memory. */
@@ -156,7 +275,12 @@ final class WallpaperPlayer {
             sunDay = now.toLocalDate();
             sun = WallpaperMood.sun(sunDay, latitude, longitude, ZoneId.systemDefault());
         }
-        return WallpaperMood.select(files, moods, WallpaperMood.timeOfDay(now.getHour() * 60 + now.getMinute(), sun[0], sun[1]));
+        String mood = WallpaperMood.timeOfDay(now.getHour() * 60 + now.getMinute(), sun[0], sun[1]);
+        // With the Brightness add-on installed, its night mode (schedule or moon button) decides night instead.
+        Boolean night = NightState.query(context);
+        if (night != null) mood = night ? WallpaperMood.NIGHT
+                : (WallpaperMood.NIGHT.equals(mood) ? WallpaperMood.MORNING : mood);
+        return WallpaperMood.select(files, moods, mood);
     }
 
     void close() {
@@ -209,10 +333,16 @@ final class WallpaperPlayer {
      */
     private static TextView makeCaption(Context context, FrameLayout root) {
         float dp = context.getResources().getDisplayMetrics().density;
-        TextView text = new TextView(context);
+        // No offscreen layer for the fade: on this TV the layer clipped the blurred shadow into a visible box.
+        TextView text = new TextView(context) {
+            @Override
+            public boolean hasOverlappingRendering() {
+                return false;
+            }
+        };
         text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        text.setTextColor(0xD9FFFFFF);
-        text.setShadowLayer(6 * dp, 0, dp, 0xCC000000);
+        text.setTextColor(0xE6FFFFFF);
+        text.setShadowLayer(2 * dp, 0, dp, 0x99000000);
         text.setSingleLine(true);
         text.setEllipsize(TextUtils.TruncateAt.END);
         text.setMaxWidth(Math.round(520 * dp));
@@ -266,6 +396,7 @@ final class WallpaperPlayer {
         // The wallpaper covers the whole root; avoid drawing the fallback colour under it.
         root.setBackground(null);
         image.setImageBitmap(bitmap);
+        if (old != bitmap) nextRoute();
         if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
     }
 
@@ -276,11 +407,14 @@ final class WallpaperPlayer {
             BitmapFactory.decodeFile(file.getPath(), options);
             int width = options.outWidth, height = options.outHeight;
             if (width <= 0 || height <= 0) return null;
-            int sample = WallpaperSize.sampleSize(width, height, this.width, this.height);
+            // With the motion on, decode with room for its deepest zoom so the zoomed picture keeps real detail.
+            float room = WallpaperMotion.enabled(context) ? WallpaperMotion.MAX_SCALE : 1f;
+            int targetW = Math.round(this.width * room), targetH = Math.round(this.height * room);
+            int sample = WallpaperSize.sampleSize(width, height, targetW, targetH);
             if (!WallpaperSize.accepted(width / sample, height / sample)) return null;
             options.inJustDecodeBounds = false;
             options.inSampleSize = sample;
-            int[] scale = WallpaperSize.coverScale(width / sample, height / sample, this.width, this.height);
+            int[] scale = WallpaperSize.coverScale(width / sample, height / sample, targetW, targetH);
             if (scale != null) {
                 options.inScaled = true;
                 options.inDensity = scale[0];

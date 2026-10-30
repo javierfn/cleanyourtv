@@ -1,0 +1,72 @@
+{
+  "dock_apps": [
+    "com.mediatek.wwtv.tvcenter",
+    "io.github.tvextras.hdmiappletv",
+    "com.google.android.youtube.tv",
+    "com.plexapp.android",
+    "com.movistarplus.androidtv",
+    "com.amazon.amazonvideo.livingroom",
+    "com.rtve.androidtv"
+  ],
+  "background_color": "#05070C",
+  "wallpaper": true,
+  "wallpaper_dim": 15,
+  "cinematic_home": true,
+  "cinematic_art": 0,
+  "dock_glass": true,
+  "dock_opacity": 50,
+  "icon_only_buttons": true,
+  "app_glow": true,
+  "glow_style": "horizon",
+  "focus_overshoot": false,
+  "advanced_effects": false,
+  "columns": 6,
+  "app_banners": [
+    "com.mediatek.wwtv.tvcenter=banner_tvenvivo"
+  ],
+  "live_tv_package": "com.mediatek.wwtv.tvcenter",
+  "hidden_apps": [
+    "com.mitv.gallery",
+    "com.vestel.tv.eib"
+  ],
+  "app_labels": [
+    "com.mediatek.wwtv.tvcenter=TV en Vivo"
+  ],
+  "sky_intensity": 0,
+  "ambient_glow": false,
+  "launcher_settings_button": true,
+  "cinematic_scrim": 60,
+  "wallpaper_rotation_minutes": 15,
+  "wallpaper_order": "sequential",
+  "wallpaper_captions": true,
+  "tile_menu": true,
+  "vpn_app": "com.example.vpn",
+  "vpn_pill": true,
+  "night_button": true,
+  "wallpaper_moods": {
+    "morning": [
+      "01-lysefjord.jpg",
+      "02-kirkjufell.jpg",
+      "03-himalaya.jpg",
+      "04-sossusvlei.jpg",
+      "05-etretat.jpg"
+    ],
+    "evening": [
+      "01-lysefjord.jpg",
+      "02-kirkjufell.jpg",
+      "03-himalaya.jpg",
+      "04-sossusvlei.jpg",
+      "05-etretat.jpg"
+    ],
+    "night": [
+      "n1-lofoten.jpg",
+      "n2-via-lactea.jpg",
+      "n3-paris.jpg",
+      "n4-hong-kong.jpg",
+      "n5-venecia.jpg"
+    ]
+  },
+  "wallpaper_true_color": true,
+  "icon_only_vpn": false,
+  "weather_now": "io.github.sumyabazar1.weather"
+}

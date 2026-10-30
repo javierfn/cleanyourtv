@@ -34,6 +34,7 @@ public final class LauncherSettingsActivity extends Activity {
     private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
     private TextView wallpaperChoice;
     private TextView animationsChoice;
+    private TextView wallpaperMotionChoice;
     private TextView advancedChoice;
     private TextView followThemeChoice;
     private TextView openOnStartChoice;
@@ -108,6 +109,12 @@ public final class LauncherSettingsActivity extends Activity {
         }
         wallpaperChoice = findViewById(R.id.wallpaperChoice);
         wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
+        wallpaperMotionChoice = findViewById(R.id.wallpaperMotionChoice);
+        wallpaperMotionChoice.setOnClickListener(v -> {
+            WallpaperMotion.set(this, !WallpaperMotion.enabled(this));
+            setResult(RESULT_OK);
+            refresh();
+        });
         animationsChoice = findViewById(R.id.animationsChoice);
         animationsChoice.setOnClickListener(v -> {
             animations = !animations;
@@ -290,6 +297,8 @@ public final class LauncherSettingsActivity extends Activity {
                 getString(animations ? R.string.on : R.string.off)));
         advancedChoice.setText(getString(R.string.advanced_effects_state,
                 getString(advancedEffects ? R.string.on : R.string.off)));
+        wallpaperMotionChoice.setText(getString(R.string.wallpaper_motion_state,
+                getString(WallpaperMotion.enabled(this) ? R.string.on : R.string.off)));
         advancedChoice.setEnabled(animations);
         advancedChoice.setAlpha(animations ? 1f : 0.5f);
         String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);

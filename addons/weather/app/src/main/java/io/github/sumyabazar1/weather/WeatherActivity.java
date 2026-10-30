@@ -27,7 +27,8 @@ import java.util.concurrent.Executors;
 /**
  * The weather for one place, full screen: now, the air quality and the next days (options.xml). It reads Open-Meteo only
  * while it is on screen (every {@link Forecast#REFRESH_MS}, or {@link Forecast#RETRY_MS} after a failure) and
- * does nothing in the background. The place is chosen once with a search and kept in the app's preferences.
+ * does nothing in the background. The place is chosen once with a search and kept in the app's preferences. Each
+ * reading is also handed to {@link NowProvider}, for Home's weather line.
  */
 public final class WeatherActivity extends Activity {
     private static final String PREFS = "place";
@@ -90,12 +91,15 @@ public final class WeatherActivity extends Activity {
 
     private void refresh() {
         main.removeCallbacks(tick);
-        double lat = Double.longBitsToDouble(place.getLong("lat", 0));
-        double lon = Double.longBitsToDouble(place.getLong("lon", 0));
+        long latBits = place.getLong("lat", 0), lonBits = place.getLong("lon", 0);
+        double lat = Double.longBitsToDouble(latBits);
+        double lon = Double.longBitsToDouble(lonBits);
         io.execute(() -> {
             Forecast.Report report;
             try {
                 report = Forecast.fetch(lat, lon, forecastDays);
+                // Home's weather line (weather_now) shows the same reading, if the city is still this one.
+                NowProvider.publish(this, report, latBits, lonBits);
             } catch (Exception e) {
                 report = null;
             }
@@ -111,6 +115,7 @@ public final class WeatherActivity extends Activity {
 
     private void show(Forecast.Report r) {
         shown = true;
+
         root.setBackground(Forecast.backdrop(r.code, r.day));
         ((TextView) findViewById(R.id.place)).setText(place.getString("name", ""));
         ((TextView) findViewById(R.id.temp)).setText(Forecast.degrees(r.tempC, fahrenheit) + "°");
@@ -246,6 +251,7 @@ public final class WeatherActivity extends Activity {
                             .putLong("lat", Double.doubleToRawLongBits(p.latitude))
                             .putLong("lon", Double.doubleToRawLongBits(p.longitude))
                             .apply();
+                    NowProvider.placeChanged(this);
                     message.setText(R.string.loading);
                     refresh();
                 })

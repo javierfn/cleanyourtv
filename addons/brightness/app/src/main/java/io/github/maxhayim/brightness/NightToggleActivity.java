@@ -21,6 +21,31 @@ public class NightToggleActivity extends Activity {
         if (DimService.canDraw(this)) {
             Dimming.Settings s = Prefs.load(this);
             String wanted = getIntent().getStringExtra(EXTRA_NIGHT);
+            int delta = getIntent().getIntExtra("night_brightness_delta", 0);
+            if ("auto".equals(wanted) || delta != 0) {
+                // From the home screen's menu: back to the schedule, or the night brightness a step up or down.
+                if ("auto".equals(wanted)) {
+                    s.night = Dimming.Night.SCHEDULED;
+                    s.override = -1;
+                }
+                if (delta != 0) s.nightBrightness = Math.max(10, Math.min(100, s.nightBrightness + delta));
+                s.on = true;
+                Prefs.save(this, s);
+                DimService.start(this);
+                finish();
+                return;
+            }
+            if ((wanted == null || "flip".equals(wanted)) && s.night == Dimming.Night.SCHEDULED) {
+                // On a schedule: the other side until the schedule's next start or end, keeping the schedule.
+                Dimming.flip(s, DimService.minuteNow(), System.currentTimeMillis());
+                s.on = true;
+                Prefs.save(this, s);
+                DimService.start(this);
+                if (getIntent().getBooleanExtra(EXTRA_BAR, true)) startActivity(new Intent(this, QuickActivity.class));
+                finish();
+                return;
+            }
+            if ("flip".equals(wanted)) wanted = null;
             boolean turnOn = wanted == null ? s.night != Dimming.Night.ON : "on".equals(wanted);
             Dimming.Night replaced = Prefs.nightBeforeToggle(this);
             if (!turnOn) Prefs.setNightBeforeToggle(this, null);

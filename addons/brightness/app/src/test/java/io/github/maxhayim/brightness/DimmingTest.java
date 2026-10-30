@@ -246,4 +246,19 @@ public class DimmingTest {
         assertEquals(Dimming.Night.OFF, Dimming.nightAfterToggle(false, Dimming.Night.OFF));
         assertEquals(Dimming.Night.OFF, Dimming.nightAfterToggle(false, Dimming.Night.ON));
     }
+
+    private static final long HOUR = 3_600_000L;
+    private static final long TEN_PM = 1_000L * 24 * HOUR + 22 * HOUR;
+
+    @Test
+    public void flipAtAScheduledNightIsDayOnlyUntilTheMorning() {
+        Dimming.Settings s = on();
+        s.nightStart = 21 * 60;
+        s.nightEnd = 8 * 60;
+        Dimming.flip(s, 22 * 60, TEN_PM);
+        assertFalse(Dimming.nightNow(s, 22 * 60));
+        assertEquals(TEN_PM + 10 * HOUR, s.overrideUntil);
+        Dimming.expire(s, TEN_PM + 10 * HOUR);
+        assertTrue(Dimming.nightNow(s, 21 * 60 + 30));
+    }
 }

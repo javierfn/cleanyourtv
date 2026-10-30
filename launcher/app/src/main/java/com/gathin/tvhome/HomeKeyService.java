@@ -367,6 +367,48 @@ public class HomeKeyService extends AccessibilityService {
         if (service != null) service.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG);
     }
 
+    /**
+     * Restart or turn off from the gear menu: opens the system power menu and presses its Restart or Power off
+     * row, found by the system's own label. When it cannot be found the power menu simply stays open.
+     */
+    static void powerAction(boolean restart) {
+        HomeKeyService service = running;
+        if (service == null) return;
+        service.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG);
+        Set<String> labels = new HashSet<>();
+        android.content.res.Resources system = android.content.res.Resources.getSystem();
+        for (String name : restart ? new String[]{"global_action_restart", "global_action_reboot"}
+                : new String[]{"global_action_power_off", "global_action_shutdown"}) {
+            int id = system.getIdentifier(name, "string", "android");
+            if (id != 0) labels.add(system.getString(id).trim());
+        }
+        labels.add(restart ? "Reiniciar" : "Apagar");
+        labels.add(restart ? "Restart" : "Power off");
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable[] attempt = new Runnable[1];
+        int[] tries = {0};
+        attempt[0] = () -> {
+            if (running != service || service.pressPowerRow(labels) || ++tries[0] >= 12) return;
+            handler.postDelayed(attempt[0], 250);
+        };
+        handler.postDelayed(attempt[0], 400);
+    }
+
+    private boolean pressPowerRow(Set<String> labels) {
+        android.view.accessibility.AccessibilityNodeInfo root = getRootInActiveWindow();
+        if (root == null) return false;
+        for (String label : labels) {
+            for (android.view.accessibility.AccessibilityNodeInfo node : root.findAccessibilityNodeInfosByText(label)) {
+                CharSequence text = node.getText() != null ? node.getText() : node.getContentDescription();
+                if (text == null || !label.equalsIgnoreCase(text.toString().trim())) continue;
+                for (android.view.accessibility.AccessibilityNodeInfo n = node; n != null; n = n.getParent()) {
+                    if (n.isClickable()) return n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
+                }
+            }
+        }
+        return false;
+    }
+
     static boolean powerOnRedirect(String liveTv, CharSequence pkg, long now, long armedUntil) {
         return !liveTv.isEmpty() && pkg != null && liveTv.contentEquals(pkg) && now < armedUntil;
     }

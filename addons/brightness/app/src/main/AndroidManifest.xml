@@ -30,6 +30,11 @@
             android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <!-- Night mode in one press, for a remote button or another app (Sleep Timer's bedtime button); see its javadoc. -->
+        <!-- Read-only night state for the home screen (night wallpapers). -->
+        <provider
+            android:name=".NightStateProvider"
+            android:authorities="io.github.maxhayim.brightness.night"
+            android:exported="true" />
         <activity
             android:name=".NightToggleActivity"
             android:taskAffinity=""

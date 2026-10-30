@@ -45,6 +45,15 @@
     <string name="storage_gb_decimal">%1$.1f GB</string>
     <string name="dream_name">Clock</string>
     <string name="vpn">VPN</string>
+    <string name="day_mode">Day mode</string>
+    <string name="night_menu_to_day">Switch to day</string>
+    <string name="night_menu_to_night">Switch to night</string>
+    <string name="night_menu_auto">Back to the schedule</string>
+    <string name="night_menu_brighter">Brighter at night</string>
+    <string name="night_menu_darker">Darker at night</string>
+    <string name="night_menu_settings">Night mode settings…</string>
+    <string name="wallpaper_motion_state">Wallpaper motion: %1$s</string>
+    <string name="night_mode">Night mode</string>
     <string name="vpn_off">VPN off</string>
     <string name="home_settings">Choose default home</string>
     <string name="home_settings_help">Select your original home to stop using CleanYourTV as Home, or CleanYourTV to switch back. The original launcher must be enabled and your TV must provide a home picker; use the restore script first if it was disabled.</string>
@@ -155,4 +164,6 @@
     <string name="last_opened">Last opened %1$s</string>
     <!-- game_day: a game on now, in the race panel. -->
     <string name="game_live">Live now</string>
+    <string name="tv_restart">Restart TV</string>
+    <string name="tv_power_off">Turn off TV</string>
 </resources>

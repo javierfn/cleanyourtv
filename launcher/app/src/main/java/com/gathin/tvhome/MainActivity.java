@@ -190,11 +190,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean lunar;
     private int lunarOffset;
     private TextView stats;
+    /** weather_place in config.json: the weather now under the clock, in the stats line's place. */
+    /** night_button: Brightness's night mode, a sun while it is night (to switch to day), a moon by day. */
+    private TextView btnNight;
     private List<RaceWeekend.Race> raceCalendar;
     private View racePanel;
     private TextView raceKicker, raceHeadline, raceSessions;
     /** game_day: each team's next game from an add-on, rotating in the race panel; null when the key is off. */
     private GameDay gameDay;
+    /** weather_now: the weather now in the stats line's place; null when off or with show_stats on. */
+    private WeatherNow weatherNow;
     private View raceBar;
     private LinearLayout racePager;
     private long rotationStart;
@@ -417,6 +422,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (festive) updateWifiLabel();
             sky.update();
             wallpaperPlayer.update();
+            updateNightButton();
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -538,6 +544,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         raceBar = findViewById(R.id.raceBar);
         racePager = findViewById(R.id.racePager);
         gameDay = GameDay.create(this, cfg.gameDay, handler, this::updatePanel);
+        if (!cfg.showStats) weatherNow = WeatherNow.create(this, cfg.weatherNow, stats, handler);
         // The rotation runs on the clock that never jumps: setting the TV's time must not stall or stretch a turn.
         rotationStart = SystemClock.elapsedRealtime();
         showStats = cfg.showStats;
@@ -772,20 +779,34 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnInputs.setOnClickListener(v -> showInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
         btnVpn.setOnClickListener(v -> openVpnPill());
+        // night_button in config.json: the Brightness add-on's night mode, switched by hand over its schedule.
+        btnNight = findViewById(R.id.btnNight);
+        Intent nightToggle = new Intent().setClassName("io.github.maxhayim.brightness",
+                "io.github.maxhayim.brightness.NightToggleActivity");
+        if (WeatherLine.configFlag(this, "night_button") && getPackageManager().resolveActivity(nightToggle, 0) != null) {
+            btnNight.setVisibility(View.VISIBLE);
+            btnNight.setOnClickListener(v -> {
+                try {
+                    // A clean switch: no brightness bar ("bar" false); the icon and the wallpapers follow on resume.
+                    startActivity(new Intent(nightToggle).putExtra("bar", false).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (Exception ignored) {
+                    // Brightness was uninstalled since Home started: nothing to switch.
+                }
+            });
+            // Hold OK: a small menu like the Settings button's.
+            btnNight.setOnLongClickListener(v -> {
+                showNightMenu(nightToggle);
+                return true;
+            });
+        }
         btnWifi.setOnLongClickListener(v -> {
             open(systemIntent(Settings.ACTION_WIFI_SETTINGS));
             return true;
         });
         launcherSettingsButton = cfg.launcherSettingsButton;
-        if (launcherSettingsButton) {
-            ((TextView) btnSettings).setText(R.string.launcher_settings);
-            ((TextView) btnSettings).setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_home_settings_pill, 0, 0, 0);
-        }
-        btnSettings.setOnClickListener(v -> {
-            if (launcherSettingsButton) startActivityForResult(
-                    new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
-            else open(systemIntent(Settings.ACTION_SETTINGS));
-        });
+        // The gear keeps its own icon and name: it opens the one menu that holds both settings.
+        // One menu for everything behind the gear, opened by a press as well as by holding OK.
+        btnSettings.setOnClickListener(v -> showSettingsMenu());
         btnReorder = findViewById(R.id.btnReorder);
         btnReorder.setOnClickListener(v -> toggleReorder());
         btnReorder.setVisibility(cfg.reorderButton ? View.VISIBLE : View.GONE);
@@ -1056,6 +1077,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (showStats) startStats();
         if (gameDay != null) gameDay.start();
+        if (weatherNow != null) weatherNow.start();
+        updateNightButton();
         sky.update();
         wallpaperPlayer.start();
         handler.postDelayed(minuteTick, MINUTE_MS);
@@ -1239,6 +1262,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (gameDay != null) gameDay.stop();
         handler.removeCallbacks(turnTick);
         if (lamp != null) lamp.stop();
+        if (weatherNow != null) weatherNow.stop();
         cancelPendingFocusScroll();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         if (cardPrompt != null) cardPrompt.dismiss();
@@ -1292,6 +1316,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onDestroy() {
         super.onDestroy();
         if (gameDay != null) gameDay.shutdown();
+        if (weatherNow != null) weatherNow.shutdown();
         unregisterReceiver(packageReceiver);
         wallpaperPlayer.close();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
@@ -2169,7 +2194,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         statsBg = null;
         // Paused (the quick panel or an app on top): keep the last line on screen. Taking it away moved the grid up
         // under a glass highlight that stayed put.
-        if (!showStats) stats.setVisibility(View.GONE);
+        if (!showStats && weatherNow == null) stats.setVisibility(View.GONE);
     }
 
     /** One quiet line, e.g. "CPU 8%  ·  Memory 430 MB free  ·  Storage 3.1 GB free". Runs off the main thread. */
@@ -2893,6 +2918,46 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean libraryFromVpnPill;
 
     /** Turns a labelled top pill into the round TopButtonIcon shape: no text, the icon centred by even padding. */
+    /** night_button's menu: switch now, back to the schedule, night a step brighter or darker, Brightness itself. */
+    private void showNightMenu(Intent nightToggle) {
+        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        LinearLayout rows = panel.findViewById(R.id.rows);
+        PopupWindow popup = glassPopup(panel, (int) (220 * density));
+        boolean night = Boolean.TRUE.equals(NightState.query(this));
+        addSettingsMenuRow(rows, popup, night ? R.string.night_menu_to_day : R.string.night_menu_to_night,
+                () -> sendNight(new Intent(nightToggle)));
+        addSettingsMenuRow(rows, popup, R.string.night_menu_auto,
+                () -> sendNight(new Intent(nightToggle).putExtra("night", "auto")));
+        addSettingsMenuRow(rows, popup, R.string.night_menu_brighter,
+                () -> sendNight(new Intent(nightToggle).putExtra("night_brightness_delta", 10)));
+        addSettingsMenuRow(rows, popup, R.string.night_menu_darker,
+                () -> sendNight(new Intent(nightToggle).putExtra("night_brightness_delta", -10)));
+        addSettingsMenuRow(rows, popup, R.string.night_menu_settings, () -> {
+            Intent app = getPackageManager().getLeanbackLaunchIntentForPackage("io.github.maxhayim.brightness");
+            if (app == null) app = getPackageManager().getLaunchIntentForPackage("io.github.maxhayim.brightness");
+            if (app != null) open(app);
+        });
+        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popup.setWidth(Math.max((int) (220 * density), panel.getMeasuredWidth()));
+        dropIn(popup, panel, btnNight, Gravity.END);
+        rows.getChildAt(0).requestFocus();
+    }
+
+    private void sendNight(Intent intent) {
+        try {
+            startActivity(intent.putExtra("bar", false).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Exception ignored) {
+            // Brightness was uninstalled since Home started
+        }
+    }
+
+    private void updateNightButton() {
+        if (btnNight == null || btnNight.getVisibility() != View.VISIBLE) return;
+        boolean night = Boolean.TRUE.equals(NightState.query(this));
+        btnNight.setCompoundDrawablesRelativeWithIntrinsicBounds(night ? R.drawable.ic_day : R.drawable.ic_night, 0, 0, 0);
+        btnNight.setContentDescription(getString(night ? R.string.day_mode : R.string.night_mode));
+    }
+
     private void makeIconOnly(TextView pill) {
         pill.setContentDescription(pill.getText());
         pill.setText(null);
@@ -3421,7 +3486,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         folded.add(view);
     }
 
+    /** When OK was last released inside a menu, 0 until it has been since the menu opened (addSettingsMenuRow). */
+    private long menuOkUpAt;
+    private static final long MENU_OK_QUIET_MS = 250;
+    /** Without any release seen (it went to the button that opened the menu), a down this long after opening counts. */
+    private long menuOpenedAt;
+    private static final long MENU_OPEN_QUIET_MS = 900;
+
     private PopupWindow glassPopup(View panel, int width) {
+        menuOkUpAt = 0;
+        menuOpenedAt = android.os.SystemClock.uptimeMillis();
         final PopupWindow popup = new PopupWindow(panel, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));   // needed for Back to dismiss
         popup.setOutsideTouchable(true);
@@ -3512,30 +3586,33 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         rows.getChildAt(0).requestFocus();
     }
 
-    /** The header opens launcher settings directly; hold OK keeps the extra home actions available. */
+    /**
+     * The gear's menu, in the look of the tvOS context menu: TV and launcher settings, the home actions, and
+     * restarting or turning off the TV (through the system power menu, with the Home key helper's help).
+     */
     private void showSettingsMenu() {
         View anchor = findViewById(R.id.btnSettings);
-        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        View panel = getLayoutInflater().inflate(R.layout.popup_atv_menu, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
-        PopupWindow popup = glassPopup(panel, (int) (200 * density));
-        if (!launcherSettingsButton) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> startActivityForResult(
+        PopupWindow popup = glassPopup(panel, (int) (300 * density));
+        addAtvMenuRow(rows, popup, R.string.tv_settings, R.drawable.ic_atv_tv, () -> {
+            Intent vendor = SystemSettings.vendorIntent(this);
+            open(vendor != null ? vendor : systemIntent(Settings.ACTION_SETTINGS));
+        });
+        addAtvMenuRow(rows, popup, R.string.launcher_settings, R.drawable.ic_home_settings_pill, () -> startActivityForResult(
                 new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
-        // Firmware that ships its own settings app next to the AOSP one (Xiaomi China is one): the
-        // vendor app holds pages the AOSP settings has no row for, such as Account & Security with
-        // the ADB switch. Offered here only while one of them is installed.
-        if (SystemSettings.vendorIntent(this) != null) {
-            addSettingsMenuRow(rows, popup, R.string.native_settings, () -> {
-                Intent vendor = SystemSettings.vendorIntent(this);
-                if (vendor != null) open(vendor);
-            });
+        addAtvMenuSeparator(rows);
+        if (moduleCards) addAtvMenuRow(rows, popup, R.string.module_cards, R.drawable.ic_atv_cards, this::showModuleCards);
+        if (dockRow) addAtvMenuRow(rows, popup, R.string.dock_edit, R.drawable.ic_atv_dock, this::startDockEdit);
+        addAtvMenuRow(rows, popup, R.string.reorder, R.drawable.ic_swap_vert, this::toggleReorder);
+        // A launcher may not turn the TV off itself; the Home key helper opens the system power menu and picks the row.
+        // No Restart row: this Panasonic comes back from a restart with its screen off, which looks like it never returned.
+        if (HomeKeyService.canOpenPowerMenu()) {
+            addAtvMenuSeparator(rows);
+            addAtvMenuRow(rows, popup, R.string.tv_power_off, R.drawable.ic_atv_power, () -> HomeKeyService.powerAction(false));
         }
-        if (moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, this::showModuleCards);
-        if (dockRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, this::startDockEdit);
-        addSettingsMenuRow(rows, popup, R.string.reorder, this::toggleReorder);
-        // A launcher may not restart the TV itself; the Home key helper can open the system power menu instead.
-        if (HomeKeyService.canOpenPowerMenu()) addSettingsMenuRow(rows, popup, R.string.power_menu, HomeKeyService::openPowerMenu);
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popup.setWidth(Math.max((int) (200 * density), panel.getMeasuredWidth()));
+        popup.setWidth(Math.max((int) (300 * density), panel.getMeasuredWidth()));
         // Hebrew puts Settings at the left of the header: grow the menu inward from it.
         dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar)
                 ? Gravity.START : Gravity.END);
@@ -3547,6 +3624,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public void onOpenInput(String inputId) {
         openInput(inputId);
+    }
+
+    private void addAtvMenuRow(LinearLayout rows, PopupWindow popup, int title, int icon, Runnable action) {
+        View row = getLayoutInflater().inflate(R.layout.item_atv_menu_row, rows, false);
+        ((TextView) row.findViewById(R.id.title)).setText(title);
+        ((ImageView) row.findViewById(R.id.icon)).setImageResource(icon);
+        bindMenuRow(row, popup, action);
+        // Like tvOS, the focused row lifts a little.
+        row.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.03f : 1f).scaleY(focused ? 1.03f : 1f)
+                .setDuration(reducedMotion ? 0 : 140).start());
+        rows.addView(row);
+    }
+
+    private void addAtvMenuSeparator(LinearLayout rows) {
+        View line = new View(this);
+        line.setBackgroundColor(0x24FFFFFF);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, (int) (1.5f * density)));
+        int m = (int) (6 * density), h = (int) (14 * density);
+        lp.setMargins(h, m, h, m);
+        rows.addView(line, lp);
     }
 
     /**
@@ -3610,16 +3707,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         row.findViewById(R.id.dot).setVisibility(View.GONE);
         row.findViewById(R.id.status).setVisibility(View.GONE);
         ((TextView) row.findViewById(R.id.title)).setText(title);
+        bindMenuRow(row, popup, action);
+        rows.addView(row);
+    }
+
+    private void bindMenuRow(View row, PopupWindow popup, Runnable action) {
         row.setOnClickListener(v -> {
             popup.dismiss();
             action.run();
         });
-        // The OK-up after opening the menu must not activate its first row.
+        // The OK-up after opening the menu must not activate its first row. Infrared remotes (this TV's MStar
+        // receiver) also break a held OK into short up/down bursts, so a down only counts once OK has been up for
+        // a moment: a fresh press, not the tail of the hold that opened the menu.
         final boolean[] pressed = {false};
         row.setOnKeyListener((v, code, event) -> {
             if (code != KeyEvent.KEYCODE_DPAD_CENTER && code != KeyEvent.KEYCODE_ENTER) return false;
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (event.getRepeatCount() == 0) pressed[0] = true;
+                long t = event.getEventTime();
+                boolean fresh = menuOkUpAt > 0 ? t - menuOkUpAt > MENU_OK_QUIET_MS : t - menuOpenedAt > MENU_OPEN_QUIET_MS;
+                if (event.getRepeatCount() == 0 && fresh) {
+                    pressed[0] = true;
+                }
+                return true;
+            }
+            if (!pressed[0]) {
+                menuOkUpAt = event.getEventTime();
                 return true;
             }
             boolean activate = pressed[0];
@@ -3630,7 +3742,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
             return true;
         });
-        rows.addView(row);
     }
 
     /**

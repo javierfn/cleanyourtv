@@ -1,0 +1,11 @@
+# <file>	<nombre>
+01-lysefjord.jpg	Lysefjord, Noruega
+02-kirkjufell.jpg	Kirkjufell, Islandia
+03-himalaya.jpg	Lago Chola, Nepal
+04-sossusvlei.jpg	Sossusvlei, Namibia
+05-etretat.jpg	Étretat, Francia
+n1-lofoten.jpg	Auroras en Lofoten, Noruega
+n2-via-lactea.jpg	Vía Láctea
+n3-paris.jpg	París de noche
+n4-hong-kong.jpg	Hong Kong de noche
+n5-venecia.jpg	Venecia, Santa Maria della Salute
