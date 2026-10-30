@@ -173,4 +173,18 @@
     <string name="card_desc_weather">Your city\'s weather, the next days and the air quality</string>
     <string name="card_desc_btconnect">Connect and disconnect paired speakers and headphones</string>
     <string name="weather_humidity">Humidity %1$d%%</string>
+    <!-- control_center: the tvOS-style Control Center over Home. -->
+    <string name="tv_power_off_short">Power off</string>
+    <string name="cc_network">Network</string>
+    <string name="cc_night">Night mode</string>
+    <string name="cc_on">On</string>
+    <string name="cc_off">Off</string>
+    <string name="cc_audio">Audio</string>
+    <string name="cc_audio_detail">Bluetooth</string>
+    <string name="cc_timer">Sleep timer</string>
+    <string name="cc_timer_detail">Turn off later</string>
+    <string name="cc_search">Search</string>
+    <string name="cc_open">Control Center</string>
+    <string name="cc_inputs_detail">HDMI and TV</string>
+    <string name="cc_vpn">VPN</string>
 </resources>

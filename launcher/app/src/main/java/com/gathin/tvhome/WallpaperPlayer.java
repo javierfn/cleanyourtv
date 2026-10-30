@@ -283,6 +283,15 @@ final class WallpaperPlayer {
         return WallpaperMood.select(files, moods, mood);
     }
 
+    /** For the Control Center's glass: the picture on screen and the view that shows it (with its zoom). */
+    Bitmap currentBitmap() {
+        return current;
+    }
+
+    ImageView imageView() {
+        return image;
+    }
+
     void close() {
         active = false;
         closed = true;
