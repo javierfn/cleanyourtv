@@ -112,7 +112,7 @@
     <string name="home_key_name">Botón Inicio</string>
     <string name="home_key_description">Hace que el botón Inicio del mando abra este lanzador.</string>
     <string name="card_prompt_title">Nueva tarjeta de %1$s</string>
-    <string name="card_prompt_body">%1$s puede mostrar una tarjeta en tu pantalla de inicio. Si la mantienes oculta, el icono normal de la aplicación queda como está.</string>
+    <string name="card_prompt_body">%1$s puede mostrar una tarjeta en tu pantalla de inicio. Si la mantienes oculta, la aplicación tampoco aparecerá en el inicio.</string>
     <string name="card_prompt_names">La tarjeta se llama «%1$s». La aplicación es «%2$s».</string>
     <string name="card_prompt_resigned">%1$s se actualizó con otra clave de firma, así que tu respuesta anterior ya no vale. Vuelve a decidir sobre su tarjeta.</string>
     <string name="card_prompt_relabelled">%1$s cambió el nombre de su tarjeta desde que decidiste. Vuelve a decidir.</string>

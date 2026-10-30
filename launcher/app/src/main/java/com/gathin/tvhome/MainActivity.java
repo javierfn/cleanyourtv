@@ -1208,6 +1208,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER), 0);
         cards = moduleCards ? CardFeature.run(() -> Cards.discover(this, hiddenApps,
                 () -> Cards.load(Cards.storeFile(this)), leanback), none) : none;
+        // A card set to Hidden takes the add-on's plain tile with it, so Hide in Module cards hides the app.
+        Set<String> cardHidden = new HashSet<>();
+        for (Cards.Card c : cards) if (c.state == Cards.State.HIDDEN) cardHidden.add(c.pkg);
+        adapter.setCardHidden(cardHidden);
         adapter.reload(cards.isEmpty() ? none : CardFeature.run(() -> Cards.shown(cards), none), leanback);
         lastFocusedKey = returnKey;
         lastFocused = returnSlot;

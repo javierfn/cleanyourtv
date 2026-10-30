@@ -198,6 +198,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int docked, emptySlots;
     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
     private final Set<String> hidden;
+    /** Apps whose module card the owner set to Hidden: the card's no, and its plain tile goes with it. */
+    private Set<String> cardHidden = new HashSet<>();
     /** Apps pre-seeded into the App library's "added" set (config.xml library_apps); empty by default. */
     private final Set<String> libraryPreload;
     private final boolean animations;
@@ -257,6 +259,10 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Rebuilds the tiles. A shown module card stands in for every tile of its package (same component,
      * so focus follows it); hidden_apps wins over a card, and a card's package in dock_apps takes that slot.
      */
+    void setCardHidden(Set<String> packages) {
+        cardHidden = new HashSet<>(packages);
+    }
+
     void reload(List<Cards.Card> cards, List<ResolveInfo> leanback) {
         PackageManager pm = ctx.getPackageManager();
         // The LEANBACK query is shared with the module-card check (MainActivity); copy it before adding
@@ -287,7 +293,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
             if (pkg.equals(ctx.getPackageName()) || !ri.activityInfo.exported
-                    || !LibraryApps.visible(tvPackages.contains(pkg), hidden.contains(pkg), added.contains(pkg), removed.contains(pkg))) continue;
+                    || !LibraryApps.visible(tvPackages.contains(pkg), hidden.contains(pkg), added.contains(pkg), removed.contains(pkg))
+                    || cardHidden.contains(pkg)) continue;
             ComponentName component = new ComponentName(pkg, ri.activityInfo.name);
             Cards.Card card = cardByPkg.get(pkg);
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
