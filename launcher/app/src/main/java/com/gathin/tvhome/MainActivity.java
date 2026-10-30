@@ -3762,6 +3762,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
         Intent info = SystemSettings.appInfo(this, pkg);
         if (info != null) addSettingsMenuRow(rows, popup, R.string.library_app_info, () -> open(info));
+        // An app the owner installed can go from here: Android asks to confirm. System apps can't, so no row.
+        if (canUninstall(pkg)) addSettingsMenuRow(rows, popup, R.string.tile_uninstall, () -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (RuntimeException e) {
+                Toast.makeText(this, R.string.tile_uninstall_failed, Toast.LENGTH_SHORT).show();
+            }
+        });
+        if (controlCenter != null) {
+            showTileMenuAsPanel(popup, panel, rows, card);
+            return;
+        }
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (200 * density), panel.getMeasuredWidth()));
         // Dock tiles sit near the bottom of the screen: open the menu above the tile when it would not fit below.
@@ -3779,6 +3791,40 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(220)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
         }
+        rows.getChildAt(0).requestFocus();
+    }
+
+    /** Installed by the owner (not part of the TV's system image): Android can remove it. */
+    private boolean canUninstall(String pkg) {
+        try {
+            ApplicationInfo ai = getPackageManager().getApplicationInfo(pkg, 0);
+            return (ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    /** control_center: the app tile menu on the panel's glass and tiles, under the app (above it near the bottom). */
+    private void showTileMenuAsPanel(PopupWindow popup, View panel, LinearLayout rows, View card) {
+        controlCenter.useWallpaper(wallpaperPlayer.imageView(), wallpaperPlayer.currentBitmap());
+        controlCenter.styleAsPanel(rows);
+        int w = controlCenter.panelWidth();
+        popup.setWidth(w);
+        panel.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(root.getHeight(), View.MeasureSpec.AT_MOST));
+        int h = panel.getMeasuredHeight();
+        int[] at = new int[2], rootAt = new int[2];
+        card.getLocationInWindow(at);
+        root.getLocationInWindow(rootAt);
+        int x = at[0] - rootAt[0], y = at[1] - rootAt[1];
+        int gap = (int) (10 * density), margin = (int) (16 * density);
+        int left = Math.max(margin, Math.min(x, root.getWidth() - w - margin));
+        int top = y + card.getHeight() + gap + h <= root.getHeight() - margin ? y + card.getHeight() + gap : Math.max(margin, y - gap - h);
+        android.graphics.drawable.Drawable glass = controlCenter.frost(left, top, w, h);
+        if (glass != null) panel.setBackground(glass);
+        panel.setAlpha(0f);
+        panel.animate().alpha(1f).setDuration(reducedMotion ? Motion.REDUCED_MS : 200).start();
+        popup.showAtLocation(root, Gravity.TOP | Gravity.START, rootAt[0] + left, rootAt[1] + top);
         rows.getChildAt(0).requestFocus();
     }
 
