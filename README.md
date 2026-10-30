@@ -1,3 +1,12 @@
+> **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
+> es la versión 3.2.0 con un estilo más cercano al Apple TV: un menú de ajustes único, fondos con movimiento, el
+> tiempo bajo el reloj y un botón de modo noche, sin que el launcher se conecte a internet. Qué cambia y cómo
+> instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
+> [tv-extras](https://github.com/javierfn/cleanyourtv/blob/tv-extras/FORK.md). Lo que sigue es el README original.
+>
+> *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
+> The original README follows.*
+
 <p align="center">
   <a href="https://cleanyour.tv/halloween"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner-halloween.png" alt="CleanYourTV, Halloween edition. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore. Now with a pumpkin." width="800"></a>
 </p>
