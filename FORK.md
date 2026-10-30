@@ -6,7 +6,7 @@ Two opt-in Home switches for the reference launcher, fed by two of this repo's a
 and kept here, since the launcher upstream has no room for them. The launcher stays offline: it only reads one row
 from each add-on and starts the add-on's own switch.
 
-![weather_now and night_mode on a Panasonic at night](docs/switches/night_mode.jpg)
+![weather_now and night_mode on a Panasonic by day: 20°  Vigo under the clock and the moon button next to the VPN pill](docs/fork-tv-extras.jpg)
 
 - **`weather_now`**: the weather now under the clock ("☁  14°  Vigo"), from the Weather add-on
   (`io.github.sumyabazar1.weather`). The add-on keeps its last reading in a read-only provider and, when Home asks
