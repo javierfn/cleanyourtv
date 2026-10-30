@@ -545,6 +545,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         racePager = findViewById(R.id.racePager);
         gameDay = GameDay.create(this, cfg.gameDay, handler, this::updatePanel);
         if (!cfg.showStats) weatherNow = WeatherNow.create(this, cfg.weatherNow, stats, handler);
+        if (weatherNow != null) wallpaperPlayer.alignCaptionWith(stats);
         // The rotation runs on the clock that never jumps: setting the TV's time must not stall or stretch a turn.
         rotationStart = SystemClock.elapsedRealtime();
         showStats = cfg.showStats;
