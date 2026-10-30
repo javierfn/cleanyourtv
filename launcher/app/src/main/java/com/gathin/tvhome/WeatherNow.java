@@ -58,6 +58,10 @@ final class WeatherNow {
     private final ContentObserver observer;
     private boolean watching;
     private Reading reading;
+    /** While Home is on screen; a result or a change that arrives after stop() is dropped (main thread only). */
+    private boolean active;
+    /** Bumped on each start and stop, so a query from an earlier session never lands in a later one. */
+    private int session;
 
     private WeatherNow(Context ctx, TextView view, Uri uri, Handler main) {
         this.ctx = ctx;
@@ -67,7 +71,7 @@ final class WeatherNow {
         observer = new ContentObserver(main) {
             @Override
             public void onChange(boolean selfChange) {
-                read();
+                if (active) read();
             }
         };
     }
@@ -98,6 +102,8 @@ final class WeatherNow {
 
     /** Home is on screen: show the last reading, ask for a new one and watch for changes. */
     void start() {
+        active = true;
+        session++;
         if (!watching) {
             try {
                 ctx.getContentResolver().registerContentObserver(uri, false, observer);
@@ -112,6 +118,8 @@ final class WeatherNow {
 
     /** Home is off screen: nothing runs until it is back. */
     void stop() {
+        active = false;
+        session++;
         if (watching) ctx.getContentResolver().unregisterContentObserver(observer);
         watching = false;
     }
@@ -123,6 +131,8 @@ final class WeatherNow {
 
     /** One query off the main thread (the provider lives in the add-on's process), then the line on the main thread. */
     private void read() {
+        if (!active) return;
+        int asked = session;
         try {
             io.execute(() -> {
                 Object[] row = null;
@@ -136,6 +146,7 @@ final class WeatherNow {
                 }
                 Reading parsed = fromRow(row);
                 main.post(() -> {
+                    if (!active || session != asked) return;   // Home left, or came back and asked again since
                     reading = parsed;
                     show();
                 });

@@ -91,12 +91,15 @@ public final class WeatherActivity extends Activity {
 
     private void refresh() {
         main.removeCallbacks(tick);
-        double lat = Double.longBitsToDouble(place.getLong("lat", 0));
-        double lon = Double.longBitsToDouble(place.getLong("lon", 0));
+        long latBits = place.getLong("lat", 0), lonBits = place.getLong("lon", 0);
+        double lat = Double.longBitsToDouble(latBits);
+        double lon = Double.longBitsToDouble(lonBits);
         io.execute(() -> {
             Forecast.Report report;
             try {
                 report = Forecast.fetch(lat, lon, forecastDays);
+                // Home's weather line (weather_now) shows the same reading, if the city is still this one.
+                NowProvider.publish(this, report, latBits, lonBits);
             } catch (Exception e) {
                 report = null;
             }
@@ -112,7 +115,7 @@ public final class WeatherActivity extends Activity {
 
     private void show(Forecast.Report r) {
         shown = true;
-        NowProvider.publish(this, r);   // Home's weather line (weather_now) shows the same reading
+
         root.setBackground(Forecast.backdrop(r.code, r.day));
         ((TextView) findViewById(R.id.place)).setText(place.getString("name", ""));
         ((TextView) findViewById(R.id.temp)).setText(Forecast.degrees(r.tempC, fahrenheit) + "°");
@@ -243,12 +246,12 @@ public final class WeatherActivity extends Activity {
                 .setTitle(R.string.pick_title)
                 .setItems(rows, (d, which) -> {
                     Forecast.Place p = places.get(which);
-                    NowProvider.forget(this);
                     place.edit()
                             .putString("name", p.name)
                             .putLong("lat", Double.doubleToRawLongBits(p.latitude))
                             .putLong("lon", Double.doubleToRawLongBits(p.longitude))
                             .apply();
+                    NowProvider.placeChanged(this);
                     message.setText(R.string.loading);
                     refresh();
                 })

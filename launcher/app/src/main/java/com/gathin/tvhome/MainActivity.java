@@ -565,7 +565,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     return;
                 }
                 // The add-on switches at once; read it back for the icon and the wallpapers.
-                handler.postDelayed(nightMode::read, 400);
+                nightMode.readSoon();
             });
             btnNight.setOnLongClickListener(v -> {
                 Intent settings = nightMode.settings();
@@ -1093,7 +1093,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (showStats) startStats();
         if (gameDay != null) gameDay.start();
         if (weatherNow != null) weatherNow.start();
-        if (nightMode != null) nightMode.read();
+        if (nightMode != null) nightMode.start();
         sky.update();
         wallpaperPlayer.start();
         handler.postDelayed(minuteTick, MINUTE_MS);
@@ -1280,6 +1280,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         stopStats();
         if (gameDay != null) gameDay.stop();
         if (weatherNow != null) weatherNow.stop();
+        if (nightMode != null) nightMode.stop();
         handler.removeCallbacks(turnTick);
         if (lamp != null) lamp.stop();
         cancelPendingFocusScroll();

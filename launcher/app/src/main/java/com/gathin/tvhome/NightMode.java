@@ -33,6 +33,11 @@ final class NightMode {
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     /** Null until the first read, and when the add-on does not answer. */
     private Boolean night;
+    /** While Home is on screen; a result that arrives after stop() is dropped (main thread only). */
+    private boolean active;
+    /** Bumped on each start and stop, so a query from an earlier session never lands in a later one. */
+    private int session;
+    private final Runnable readBack = this::read;
 
     private NightMode(Context ctx, Uri uri, Intent toggle, Handler main, Runnable onChange) {
         this.ctx = ctx;
@@ -87,8 +92,30 @@ final class NightMode {
         return i;
     }
 
+    /** Home is on screen: read now, and on each read() until stop(). */
+    void start() {
+        active = true;
+        session++;
+        read();
+    }
+
+    /** Home is off screen: drop what is in flight, including the button's read-back. */
+    void stop() {
+        active = false;
+        session++;
+        main.removeCallbacks(readBack);
+    }
+
+    /** After the button: the add-on switches at once, so read it back shortly. */
+    void readSoon() {
+        main.removeCallbacks(readBack);
+        main.postDelayed(readBack, 400);
+    }
+
     /** One query off the main thread (the provider lives in the add-on's process), then onChange when it changed. */
     void read() {
+        if (!active) return;
+        int asked = session;
         try {
             io.execute(() -> {
                 Boolean read = null;
@@ -99,6 +126,7 @@ final class NightMode {
                 }
                 Boolean result = read;
                 main.post(() -> {
+                    if (!active || session != asked) return;   // Home left, or came back and asked again since
                     if (result == null ? night == null : result.equals(night)) return;
                     night = result;
                     onChange.run();
@@ -110,6 +138,7 @@ final class NightMode {
     }
 
     void shutdown() {
+        stop();
         io.shutdownNow();
     }
 }

@@ -28,6 +28,8 @@ public final class NowProvider extends ContentProvider {
 
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private volatile long lastTry;
+    /** The place lastTry was for: a new city is read at once, not after the old one's retry wait. */
+    private volatile String lastTryWhere = "";
 
     @Override
     public boolean onCreate() {
@@ -42,15 +44,18 @@ public final class NowProvider extends ContentProvider {
         SharedPreferences place = c.getSharedPreferences("place", Context.MODE_PRIVATE);
         if (!place.contains("name")) return out;   // no city chosen yet: no line on Home
         SharedPreferences now = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        long updated = now.getLong("updated_ms", 0);
+        long lat = place.getLong("lat", 0), lon = place.getLong("lon", 0);
+        // A reading for another place (the city changed since) is no reading for this one.
+        boolean here = now.getLong("lat", 1) == lat && now.getLong("lon", 1) == lon;
+        long updated = here ? now.getLong("updated_ms", 0) : 0;
         long time = System.currentTimeMillis();
-        if (time - updated > Forecast.REFRESH_MS && time - lastTry > Forecast.RETRY_MS) {
+        String where = lat + "," + lon;
+        if (time - updated > Forecast.REFRESH_MS && (!where.equals(lastTryWhere) || time - lastTry > Forecast.RETRY_MS)) {
             lastTry = time;
-            double lat = Double.longBitsToDouble(place.getLong("lat", 0));
-            double lon = Double.longBitsToDouble(place.getLong("lon", 0));
+            lastTryWhere = where;
             io.execute(() -> {
                 try {
-                    publish(c, Forecast.now(lat, lon));
+                    publish(c, Forecast.now(Double.longBitsToDouble(lat), Double.longBitsToDouble(lon)), lat, lon);
                 } catch (Exception e) {
                     // Offline: Home keeps the last reading, and the next query after RETRY_MS tries again.
                 }
@@ -64,20 +69,27 @@ public final class NowProvider extends ContentProvider {
         return out;
     }
 
-    /** A new reading, from the page or from a query: keep it and tell whoever watches. */
-    static void publish(Context c, Forecast.Report r) {
+    /**
+     * A new reading, from the page or from a query, for the place at these coordinates (raw long bits, as the place
+     * preferences keep them). A reading that comes back after the city changed is dropped, so Home never shows one
+     * city's weather under another's name.
+     */
+    static synchronized void publish(Context c, Forecast.Report r, long lat, long lon) {
+        SharedPreferences place = c.getSharedPreferences("place", Context.MODE_PRIVATE);
+        if (place.getLong("lat", 0) != lat || place.getLong("lon", 0) != lon) return;
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putLong("lat", lat)
+                .putLong("lon", lon)
                 .putLong("temp_c", Double.doubleToRawLongBits(r.tempC))
                 .putInt("code", r.code)
                 .putBoolean("day", r.day)
                 .putLong("updated_ms", System.currentTimeMillis())
-                .apply();
+                .commit();
         c.getContentResolver().notifyChange(URI, null);
     }
 
-    /** A new place: the old reading belongs to the old one. */
-    static void forget(Context c) {
-        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply();
+    /** A new place was saved: Home asks again, and the query reads the new one at once. */
+    static void placeChanged(Context c) {
         c.getContentResolver().notifyChange(URI, null);
     }
 
