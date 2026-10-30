@@ -3902,6 +3902,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             description.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             description.setText(cardDescription(card));
             row.findViewById(R.id.digest).setVisibility(View.GONE);
+            // Like the gear menu: the focused row lifts a little.
+            row.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.02f : 1f).scaleY(focused ? 1.02f : 1f)
+                    .setDuration(reducedMotion ? 0 : 140).start());
             final String pkg = card.pkg;
             row.setOnClickListener(v -> CardFeature.run(() -> {
                 // The list stays open; the decision is for the card as it is now, not as it was listed.

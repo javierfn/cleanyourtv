@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Second lines in the tvOS-style menus: grey on the white focused row, soft white elsewhere. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true" android:color="#FF5A5A60" />
+    <item android:color="#99FFFFFF" />
+</selector>
