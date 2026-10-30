@@ -52,6 +52,9 @@ final class ControlCenter {
     private static final int TILE_STROKE = 0x33FFFFFF;
     private static final int FOCUS = 0xFFF4F4F6;
     private static final int INK = 0xFF111113;
+    /** Something switched on (night mode, the VPN, a shown card): a brighter, whiter glass, as on iOS and macOS. */
+    private static final int ACTIVE = 0x4DFFFFFF;
+    private static final int ACTIVE_STROKE = 0x80FFFFFF;
 
     private final MainActivity activity;
     private final FrameLayout root;
@@ -188,11 +191,13 @@ final class ControlCenter {
         Boolean night = actions.night();
         int row = 1;
         if (night != null) {
-            grid.addView(pillTile(night ? R.drawable.ic_night : R.drawable.ic_day, activity.getString(R.string.cc_night),
+            View nightTile;
+            grid.addView(nightTile = pillTile(night ? R.drawable.ic_night : R.drawable.ic_day, activity.getString(R.string.cc_night),
                     activity.getString(night ? R.string.cc_on : R.string.cc_off), () -> {
                         actions.nightToggle();
                         hide();
                     }), cell(row, 1, 1, col, pill, gap, gap));
+            setActive(nightTile, night);
             row++;
         }
         // Entradas, wide with its name; then the sleep timer when it is installed.
@@ -220,6 +225,7 @@ final class ControlCenter {
             int lock = vpn == 1 ? 0xFF30D158 : 0xFFFF6B5E;
             ((ImageView) ((ViewGroup) v).getChildAt(0)).setImageTintList(
                     new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{lock, lock}));
+            setActive(v, vpn == 1);
             rounds.addView(v, new LinearLayout.LayoutParams(col, pill));
         }
         // Settings at the bottom right, on its own side.
@@ -332,9 +338,14 @@ final class ControlCenter {
             bg.addState(new int[]{android.R.attr.state_focused}, on);
             bg.addState(new int[]{}, off);
             row.setBackground(bg);
-            row.setPadding(px(14), 0, px(14), 0);
             ViewGroup.LayoutParams lp = row.getLayoutParams();
-            lp.height = px(62);
+            if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+                // A row of several lines (Module cards): as tall as its text, with the pills' side padding.
+                row.setPadding(px(18), px(12), px(18), px(12));
+            } else {
+                row.setPadding(px(14), 0, px(14), 0);
+                lp.height = px(62);
+            }
             if (lp instanceof ViewGroup.MarginLayoutParams) ((ViewGroup.MarginLayoutParams) lp).setMargins(0, 0, 0, gap);
             row.setLayoutParams(lp);
             row.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
@@ -362,10 +373,11 @@ final class ControlCenter {
                 v.setVisibility(View.GONE);
             } else if (v instanceof TextView) {
                 TextView t = (TextView) v;
-                float sp = t.getTextSize() / activity.getResources().getDisplayMetrics().scaledDensity;
-                t.setTextSize(TypedValue.COMPLEX_UNIT_SP, (sp >= 13 ? 10f : 9.5f) * TYPE);
-                // Second lines in Outfit 400, not the variable font's thin default, which blurs at this size.
-                if (sp < 13) {
+                boolean name = v.getId() == R.id.title;
+                // Names as the panel's labels; every other line as its second lines, in Outfit 400 (the variable
+                // font's thin default blurs at this size).
+                t.setTextSize(TypedValue.COMPLEX_UNIT_SP, (name ? 10f : 9.5f) * TYPE);
+                if (!name) {
                     try {
                         t.setTypeface(activity.getResources().getFont(R.font.outfit_regular));
                     } catch (RuntimeException ignored) {
@@ -534,6 +546,22 @@ final class ControlCenter {
         tile.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                 .setDuration(140).start());
         return tile;
+    }
+
+    /** A pill tile's look for on (brighter glass) or off; focused stays white either way. */
+    void setActive(View tile, boolean active) {
+        float corner = px(31);
+        GradientDrawable on = new GradientDrawable();
+        on.setColor(FOCUS);
+        on.setCornerRadius(corner);
+        GradientDrawable rest = new GradientDrawable();
+        rest.setColor(active ? ACTIVE : TILE);
+        rest.setCornerRadius(corner);
+        rest.setStroke(Math.max(1, Math.round(dp)), active ? ACTIVE_STROKE : TILE_STROKE);
+        StateListDrawable bg = new StateListDrawable();
+        bg.addState(new int[]{android.R.attr.state_focused}, on);
+        bg.addState(new int[]{}, rest);
+        tile.setBackground(bg);
     }
 
     private ImageView icon(int res, int sizeDp) {

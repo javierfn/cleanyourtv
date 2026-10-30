@@ -3586,7 +3586,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             popup.setWidth(w);
             panel.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(root.getHeight(), View.MeasureSpec.AT_MOST));
-            android.graphics.drawable.Drawable glass = controlCenter.frost(at.left, at.top, w, panel.getMeasuredHeight());
+            // No taller than the screen below the panel's top: a long list (Module cards) scrolls inside.
+            int h = Math.min(panel.getMeasuredHeight(), root.getHeight() - at.top - (int) (24 * density));
+            popup.setHeight(h);
+            android.graphics.drawable.Drawable glass = controlCenter.frost(at.left, at.top, w, h);
             if (glass != null) panel.setBackground(glass);
             int[] origin = new int[2];
             root.getLocationOnScreen(origin);
@@ -4026,12 +4029,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 heading.addView(status, 0);
             }
             TextView app = row.findViewById(R.id.app);
-            if (Cards.fold(card.label).equals(Cards.fold(card.appLabel))) app.setVisibility(View.GONE);
+            // The app's own name is detail the panel-style list leaves out; the card's name says enough.
+            if (controlCenter != null || Cards.fold(card.label).equals(Cards.fold(card.appLabel))) app.setVisibility(View.GONE);
             else app.setText(getString(R.string.card_app_name, card.appLabel));
             // What the add-on is, in words, instead of its package name and signing key.
             TextView description = row.findViewById(R.id.pkg);
-            description.setSingleLine(false);
-            description.setMaxLines(2);
+            // One short line: what the add-on is, in a few words.
+            description.setSingleLine(true);
             description.setEllipsize(TextUtils.TruncateAt.END);
             description.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             description.setText(cardDescription(card));
@@ -4058,9 +4062,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         anchor.getLocationInWindow(at);
         int room = root.getHeight() - (at[1] + anchor.getHeight()) - (int) (34 * density);
         popup.setHeight(Math.min(panel.getMeasuredHeight(), Math.max(room, (int) (120 * density))));
+        // With the Control Center, the list opens in the panel's place on its glass, like Entradas and Ajustes.
+        if (controlCenter != null) ccSubmenu = true;
         // Hebrew places Settings on the left: align the outer panel inward, like its parent menu.
         dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar)
                 ? Gravity.START : Gravity.END);
+        if (controlCenter != null) updateCardStates(rows);   // the panel style is set now: mark the shown cards
         rows.getChildAt(0).requestFocus();
     }
 
@@ -4076,6 +4083,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             View row = rows.getChildAt(i);
             Cards.Card card = row.getTag() instanceof String ? cardFor((String) row.getTag()) : null;
             ((TextView) row.findViewById(R.id.state)).setText(card != null ? stateText(card, drawn.contains(card)) : "");
+            if (controlCenter != null && card != null) controlCenter.setActive(row, card.state == Cards.State.SHOWN);
         }
     }
 
