@@ -3135,6 +3135,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         showInputsPill = false;
         btnControl.setVisibility(View.VISIBLE);
+        // A round icon-only button like its neighbours, the glyph drawn at their 22 dp so it sits in the centre.
+        if (btnControl instanceof TextView) {
+            TextView b = (TextView) btnControl;
+            makeIconOnly(b);
+            b.setContentDescription(getString(R.string.cc_open));
+            Drawable glyph = getDrawable(R.drawable.ic_cc_toggles).mutate();
+            int size = Math.round(22 * density);
+            glyph.setBounds(0, 0, size, size);
+            b.setCompoundDrawablesRelative(glyph, null, null, null);
+            b.setGravity(Gravity.CENTER);
+        }
         boolean hasNight = getPackageManager().resolveActivity(nightToggle, 0) != null;
         Intent timer = new Intent().setClassName("io.github.luyzfernando08.sleeptimer", "io.github.luyzfernando08.sleeptimer.TimerActivity");
         boolean hasTimer = getPackageManager().resolveActivity(timer, 0) != null;
