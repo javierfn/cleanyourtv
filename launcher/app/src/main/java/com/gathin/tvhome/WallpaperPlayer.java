@@ -370,6 +370,26 @@ final class WallpaperPlayer {
         return text;
     }
 
+    /**
+     * Puts the caption on the same line as another text on the other side (the weather under the clock): their
+     * centres level, whatever the header's layout. Follows it when it moves; nothing changes while it is hidden.
+     */
+    void alignCaptionWith(View other) {
+        if (caption == null || other == null) return;
+        View.OnLayoutChangeListener align = (v, l, t, r, b, ol, ot, orr, ob) -> {
+            if (other.getVisibility() != View.VISIBLE || caption.getHeight() == 0) return;
+            int[] at = new int[2], rootAt = new int[2], capAt = new int[2];
+            other.getLocationInWindow(at);
+            root.getLocationInWindow(rootAt);
+            caption.getLocationInWindow(capAt);
+            float otherCentre = at[1] - rootAt[1] + other.getHeight() / 2f;
+            float captionCentre = capAt[1] - rootAt[1] - caption.getTranslationY() + caption.getHeight() / 2f;
+            caption.setTranslationY(otherCentre - captionCentre);
+        };
+        other.addOnLayoutChangeListener(align);
+        caption.addOnLayoutChangeListener(align);
+    }
+
     /** The displayed picture's name, faded across a change; a picture without a name hides the caption. */
     private void showCaption(boolean fade) {
         if (caption == null) return;

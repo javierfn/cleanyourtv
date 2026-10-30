@@ -72,6 +72,19 @@ final class WeatherNow {
     private boolean active;
     /** Bumped on each start and stop, so a query from an earlier session never lands in a later one. */
     private int session;
+    /**
+     * While Home stays on screen, ask again a little after the add-on's own 30 minutes, so it fetches a new reading
+     * and the line never goes stale on a Home left open all afternoon.
+     */
+    static final long ASK_AGAIN_MS = 31 * 60_000L;
+    private final Runnable askAgain = new Runnable() {
+        @Override
+        public void run() {
+            if (!active) return;
+            read();
+            main.postDelayed(this, ASK_AGAIN_MS);
+        }
+    };
 
     private WeatherNow(Context ctx, TextView view, Uri uri, Handler main) {
         this.ctx = ctx;
@@ -102,7 +115,15 @@ final class WeatherNow {
             if (provider == null || !pkg.trim().equals(provider.packageName)) return null;
             Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority.trim()).appendPath("now").build();
             float dp = ctx.getResources().getDisplayMetrics().density;
-            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+            // The same look as the wallpaper's caption on the right: 15 sp, regular, the same white and shadow.
+            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            view.setTextColor(0xE6FFFFFF);
+            view.setShadowLayer(2 * dp, 0, dp, 0x99000000);
+            try {
+                view.setTypeface(UiFont.get(ctx, R.string.font_regular));
+            } catch (Exception ignored) {
+                // the system font is fine
+            }
             view.setPadding(0, Math.round(4 * dp), 0, 0);
             return new WeatherNow(ctx, view, uri, main);
         } catch (PackageManager.NameNotFoundException e) {
@@ -114,6 +135,8 @@ final class WeatherNow {
     void start() {
         active = true;
         session++;
+        main.removeCallbacks(askAgain);
+        main.postDelayed(askAgain, ASK_AGAIN_MS);
         if (!watching) {
             try {
                 ctx.getContentResolver().registerContentObserver(uri, false, observer);
@@ -130,6 +153,7 @@ final class WeatherNow {
     void stop() {
         active = false;
         session++;
+        main.removeCallbacks(askAgain);
         if (watching) ctx.getContentResolver().unregisterContentObserver(observer);
         watching = false;
     }
