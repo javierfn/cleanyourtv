@@ -48,5 +48,6 @@
   "seasonal_skin": "halloween",
   "festival_until": "2026-11-01",
   "accent_color": "#FF7A1A",
-  "weather_now": "io.github.sumyabazar1.weather"
+  "weather_now": "io.github.sumyabazar1.weather",
+  "control_center": true
 }

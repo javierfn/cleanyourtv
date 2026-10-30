@@ -865,6 +865,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             showSettingsMenu();
             return true;
         });
+        setUpControlCenter(nightToggle);
 
         // Keep focus on the top bar at its ends and at the top: Android's focus finder would otherwise
         // jump to a tile far below when there is nothing in that direction.
@@ -1364,6 +1365,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (controlCenter != null && controlCenter.onKey(event)) return true;
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window.
         if (event.getKeyCode() >= 1000 && RemoteKeys.handle(this, event, homeAppKeys.get(event.getKeyCode()), null)) return true;
         if (handleSettingsKey(event)) return true;
@@ -3103,7 +3105,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 btnVpn.setBackground(up ? VpnBadge.pillBackground(true, density) : vpnPlainBackground.newDrawable());
                 btnVpn.setCompoundDrawablesRelativeWithIntrinsicBounds(VpnBadge.iconOnlyLock(up), 0, 0, 0);
                 btnVpn.setCompoundDrawableTintList(up ? ink : vpnPlainInk);
-                btnVpn.setVisibility(View.VISIBLE);
+                btnVpn.setVisibility(controlCenter != null ? View.GONE : View.VISIBLE);
                 return;
             }
             btnVpn.setText(up ? R.string.vpn : R.string.vpn_off);
@@ -3112,9 +3114,57 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             btnVpn.setCompoundDrawablesRelativeWithIntrinsicBounds(up ? R.drawable.ic_lock : 0, 0, 0, 0);
             btnVpn.setCompoundDrawableTintList(ink);
         }
-        btnVpn.setVisibility(View.VISIBLE);
+        btnVpn.setVisibility(controlCenter != null ? View.GONE : View.VISIBLE);
     }
 
+
+    // ---- control_center: the tvOS-style Control Center (config.json) ---------------------------------------
+
+    private ControlCenter controlCenter;
+    /** The next dropIn() is a Control Center submenu: it opens in the panel's place, on the same glass. */
+    private boolean ccSubmenu;
+
+    /** control_center in config.json: one round button at the top right instead of the row of pills. */
+    private void setUpControlCenter(Intent nightToggle) {
+        if (!WeatherLine.configFlag(this, "control_center")) return;
+        View btnControl = findViewById(R.id.btnControl);
+        for (int id : new int[]{R.id.btnInputs, R.id.btnWifi, R.id.btnVpn, R.id.btnNight, R.id.btnSettings, R.id.btnReorder}) {
+            View v = findViewById(id);
+            if (v != null) v.setVisibility(View.GONE);
+        }
+        showInputsPill = false;
+        btnControl.setVisibility(View.VISIBLE);
+        boolean hasNight = getPackageManager().resolveActivity(nightToggle, 0) != null;
+        Intent timer = new Intent().setClassName("io.github.luyzfernando08.sleeptimer", "io.github.luyzfernando08.sleeptimer.TimerActivity");
+        boolean hasTimer = getPackageManager().resolveActivity(timer, 0) != null;
+        controlCenter = new ControlCenter(this, root, new ControlCenter.Actions() {
+            @Override public void powerOff() { HomeKeyService.powerAction(false); }
+            @Override public void network() { openNetworkPill(); }
+            @Override public String networkLabel() {
+                CharSequence n = wifiIconOnly ? btnWifi.getContentDescription() : btnWifi.getText();
+                return n == null ? "" : n.toString();
+            }
+            @Override public void nightToggle() {
+                try {
+                    startActivity(new Intent(nightToggle).putExtra("bar", false).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (RuntimeException e) {
+                    return;
+                }
+                handler.postDelayed(MainActivity.this::updateNightButton, 600);
+            }
+            @Override public Boolean night() { return hasNight ? Boolean.TRUE.equals(NightState.query(MainActivity.this)) : null; }
+            @Override public void timer() { open(new Intent(timer).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
+            @Override public boolean hasTimer() { return hasTimer; }
+            @Override public void inputs() { ccSubmenu = true; root.post(MainActivity.this::showInputs); }
+            @Override public void vpn() { openVpnPill(); }
+            @Override public int vpnState() {
+                if (vpnPillState == VpnBadge.PILL_HIDDEN) return -1;
+                return vpnPillState == VpnBadge.PILL_UP ? 1 : 0;
+            }
+            @Override public void settings() { ccSubmenu = true; root.post(MainActivity.this::showSettingsMenu); }
+        });
+        btnControl.setOnClickListener(v -> controlCenter.show(v, wallpaperPlayer.imageView(), wallpaperPlayer.currentBitmap()));
+    }
 
     /** Every settings entry shares the standard intent and the vendor fallback (SystemSettings). */
     private Intent systemIntent(String standardAction) {
@@ -3514,6 +3564,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Drop in: fade and unfold from the top edge, hanging under the anchor pill. */
     private void dropIn(PopupWindow popup, View panel, View anchor, int gravity) {
+        if (ccSubmenu && controlCenter != null) {
+            ccSubmenu = false;
+            android.graphics.Rect at = controlCenter.lastPanel();
+            // The panel's own width and measure: rows as glass tiles like the panel's, same type and icon sizes.
+            LinearLayout rowsView = panel.findViewById(R.id.rows);
+            if (rowsView != null) controlCenter.styleAsPanel(rowsView);
+            int w = at.width();
+            popup.setWidth(w);
+            panel.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(root.getHeight(), View.MeasureSpec.AT_MOST));
+            android.graphics.drawable.Drawable glass = controlCenter.frost(at.left, at.top, w, panel.getMeasuredHeight());
+            if (glass != null) panel.setBackground(glass);
+            int[] origin = new int[2];
+            root.getLocationOnScreen(origin);
+            panel.setAlpha(0f);
+            panel.setTranslationY(-8 * density);
+            popup.setOnDismissListener(() -> {
+                if (openPopup == popup) openPopup = null;
+                View back = findViewById(R.id.btnControl);
+                if (back != null) back.requestFocus();
+            });
+            popup.showAtLocation(root, Gravity.TOP | Gravity.START, origin[0] + at.left, origin[1] + at.top);
+            panel.animate().alpha(1f).translationY(0f).setDuration(reducedMotion ? Motion.REDUCED_MS : 200).start();
+            return;
+        }
         panel.setAlpha(0f);
         panel.setPivotY(0f);
         panel.setScaleY(0.92f);
@@ -3595,7 +3670,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * restarting or turning off the TV (through the system power menu, with the Home key helper's help).
      */
     private void showSettingsMenu() {
-        View anchor = findViewById(R.id.btnSettings);
+        View anchor = findViewById(controlCenter != null ? R.id.btnControl : R.id.btnSettings);
         View panel = getLayoutInflater().inflate(R.layout.popup_atv_menu, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (300 * density));
@@ -3611,7 +3686,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         addAtvMenuRow(rows, popup, R.string.reorder, R.drawable.ic_swap_vert, this::toggleReorder);
         // A launcher may not turn the TV off itself; the Home key helper opens the system power menu and picks the row.
         // No Restart row: this Panasonic comes back from a restart with its screen off, which looks like it never returned.
-        if (HomeKeyService.canOpenPowerMenu()) {
+        // With the Control Center, Apagar is its large tile; the settings menu doesn't repeat it.
+        if (HomeKeyService.canOpenPowerMenu() && controlCenter == null) {
             addAtvMenuSeparator(rows);
             addAtvMenuRow(rows, popup, R.string.tv_power_off, R.drawable.ic_atv_power, () -> HomeKeyService.powerAction(false));
         }

@@ -68,5 +68,6 @@
   },
   "wallpaper_true_color": true,
   "icon_only_vpn": false,
-  "weather_now": "io.github.sumyabazar1.weather"
+  "weather_now": "io.github.sumyabazar1.weather",
+  "control_center": true
 }

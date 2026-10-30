@@ -38,3 +38,12 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 
 `vpn_app` en el tema es un ejemplo (`com.example.vpn`): pon el paquete de tu app de VPN. La ciudad del tiempo se
 elige en la app "El tiempo" de la TV.
+
+## Traducciones / Translations
+
+Los textos nuevos están en español y en inglés; cualquier otro idioma ve el inglés. Las traducciones son
+bienvenidas: copia las cadenas de `launcher/app/src/main/res/values/strings.xml` a la carpeta de tu idioma y abre
+una PR.
+
+*The new texts are in Spanish and English; any other language shows the English. Translations are welcome: copy
+the strings from `launcher/app/src/main/res/values/strings.xml` into your language's folder and open a PR.*

@@ -163,4 +163,17 @@
     <string name="card_desc_weather">El tiempo de tu ciudad, los próximos días y la calidad del aire</string>
     <string name="card_desc_btconnect">Conecta y desconecta altavoces y auriculares emparejados</string>
     <string name="weather_humidity">Humedad %1$d %%</string>
+    <string name="tv_power_off_short">Apagar</string>
+    <string name="cc_network">Red</string>
+    <string name="cc_night">Modo noche</string>
+    <string name="cc_on">Activado</string>
+    <string name="cc_off">Desactivado</string>
+    <string name="cc_audio">Audio</string>
+    <string name="cc_audio_detail">Bluetooth</string>
+    <string name="cc_timer">Temporizador</string>
+    <string name="cc_timer_detail">Apagar más tarde</string>
+    <string name="cc_search">Buscar</string>
+    <string name="cc_open">Centro de control</string>
+    <string name="cc_inputs_detail">HDMI y TV</string>
+    <string name="cc_vpn">VPN</string>
 </resources>
