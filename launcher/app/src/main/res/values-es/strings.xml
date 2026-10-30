@@ -157,4 +157,9 @@
     <string name="game_live">En directo</string>
     <string name="tv_restart">Reiniciar el televisor</string>
     <string name="tv_power_off">Apagar el televisor</string>
+    <string name="card_desc_brightness">Atenúa y calienta la imagen por la noche, con horario</string>
+    <string name="card_desc_haunted">Salvapantallas de Halloween con murciélagos, un fantasma y un reloj</string>
+    <string name="card_desc_tvinspector">Qué envía cada botón del mando y qué formatos admite la TV</string>
+    <string name="card_desc_weather">El tiempo de tu ciudad, los próximos días y la calidad del aire</string>
+    <string name="card_desc_btconnect">Conecta y desconecta altavoces y auriculares emparejados</string>
 </resources>

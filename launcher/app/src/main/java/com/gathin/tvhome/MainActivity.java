@@ -3858,6 +3858,20 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }, null);
     }
 
+    /** A sentence on what a card's add-on does: ours for the add-ons on this TV, else the card's own caption. */
+    private String cardDescription(Cards.Card card) {
+        int id;
+        switch (card.pkg) {
+            case "io.github.maxhayim.brightness": id = R.string.card_desc_brightness; break;
+            case "com.gathin.haunted": id = R.string.card_desc_haunted; break;
+            case "io.github.shaharukhs.tvinspector": id = R.string.card_desc_tvinspector; break;
+            case "io.github.sumyabazar1.weather": id = R.string.card_desc_weather; break;
+            case "com.gathin.btconnect": id = R.string.card_desc_btconnect; break;
+            default: return card.caption;
+        }
+        return getString(id);
+    }
+
     private void showModuleCardsNow() {
         View anchor = findViewById(R.id.btnSettings);
         View panel = getLayoutInflater().inflate(R.layout.popup_cards, root, false);
@@ -3880,8 +3894,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             TextView app = row.findViewById(R.id.app);
             if (Cards.fold(card.label).equals(Cards.fold(card.appLabel))) app.setVisibility(View.GONE);
             else app.setText(getString(R.string.card_app_name, card.appLabel));
-            ((TextView) row.findViewById(R.id.pkg)).setText(card.pkg);
-            ((TextView) row.findViewById(R.id.digest)).setText(Cards.longDigest(card.digest));
+            // What the add-on is, in words, instead of its package name and signing key.
+            TextView description = row.findViewById(R.id.pkg);
+            description.setSingleLine(false);
+            description.setMaxLines(2);
+            description.setEllipsize(TextUtils.TruncateAt.END);
+            description.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            description.setText(cardDescription(card));
+            row.findViewById(R.id.digest).setVisibility(View.GONE);
             final String pkg = card.pkg;
             row.setOnClickListener(v -> CardFeature.run(() -> {
                 // The list stays open; the decision is for the card as it is now, not as it was listed.
