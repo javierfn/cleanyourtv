@@ -68,6 +68,17 @@ final class ControlCenter {
         return lastPanel;
     }
 
+    /** The panel's width, for menus that take its measure without it having been opened (the app tile menu). */
+    int panelWidth() {
+        return px(340);
+    }
+
+    /** The wallpaper that frost() blurs, for a menu opened without the panel. */
+    void useWallpaper(ImageView wallpaper, Bitmap picture) {
+        lastWallpaper = wallpaper;
+        lastPicture = picture;
+    }
+
     ControlCenter(MainActivity activity, FrameLayout root, Actions actions) {
         this.activity = activity;
         this.root = root;

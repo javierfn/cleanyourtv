@@ -187,4 +187,6 @@
     <string name="cc_open">Control Center</string>
     <string name="cc_inputs_detail">HDMI and TV</string>
     <string name="cc_vpn">VPN</string>
+    <string name="tile_uninstall">Uninstall</string>
+    <string name="tile_uninstall_failed">Could not open the uninstaller</string>
 </resources>

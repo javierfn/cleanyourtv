@@ -176,4 +176,6 @@
     <string name="cc_open">Centro de control</string>
     <string name="cc_inputs_detail">HDMI y TV</string>
     <string name="cc_vpn">VPN</string>
+    <string name="tile_uninstall">Desinstalar</string>
+    <string name="tile_uninstall_failed">No se pudo abrir el desinstalador</string>
 </resources>
