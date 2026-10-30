@@ -26,7 +26,7 @@ final class WeatherNow {
     static final String META = "com.gathin.tvhome.weather";
     /** A reading older than this is not the weather now any more: the line hides until a newer one. */
     static final long STALE_MS = 3 * 60 * 60_000L;
-    private static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms"};
+    private static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms", "sky", "humidity"};
 
     /** One reading, as the add-on publishes it. */
     static final class Reading {
@@ -35,18 +35,28 @@ final class WeatherNow {
         final int code;
         final boolean day;
         final long updatedMs;
+        /** The sky in words from the add-on ("Nublado"), empty when it sends none. */
+        final String skyText;
+        /** Relative humidity in %, or -1 when the add-on sends none. */
+        final int humidity;
 
-        Reading(String place, int temperature, int code, boolean day, long updatedMs) {
+        Reading(String place, int temperature, int code, boolean day, long updatedMs, String skyText, int humidity) {
             this.place = place;
             this.temperature = temperature;
             this.code = code;
             this.day = day;
             this.updatedMs = updatedMs;
+            this.skyText = skyText;
+            this.humidity = humidity;
         }
 
-        /** "14°  Madrid"; the unit is the add-on's, and the place may be empty. */
-        String text() {
-            return place.isEmpty() ? temperature + "°" : temperature + "°  " + place;
+        /** "14° · Nublado · Humedad 90 % · Madrid"; the unit is the add-on's, and each part after the degrees may be missing. */
+        String text(String humidityFormat) {
+            StringBuilder b = new StringBuilder().append(temperature).append('°');
+            if (!skyText.isEmpty()) b.append(" · ").append(skyText);
+            if (humidity >= 0) b.append(" · ").append(String.format(humidityFormat, humidity));
+            if (!place.isEmpty()) b.append(" · ").append(place);
+            return b.toString();
         }
     }
 
@@ -138,7 +148,10 @@ final class WeatherNow {
                 Object[] row = null;
                 try (Cursor c = ctx.getContentResolver().query(uri, COLUMNS, null, null, null)) {
                     if (c != null && c.moveToFirst()) {
-                        row = new Object[] {c.getString(0), c.getInt(1), c.getString(2), c.getInt(3), c.getInt(4), c.getLong(5)};
+                        int skyAt = c.getColumnIndex("sky"), humidityAt = c.getColumnIndex("humidity");
+                        row = new Object[] {c.getString(0), c.getInt(1), c.getString(2), c.getInt(3), c.getInt(4), c.getLong(5),
+                                skyAt >= 0 ? c.getString(skyAt) : null,
+                                humidityAt >= 0 && !c.isNull(humidityAt) ? c.getInt(humidityAt) : null};
                     }
                 } catch (RuntimeException gone) {
                     // Uninstalled or crashed mid-query: keep what is on screen.
@@ -162,7 +175,7 @@ final class WeatherNow {
             view.setVisibility(View.GONE);
             return;
         }
-        String text = r.text();
+        String text = r.text(ctx.getString(R.string.weather_humidity));
         view.setText(sky(r.code, r.day) + "  " + text);
         view.setContentDescription(text);
         view.setVisibility(View.VISIBLE);
@@ -176,7 +189,9 @@ final class WeatherNow {
         String place = r[0] instanceof String ? ((String) r[0]).trim() : "";
         int code = r[3] instanceof Number ? ((Number) r[3]).intValue() : 3;
         boolean day = !(r[4] instanceof Number) || ((Number) r[4]).intValue() != 0;
-        return new Reading(place, ((Number) r[1]).intValue(), code, day, updated);
+        String skyText = r.length > 6 && r[6] instanceof String ? ((String) r[6]).trim() : "";
+        int humidity = r.length > 7 && r[7] instanceof Number ? Math.max(0, Math.min(100, ((Number) r[7]).intValue())) : -1;
+        return new Reading(place, ((Number) r[1]).intValue(), code, day, updated, skyText, humidity);
     }
 
     /** WMO weather code to a sky symbol, drawn as text (U+FE0E asks for the plain glyph, not a colour emoji). */

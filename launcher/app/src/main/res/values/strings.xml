@@ -172,4 +172,5 @@
     <string name="card_desc_tvinspector">What each remote button sends and what the TV can play</string>
     <string name="card_desc_weather">Your city\'s weather, the next days and the air quality</string>
     <string name="card_desc_btconnect">Connect and disconnect paired speakers and headphones</string>
+    <string name="weather_humidity">Humidity %1$d%%</string>
 </resources>

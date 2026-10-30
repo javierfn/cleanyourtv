@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 public final class NowProvider extends ContentProvider {
     static final String AUTHORITY = "io.github.sumyabazar1.weather.now";
     static final Uri URI = Uri.parse("content://" + AUTHORITY + "/now");
-    static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms"};
+    static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms", "sky", "humidity"};
     private static final String PREFS = "now";
 
     private final ExecutorService io = Executors.newSingleThreadExecutor();
@@ -65,7 +65,10 @@ public final class NowProvider extends ContentProvider {
         boolean fahrenheit = fahrenheit(c);
         out.addRow(new Object[] {place.getString("name", ""),
                 Forecast.degrees(Double.longBitsToDouble(now.getLong("temp_c", 0)), fahrenheit),
-                fahrenheit ? "F" : "C", now.getInt("code", 0), now.getBoolean("day", true) ? 1 : 0, updated});
+                fahrenheit ? "F" : "C", now.getInt("code", 0), now.getBoolean("day", true) ? 1 : 0, updated,
+                // The sky in words, in the TV's language, and the relative humidity in % (null when unknown).
+                c.getString(Forecast.sky(now.getInt("code", 0), now.getBoolean("day", true))),
+                now.contains("humidity") ? now.getInt("humidity", 0) : null});
         return out;
     }
 
@@ -82,6 +85,7 @@ public final class NowProvider extends ContentProvider {
                 .putLong("lon", lon)
                 .putLong("temp_c", Double.doubleToRawLongBits(r.tempC))
                 .putInt("code", r.code)
+                .putInt("humidity", r.humidity)
                 .putBoolean("day", r.day)
                 .putLong("updated_ms", System.currentTimeMillis())
                 .commit();

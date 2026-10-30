@@ -162,4 +162,5 @@
     <string name="card_desc_tvinspector">Qué envía cada botón del mando y qué formatos admite la TV</string>
     <string name="card_desc_weather">El tiempo de tu ciudad, los próximos días y la calidad del aire</string>
     <string name="card_desc_btconnect">Conecta y desconecta altavoces y auriculares emparejados</string>
+    <string name="weather_humidity">Humedad %1$d %%</string>
 </resources>
