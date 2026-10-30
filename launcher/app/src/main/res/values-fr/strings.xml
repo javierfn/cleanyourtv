@@ -98,4 +98,6 @@
     <string name="clock_format_system">Système</string>
     <string name="clock_format_12">12 heures</string>
     <string name="clock_format_24">24 heures</string>
+    <string name="night_button_night">Mode nuit</string>
+    <string name="night_button_day">Mode jour</string>
 </resources>

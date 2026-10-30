@@ -158,4 +158,7 @@
     <string name="clock_format_system">System</string>
     <string name="clock_format_12">12-hour</string>
     <string name="clock_format_24">24-hour</string>
+    <!-- night_mode: the top-bar button, read by TalkBack: night mode to switch on by day, day mode at night. -->
+    <string name="night_button_night">Night mode</string>
+    <string name="night_button_day">Day mode</string>
 </resources>

@@ -14,4 +14,6 @@
     <string name="clock_format_system">System</string>
     <string name="clock_format_12">12-hour</string>
     <string name="clock_format_24">24-hour</string>
+    <string name="night_button_night">Modo noturno</string>
+    <string name="night_button_day">Modo diurno</string>
 </resources>

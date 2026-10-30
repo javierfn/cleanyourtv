@@ -112,4 +112,6 @@
     <string name="clock_format_system">Sistema</string>
     <string name="clock_format_12">12 hores</string>
     <string name="clock_format_24">24 hores</string>
+    <string name="night_button_night">Mode nocturn</string>
+    <string name="night_button_day">Mode diürn</string>
 </resources>

@@ -151,4 +151,6 @@
     <string name="clock_format_system">시스템</string>
     <string name="clock_format_12">12시간</string>
     <string name="clock_format_24">24시간</string>
+    <string name="night_button_night">야간 모드</string>
+    <string name="night_button_day">주간 모드</string>
 </resources>

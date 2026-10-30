@@ -102,4 +102,6 @@
     <string name="clock_format_system">সিস্টেম</string>
     <string name="clock_format_12">১২ ঘণ্টা</string>
     <string name="clock_format_24">২৪ ঘণ্টা</string>
+    <string name="night_button_night">রাতের মোড</string>
+    <string name="night_button_day">দিনের মোড</string>
 </resources>

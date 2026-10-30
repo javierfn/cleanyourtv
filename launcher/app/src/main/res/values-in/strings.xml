@@ -113,4 +113,6 @@
     <string name="clock_format_system">Sistem</string>
     <string name="clock_format_12">12 jam</string>
     <string name="clock_format_24">24 jam</string>
+    <string name="night_button_night">Mode malam</string>
+    <string name="night_button_day">Mode siang</string>
 </resources>

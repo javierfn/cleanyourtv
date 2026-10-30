@@ -114,4 +114,6 @@
     <string name="clock_format_system">Tizim</string>
     <string name="clock_format_12">12 soatlik</string>
     <string name="clock_format_24">24 soatlik</string>
+    <string name="night_button_night">Tungi rejim</string>
+    <string name="night_button_day">Kunduzgi rejim</string>
 </resources>

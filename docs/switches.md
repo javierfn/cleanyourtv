@@ -66,3 +66,4 @@ rule sit on its wanted list until a screenshot arrives.
 | `game_day` | <img src="switches/game_day.jpg" width="320" alt="game_day: Minnesota Vikings at Detroit Lions, Kickoff in 5d 13h, with four dots, under the clock on a TV"> |
 | `clock_format` | <img src="switches/clock_format.jpg" width="320" alt="clock_format on a TV"> |
 | `weather_now` | <img src="switches/weather_now.jpg" width="320" alt="weather_now: a moon, 14° and Vigo under the clock on a TV at night"> |
+| `night_mode` | <img src="switches/night_mode.jpg" width="320" alt="night_mode at night: a sun button in the top bar and a night wallpaper, with Brightness dimming the picture"> |
