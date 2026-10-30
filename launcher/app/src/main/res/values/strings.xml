@@ -167,11 +167,11 @@
     <string name="tv_restart">Restart TV</string>
     <string name="tv_power_off">Turn off TV</string>
     <!-- Module cards list: what each known add-on is, instead of its package and key. -->
-    <string name="card_desc_brightness">Dims and warms the picture at night, on a schedule</string>
-    <string name="card_desc_haunted">Halloween screensaver with bats, a ghost and a clock</string>
-    <string name="card_desc_tvinspector">What each remote button sends and what the TV can play</string>
-    <string name="card_desc_weather">Your city\'s weather, the next days and the air quality</string>
-    <string name="card_desc_btconnect">Connect and disconnect paired speakers and headphones</string>
+    <string name="card_desc_brightness">Warmer, dimmer nights</string>
+    <string name="card_desc_haunted">Halloween screensaver</string>
+    <string name="card_desc_tvinspector">Remote keys and TV formats</string>
+    <string name="card_desc_weather">Weather and air quality</string>
+    <string name="card_desc_btconnect">Speakers and headphones</string>
     <string name="weather_humidity">Humidity %1$d%%</string>
     <!-- control_center: the tvOS-style Control Center over Home. -->
     <string name="tv_power_off_short">Power off</string>
