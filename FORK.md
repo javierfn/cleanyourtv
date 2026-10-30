@@ -25,6 +25,10 @@ Both are off unless a theme sets them:
 
 The contracts are in [`docs/modules.md`](docs/modules.md), the keys in [`themes/README.md`](themes/README.md).
 
+> **More, and kept up to date:** this branch holds only these two switches, as shown in the showcase. The full,
+> ongoing version (a tvOS-style settings menu, moving wallpapers, a richer weather line, theme and icons) is the
+> [`apple-tv-style`](https://github.com/javierfn/cleanyourtv/tree/apple-tv-style) branch, the fork's default.
+
 ## Build and install
 
 As upstream, from this branch (`tv-extras`): `TV_HOST=<tv ip> launcher/build-and-install.sh`, then build and install
