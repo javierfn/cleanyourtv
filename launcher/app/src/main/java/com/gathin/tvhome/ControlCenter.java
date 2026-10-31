@@ -35,6 +35,10 @@ final class ControlCenter {
         void powerOff();
         void network();
         String networkLabel();
+        /** The connection's icon: cable, Wi-Fi, or Wi-Fi in red when there is none. */
+        int networkIcon();
+        /** 0 no connection, 1 connected without internet, 2 online. */
+        int networkState();
         void nightToggle();
         /** True at night, false by day, null when there is no night-mode add-on. */
         Boolean night();
@@ -186,8 +190,14 @@ final class ControlCenter {
 
         View power = bigTile(R.drawable.ic_atv_power, activity.getString(R.string.tv_power_off_short), actions::powerOff);
         grid.addView(power, cell(0, 0, 2, col, 2 * pill + gap, 0, gap));
-        grid.addView(pillTile(R.drawable.ic_wifi, activity.getString(R.string.cc_network), actions.networkLabel(),
-                actions::network), cell(0, 1, 1, col, pill, gap, gap));
+        View net = pillTile(actions.networkIcon(), activity.getString(R.string.cc_network), actions.networkLabel(), actions::network);
+        if (actions.networkState() < 2) {
+            // No connection, or no internet through it: the icon in red, like the VPN's lock when it is off.
+            int warn = 0xFFFF6B5E;
+            ((ImageView) ((ViewGroup) net).getChildAt(0)).setImageTintList(
+                    new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{warn, warn}));
+        }
+        grid.addView(net, cell(0, 1, 1, col, pill, gap, gap));
         Boolean night = actions.night();
         int row = 1;
         if (night != null) {
