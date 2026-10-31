@@ -3121,6 +3121,41 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     // ---- control_center: the tvOS-style Control Center (config.json) ---------------------------------------
 
+    /** {kind, validated}: kind 0 none, 1 Wi-Fi, 2 Ethernet (wins when both); validated 1 when it reaches the internet. */
+    private int[] currentNetwork() {
+        int kind = 0, validated = 0;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            for (Network net : cm != null ? cm.getAllNetworks() : new Network[0]) {
+                NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+                if (caps == null || caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+                        || !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) continue;
+                if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) kind = 2;
+                else if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) && kind == 0) kind = 1;
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) validated = 1;
+            }
+        } catch (RuntimeException ignored) {
+            // No answer: shown as offline.
+        }
+        return new int[]{kind, validated};
+    }
+
+    /** The Wi-Fi network's name, or "Wi-Fi" when Android hides it. */
+    private String wifiName() {
+        try {
+            WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = wm != null ? wm.getConnectionInfo() : null;
+            String ssid = info != null ? info.getSSID() : null;
+            if (ssid != null) {
+                ssid = ssid.replace("\"", "").trim();
+                if (!ssid.isEmpty() && !ssid.contains("unknown") && !ssid.equals("0x")) return ssid;
+            }
+        } catch (RuntimeException ignored) {
+            // fall through
+        }
+        return getString(R.string.wifi);
+    }
+
     private ControlCenter controlCenter;
     /** The next dropIn() is a Control Center submenu: it opens in the panel's place, on the same glass. */
     private boolean ccSubmenu;
@@ -3153,8 +3188,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             @Override public void powerOff() { HomeKeyService.powerAction(false); }
             @Override public void network() { openNetworkPill(); }
             @Override public String networkLabel() {
-                CharSequence n = wifiIconOnly ? btnWifi.getContentDescription() : btnWifi.getText();
-                return n == null ? "" : n.toString();
+                int[] n = currentNetwork();
+                if (n[0] == 0) return getString(R.string.offline);
+                String name = n[0] == 2 ? getString(R.string.ethernet) : wifiName();
+                return n[1] == 1 ? name : name + " \u00B7 " + getString(R.string.cc_no_internet);
+            }
+            @Override public int networkIcon() {
+                return currentNetwork()[0] == 2 ? R.drawable.ic_ethernet : R.drawable.ic_wifi;
+            }
+            @Override public int networkState() {
+                int[] n = currentNetwork();
+                return n[0] == 0 ? 0 : n[1] == 1 ? 2 : 1;
             }
             @Override public void nightToggle() {
                 try {
