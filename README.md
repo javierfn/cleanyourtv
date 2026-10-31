@@ -7,6 +7,10 @@
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows.*
 
+| Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
+|---|---|---|
+| ![Inicio: reloj, foto de fondo con su nombre y el dock](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes sobre cristal](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir, Mover, Información y Desinstalar](docs/fork/menu-app.jpg) |
+
 <p align="center">
   <a href="https://cleanyour.tv/halloween"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner-halloween.png" alt="CleanYourTV, Halloween edition. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore. Now with a pumpkin." width="800"></a>
 </p>
