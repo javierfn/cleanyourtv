@@ -1,6 +1,7 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
 > es la versión **3.3.0** con un estilo más cercano al Apple TV: un menú de ajustes único, fondos con movimiento, el
-> tiempo bajo el reloj y un botón de modo noche, sin que el launcher se conecte a internet. Qué cambia y cómo
+> tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
+> internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
 > [tv-extras](https://github.com/javierfn/cleanyourtv/blob/tv-extras/FORK.md). Lo que sigue es el README original.
 >

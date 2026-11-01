@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TvFocus: the running lean animation of a tile. -->
+    <item name="tv_focus_tilt" type="id" />
+</resources>

@@ -1442,6 +1442,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        TvFocus.noteKey(event);
         if (controlCenter != null && controlCenter.onKey(event)) return true;
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window, so their
         // "hold:" entries run here too or nowhere. Only while resumed: onPause releases Home's holds, and a DOWN
@@ -1836,8 +1837,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         float h = card.getHeight() * scale + 2 * pad;
         float x = r.exactCenterX() - w / 2f;
         // advanced_effects lifts a focused grid tile by 4dp and the glass follows it; dock tiles stay put (#2135).
-        boolean lifted = advancedEffects && !DockSlots.inDockRow(dockRow, singleRow, position, COLUMNS);
-        float y = r.exactCenterY() - h / 2f - (lifted ? 4f * density : 0f);
+        boolean lifted = (advancedEffects || adapter.tvosFocus()) && !DockSlots.inDockRow(dockRow, singleRow, position, COLUMNS);
+        float y = r.exactCenterY() - h / 2f - (lifted ? (adapter.tvosFocus() ? TvFocus.LIFT_DP : 4f) * density : 0f);
 
         ViewGroup.LayoutParams lp = glass.getLayoutParams();
         if (lp.width != (int) w || lp.height != (int) h || card.getWidth() != glassCardW) {

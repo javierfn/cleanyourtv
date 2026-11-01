@@ -64,6 +64,8 @@ final class ControlCenter {
     private final FrameLayout root;
     private final Actions actions;
     private final float dp;
+    /** config tvos_focus: the tiles lean towards the D-pad's direction as they take focus (TvFocus). */
+    private final boolean tvosFocus;
     private FrameLayout overlay;
     private View returnFocus;
     /** Where the panel was last open, in root coordinates: submenus (Entradas, Ajustes) open in its place. */
@@ -91,6 +93,7 @@ final class ControlCenter {
         this.root = root;
         this.actions = actions;
         this.dp = activity.getResources().getDisplayMetrics().density;
+        this.tvosFocus = WeatherLine.configFlag(activity, "tvos_focus");
     }
 
     boolean isShowing() {
@@ -553,7 +556,9 @@ final class ControlCenter {
             hide();
             action.run();
         });
-        tile.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
+        // tvos_focus: no light sweep here, the focused tile is already white.
+        if (tvosFocus) tile.setOnFocusChangeListener((v, focused) -> TvFocus.apply(v, focused, 1.06f, 0f, 0f));
+        else tile.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                 .setDuration(140).start());
         return tile;
     }
