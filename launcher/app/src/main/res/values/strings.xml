@@ -53,7 +53,6 @@
     <string name="night_menu_darker">Darker at night</string>
     <string name="night_menu_settings">Night mode settings…</string>
     <string name="wallpaper_motion_state">Wallpaper motion: %1$s</string>
-    <string name="nav_sounds_state">Navigation sounds: %1$s</string>
     <string name="night_mode">Night mode</string>
     <string name="vpn_off">VPN off</string>
     <string name="home_settings">Choose default home</string>

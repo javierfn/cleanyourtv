@@ -65,7 +65,7 @@ final class TvFocus {
         }
     }
 
-    /** True when a D-pad press just now moved focus (NavSound ticks only then). */
+    /** True when a D-pad press just now moved focus. */
     static boolean movedByKey() {
         return SystemClock.uptimeMillis() - lastKeyAt < KEY_WINDOW_MS;
     }
