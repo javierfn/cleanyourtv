@@ -502,8 +502,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         h.banner.setScaleY(focused && advancedEffects ? 1.035f : 1f);
         if (tvosFocus) {
             float density = ctx.getResources().getDisplayMetrics().density;
-            h.card.setScaleX(focused ? focusScale() : 1f);
-            h.card.setScaleY(focused ? focusScale() : 1f);
+            h.card.setScaleX(focused ? TvFocus.SCALE : 1f);
+            h.card.setScaleY(focused ? TvFocus.SCALE : 1f);
             h.card.setTranslationY(focused && !dockKind ? -TvFocus.LIFT_DP * density : 0f);
             h.card.setTranslationZ(focused ? TvFocus.SHADOW_DP * density : 0f);
             TvFocus.rest(h.card, focused);
@@ -676,6 +676,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return emptySlots > 0 ? docked : dockSize;
     }
 
+    /** config tvos_focus: the focused tile lifts by TvFocus.LIFT_DP, and the glass highlight follows it. */
+    boolean tvosFocus() {
+        return tvosFocus;
+    }
+
     /** A position focus can land on: an empty dock slot gives the last dock app. */
     int focusablePosition(int position) {
         return DockSlots.focusable(position, docked, emptySlots);
@@ -697,6 +702,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     float focusScale() {
+        if (tvosFocus) return TvFocus.SCALE;
         return !animations ? 1f : advancedEffects ? 1.12f : 1.10f;
     }
 
@@ -989,7 +995,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     name.setAlpha(focused ? 1f : restNameAlpha);
                     name.setTranslationY(0f);
                 } else if (tvosFocus) {
-                    TvFocus.apply(view, focused, scale, inDock ? 0f : -TvFocus.LIFT_DP * density,
+                    TvFocus.apply(view, focused, TvFocus.SCALE, inDock ? 0f : -TvFocus.LIFT_DP * density,
                             TvFocus.SHADOW_DP * density);
                     banner.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                             .setDuration(focused ? 520 : 170).start();

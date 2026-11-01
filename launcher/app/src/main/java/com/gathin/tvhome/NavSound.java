@@ -53,8 +53,16 @@ final class NavSound {
             if (id == tick) tickLoaded = status == 0;
             else if (id == pop) popLoaded = status == 0;
         });
-        tick = pool.load(context, R.raw.nav_tick, 1);
-        pop = pool.load(context, R.raw.open_pop, 1);
+        tick = load(context, "nav_tick.wav", R.raw.nav_tick);
+        pop = load(context, "open_pop.wav", R.raw.open_pop);
+    }
+
+    /** A WAV of that name next to config.json (adb push, to try another sound) replaces the built-in one. */
+    private int load(Context context, String name, int builtIn) {
+        java.io.File dir = Config.dir(context);
+        java.io.File custom = dir == null ? null : new java.io.File(dir, name);
+        return custom != null && custom.isFile() && custom.length() > 44
+                ? pool.load(custom.getPath(), 1) : pool.load(context, builtIn, 1);
     }
 
     /** Focus landed on a new view: ticks only when a D-pad press just moved it. */

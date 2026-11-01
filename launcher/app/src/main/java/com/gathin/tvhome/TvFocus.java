@@ -34,9 +34,11 @@ final class TvFocus {
     private TvFocus() { }
 
     /** How far a grid tile rises and the shadow it lifts onto (dock tiles grow in place, see AppAdapter.Holder.inDock). */
-    static final float LIFT_DP = 5f;
-    static final float SHADOW_DP = 14f;
-    private static final float TILT_DEG = 8f;
+    static final float LIFT_DP = 10f;
+    static final float SHADOW_DP = 28f;
+    /** tvOS grows a focused tile about 15%; AppAdapter leaves room for it between columns and inside the dock band. */
+    static final float SCALE = 1.15f;
+    private static final float TILT_DEG = 9f;
     private static final long FOCUS_MS = 260;
     private static final long UNFOCUS_MS = 180;
     private static final long SETTLE_MS = 560;
