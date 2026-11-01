@@ -30,7 +30,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 |---|---|
 | `theme-glass-oscuro/` | El tema: dock, nombres, iconos, 6 columnas, cristal oscuro, fondos de día y de noche (`wallpaper_moods`), rotación cada 15 minutos. Las fotos no están en git: `fotos.sh` las baja de Wikimedia Commons (créditos en `wallpapers/CREDITOS.txt`) |
 | `theme-halloween/` | El mismo tema con los fondos y el disfraz de Halloween de Clean Your TV |
-| `banner_tvenvivo.png` / `.html` | Icono de "TV en Vivo" (se copia dentro del launcher antes de compilar) |
+| `banner_tvenvivo.png` / `.html` | Icono de "TV en Vivo" propio (se copia dentro del launcher antes de compilar; el tema oscuro usa ahora el `banner_tv` magenta del launcher y el de Halloween, este) |
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
