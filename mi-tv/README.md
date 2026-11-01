@@ -21,6 +21,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 - **El tiempo bajo el reloj** (`weather_now`) y el **botón de sol y luna** del modo noche, que leen los complementos
   del tiempo y Brightness sin que el launcher se conecte a internet. El botón cambia a día o a noche hasta el
   siguiente cambio de horario; mantener pulsado abre un menú (volver al horario, noche más clara u oscura).
+  Con `"weather_now_place": false` en el tema, la línea del tiempo no muestra la ciudad (así está el tema oscuro).
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
