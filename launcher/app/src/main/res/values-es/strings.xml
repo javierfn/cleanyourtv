@@ -179,4 +179,7 @@
     <string name="tile_uninstall">Desinstalar</string>
     <string name="tile_uninstall_failed">No se pudo abrir el desinstalador</string>
     <string name="cc_no_internet">sin internet</string>
+    <string name="clock_format_system">Sistema</string>
+    <string name="clock_format_12">12 horas</string>
+    <string name="clock_format_24">24 horas</string>
 </resources>
