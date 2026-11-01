@@ -51,11 +51,11 @@ final class WeatherNow {
         }
 
         /** "14° · Nublado · Humedad 90 % · Madrid"; the unit is the add-on's, and each part after the degrees may be missing. */
-        String text(String humidityFormat) {
+        String text(String humidityFormat, boolean withPlace) {
             StringBuilder b = new StringBuilder().append(temperature).append('°');
             if (!skyText.isEmpty()) b.append(" · ").append(skyText);
             if (humidity >= 0) b.append(" · ").append(String.format(humidityFormat, humidity));
-            if (!place.isEmpty()) b.append(" · ").append(place);
+            if (withPlace && !place.isEmpty()) b.append(" · ").append(place);
             return b.toString();
         }
     }
@@ -68,6 +68,7 @@ final class WeatherNow {
     private final ContentObserver observer;
     private boolean watching;
     private Reading reading;
+    private boolean showPlace = true;
     /** While Home is on screen; a result or a change that arrives after stop() is dropped (main thread only). */
     private boolean active;
     /** Bumped on each start and stop, so a query from an earlier session never lands in a later one. */
@@ -193,13 +194,20 @@ final class WeatherNow {
         }
     }
 
+    /** weather_now_place: false leaves the place off the end of the line. */
+    void showPlace(boolean on) {
+        if (showPlace == on) return;
+        showPlace = on;
+        show();
+    }
+
     private void show() {
         Reading r = reading;
         if (r == null || System.currentTimeMillis() - r.updatedMs > STALE_MS) {
             view.setVisibility(View.GONE);
             return;
         }
-        String text = r.text(ctx.getString(R.string.weather_humidity));
+        String text = r.text(ctx.getString(R.string.weather_humidity), showPlace);
         view.setText(sky(r.code, r.day) + "  " + text);
         view.setContentDescription(text);
         view.setVisibility(View.VISIBLE);

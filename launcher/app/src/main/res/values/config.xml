@@ -463,6 +463,9 @@
          io.github.sumyabazar1.weather; contract in docs/modules.md). Empty = off: nothing is read or watched. The
          launcher only reads what the add-on publishes and never goes online. A theme can set "weather_now". -->
     <string name="weather_now" translatable="false"></string>
+    <!-- weather_now ends with the place the add-on reads, "· Madrid"; false leaves it out. A theme can set
+         "weather_now_place". -->
+    <bool name="weather_now_place">true</bool>
 
     <!-- Time-of-day backdrop behind everything: a dark gradient that follows the clock, with a warm
          horizon glow around sunrise and sunset. 0 keeps the plain background (the default); 1 to 100
