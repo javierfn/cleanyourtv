@@ -37,6 +37,7 @@ public final class LauncherSettingsActivity extends Activity {
     private TextView wallpaperChoice;
     private TextView animationsChoice;
     private TextView wallpaperMotionChoice;
+    private TextView navSoundsChoice;
     private TextView advancedChoice;
     private TextView followThemeChoice;
     private TextView openOnStartChoice;
@@ -130,6 +131,11 @@ public final class LauncherSettingsActivity extends Activity {
         wallpaperMotionChoice.setOnClickListener(v -> {
             WallpaperMotion.set(this, !WallpaperMotion.enabled(this));
             setResult(RESULT_OK);
+            refresh();
+        });
+        navSoundsChoice = findViewById(R.id.navSoundsChoice);
+        navSoundsChoice.setOnClickListener(v -> {
+            NavSound.set(this, !NavSound.enabled(this));
             refresh();
         });
         animationsChoice = findViewById(R.id.animationsChoice);
@@ -318,6 +324,8 @@ public final class LauncherSettingsActivity extends Activity {
                 getString(advancedEffects ? R.string.on : R.string.off)));
         wallpaperMotionChoice.setText(getString(R.string.wallpaper_motion_state,
                 getString(WallpaperMotion.enabled(this) ? R.string.on : R.string.off)));
+        navSoundsChoice.setText(getString(R.string.nav_sounds_state,
+                getString(NavSound.enabled(this) ? R.string.on : R.string.off)));
         advancedChoice.setEnabled(animations);
         advancedChoice.setAlpha(animations ? 1f : 0.5f);
         String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);

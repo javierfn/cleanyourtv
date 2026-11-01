@@ -63,6 +63,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onLibraryUp();
         /** A tile whose launch_actions entry is "input:<id>": switch to that TV input instead of opening an app. */
         void onOpenInput(String inputId);
+        /** An app (or input) is opening from a tile: NavSound's pop. */
+        default void onTileLaunched() { }
     }
 
     static final class Entry {
@@ -212,6 +214,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final boolean reducedMotion;
     /** The focus zoom may overshoot (config.xml, focus_overshoot). */
     private final boolean focusOvershoot;
+    /** config tvos_focus: lift, lean and light on the focused tile (TvFocus). */
+    private final boolean tvosFocus;
     /** Package to the action its tile sends instead of the start screen (config.xml, launch_actions). */
     private final Map<String, String> launchActions;
     /** Hold OK opens the activity's tile menu (config.xml, tile_menu); false opens App info, as before. */
@@ -238,6 +242,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.showLibrary = LibraryApps.showPill(cfg.appLibrary, cfg.libraryButton, cfg.showLibraryPill);
         this.reducedMotion = cfg.reducedMotion;
         this.focusOvershoot = cfg.focusOvershoot;
+        this.tvosFocus = cfg.animations && !cfg.reducedMotion && WeatherLine.configFlag(ctx, "tvos_focus");
         this.rowsBelowDock = cfg.rowsBelowDock;
         this.dockTitle = cfg.dockTitle;
         this.dockRow = cfg.dockRow;
@@ -459,7 +464,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View label = v.findViewById(R.id.label);
             label.setPadding(label.getPaddingLeft(), label.getPaddingTop(), label.getPaddingRight(), Math.round(4f * density));
         }
-        return new Holder(v, listener, animations, advancedEffects, reducedMotion, restNameAlpha, focusOvershoot);
+        return new Holder(v, listener, animations, advancedEffects, reducedMotion, restNameAlpha, focusOvershoot, tvosFocus);
     }
 
     @Override
@@ -495,6 +500,14 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         h.card.setTranslationZ(focused && advancedEffects ? 8f * ctx.getResources().getDisplayMetrics().density : 0f);
         h.banner.setScaleX(focused && advancedEffects ? 1.035f : 1f);
         h.banner.setScaleY(focused && advancedEffects ? 1.035f : 1f);
+        if (tvosFocus) {
+            float density = ctx.getResources().getDisplayMetrics().density;
+            h.card.setScaleX(focused ? focusScale() : 1f);
+            h.card.setScaleY(focused ? focusScale() : 1f);
+            h.card.setTranslationY(focused && !dockKind ? -TvFocus.LIFT_DP * density : 0f);
+            h.card.setTranslationZ(focused ? TvFocus.SHADOW_DP * density : 0f);
+            TvFocus.rest(h.card, focused);
+        }
         // A fully opaque banner covers the whole card (centerCrop), so the card's own fill under it is drawn for
         // nothing on every frame; keep it under banners with transparent parts and under icon tiles.
         h.card.setBackground(e.banner != null && e.banner.getOpacity() == PixelFormat.OPAQUE ? null : h.cardBackground);
@@ -535,6 +548,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
     @SuppressWarnings("deprecation")
     private void launch(Entry e) {
+        listener.onTileLaunched();
         if (e.kind == Entry.HOME_SETTINGS) {
             ctx.startActivity(new Intent(ctx, HomeSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -920,11 +934,12 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         /** Alpha of the name while the tile is not focused (always_show_names). */
         final float restNameAlpha;
         final boolean overshoot;
+        final boolean tvosFocus;
         /** A dock tile: it grows in place without advanced_effects' lift, which reads as off-centre in the band (#2135). */
         boolean inDock;
 
         Holder(View v, TileListener listener, boolean animations, boolean advancedEffects,
-               boolean reducedMotion, float restNameAlpha, boolean overshoot) {
+               boolean reducedMotion, float restNameAlpha, boolean overshoot, boolean tvosFocus) {
             super(v);
             card = v.findViewById(R.id.card);
             cardBackground = card.getBackground();
@@ -937,6 +952,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.reducedMotion = reducedMotion;
             this.restNameAlpha = restNameAlpha;
             this.overshoot = overshoot;
+            this.tvosFocus = tvosFocus;
 
             final float density = v.getResources().getDisplayMetrics().density;
             card.setOutlineProvider(new ViewOutlineProvider() {
@@ -947,6 +963,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
             card.setClipToOutline(true);
+            if (tvosFocus) card.setForeground(new TvFocus.Shine(0f));   // the card's outline already rounds it
 
             card.setOnKeyListener((view, keyCode, event) -> {
                 if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -971,6 +988,14 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     banner.setScaleY(1f);
                     name.setAlpha(focused ? 1f : restNameAlpha);
                     name.setTranslationY(0f);
+                } else if (tvosFocus) {
+                    TvFocus.apply(view, focused, scale, inDock ? 0f : -TvFocus.LIFT_DP * density,
+                            TvFocus.SHADOW_DP * density);
+                    banner.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
+                            .setDuration(focused ? 520 : 170).start();
+                    name.animate().alpha(focused ? 1f : restNameAlpha)
+                            .translationY(focused ? density * 4f : -density * 6f)
+                            .setDuration(220).start();
                 } else if (reducedMotion) {
                     // A short zoom with no hardware layer: building a layer for so short an animation costs more
                     // frames than it saves. The name just appears instead of fading.

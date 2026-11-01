@@ -206,6 +206,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private GameDay gameDay;
     /** weather_now: the weather now in the stats line's place; null when off or with show_stats on. */
     private WeatherNow weatherNow;
+    /** Navigation tick and app-open pop (NavSound), null while they are off. */
+    private NavSound navSound;
     private View raceBar;
     private LinearLayout racePager;
     private long rotationStart;
@@ -946,6 +948,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
             if (!onTile) hideGlass();
+            if (navSound != null && oldF != null && newF != null && oldF != newF) navSound.onFocusMoved();
         });
 
         packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -1099,6 +1102,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onResume() {
         super.onResume();
         resumed = true;
+        // Launcher settings may have switched the sounds on or off.
+        if (NavSound.enabled(this) != (navSound != null)) {
+            if (navSound != null) navSound.release();
+            navSound = NavSound.create(this);
+        }
         // A festival that started or ended while Home was in the background: rebuild with or without it.
         if (festive != festival.active(LocalDate.now())) {
             recreate();
@@ -1398,6 +1406,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         cancelHoldOk();
         if (gameDay != null) gameDay.shutdown();
         if (weatherNow != null) weatherNow.shutdown();
+        if (navSound != null) navSound.release();
+        navSound = null;
         unregisterReceiver(packageReceiver);
         if (openOnStartOnWake) unregisterReceiver(wakeReceiver);
         wallpaperPlayer.close();
@@ -1442,6 +1452,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        TvFocus.noteKey(event);
         if (controlCenter != null && controlCenter.onKey(event)) return true;
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window, so their
         // "hold:" entries run here too or nowhere. Only while resumed: onPause releases Home's holds, and a DOWN
@@ -2495,7 +2506,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         focusTile(target);
         // The default focus search clicks for Left/Right; Up/Down are handled here, so click for them too.
-        grid.playSoundEffect(keyCode == KeyEvent.KEYCODE_DPAD_UP
+        // With NavSound on, its tick (from the focus listener) replaces the system click.
+        if (navSound == null) grid.playSoundEffect(keyCode == KeyEvent.KEYCODE_DPAD_UP
                 ? SoundEffectConstants.NAVIGATION_UP : SoundEffectConstants.NAVIGATION_DOWN);
         return true;
     }
@@ -3934,6 +3946,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public void onOpenInput(String inputId) {
         openInput(inputId);
+    }
+
+    @Override
+    public void onTileLaunched() {
+        if (navSound != null) navSound.onAppOpened();
     }
 
     private void addAtvMenuRow(LinearLayout rows, PopupWindow popup, int title, int icon, Runnable action) {
