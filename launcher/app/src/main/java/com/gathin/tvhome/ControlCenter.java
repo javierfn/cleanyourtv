@@ -82,6 +82,12 @@ final class ControlCenter {
     /** softPicture()'s copy of lastPicture, kept while that picture is shown. */
     private Bitmap softCache;
     private Bitmap softCacheOf;
+    /**
+     * liquid_glass: a copy of the screen as it was before a menu opened over the apps (useScreen()). While set, the
+     * glass shows that instead of the bare wallpaper, so the icons under a menu show through it blurred.
+     */
+    private Bitmap screen;
+    private int[] screenAt = new int[2];
     private FrameLayout overlay;
     private View returnFocus;
     /** Where the panel was last open, in root coordinates: submenus (Entradas, Ajustes) open in its place. */
@@ -652,7 +658,7 @@ final class ControlCenter {
     private void makeGlass() {
         Bitmap soft;
         try {
-            soft = softPicture();
+            soft = screen != null ? screen : softPicture();
         } catch (RuntimeException | OutOfMemoryError e) {
             soft = null;
         }
@@ -726,6 +732,16 @@ final class ControlCenter {
         return softCache;
     }
 
+    /** A copy of the window for the next menus' glass (see screen), or null to go back to the wallpaper. */
+    void useScreen(Bitmap copy) {
+        screen = copy;
+        if (copy != null) {
+            int[] rootWin = new int[2];
+            root.getLocationInWindow(rootWin);
+            screenAt = rootWin;
+        }
+    }
+
     /** liquid_glass with a wallpaper to see through: menus opened from the panel take its glass too (glassRows()). */
     boolean liquidMenus() {
         return liquid && lastPicture != null && lastWallpaper != null;
@@ -771,6 +787,13 @@ final class ControlCenter {
      * null when it cannot be cut. A region past the picture's edge is cut at the edge.
      */
     private Bitmap wallpaperCrop(Bitmap soft, int left, int top, int w, int h) {
+        if (soft != null && soft == screen) {
+            // A copy of the window: root point -> window point, nothing else to undo.
+            int x0 = Math.max(0, left + screenAt[0]), y0 = Math.max(0, top + screenAt[1]);
+            int x1 = Math.min(soft.getWidth(), left + screenAt[0] + w), y1 = Math.min(soft.getHeight(), top + screenAt[1] + h);
+            if (x1 - x0 < 4 || y1 - y0 < 4) return null;
+            return Bitmap.createBitmap(soft, x0, y0, x1 - x0, y1 - y0);
+        }
         ImageView view = lastWallpaper;
         if (soft == null || view == null || w <= 0 || h <= 0) return null;
         // Root point -> wallpaper view point (undo its zoom about the pivot) -> picture point (undo centre-crop).
