@@ -3359,6 +3359,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return vpnPillState == VpnBadge.PILL_UP ? 1 : 0;
             }
             @Override public void settings() { ccSubmenu = true; root.post(MainActivity.this::showSettingsMenu); }
+            @Override public void panelShown(boolean shown) { wallpaperPlayer.hideCaption(shown); }
         });
         btnControl.setOnClickListener(v -> controlCenter.show(v, wallpaperPlayer.imageView(), wallpaperPlayer.currentBitmap()));
     }

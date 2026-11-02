@@ -49,6 +49,8 @@ final class ControlCenter {
         /** -1 no VPN app, 0 off, 1 up. */
         int vpnState();
         void settings();
+        /** liquid_glass: the panel opened (true) or closed; with no box around the tiles, Home hides what shows between them. */
+        default void panelShown(boolean shown) {}
     }
 
     private static final int GLASS = 0x1FFFFFFF;
@@ -66,6 +68,13 @@ final class ControlCenter {
     private final float dp;
     /** config tvos_focus: the tiles lean towards the D-pad's direction as they take focus (TvFocus). */
     private final boolean tvosFocus;
+    /**
+     * config liquid_glass: tvOS 26-style glass. No panel around the tiles: each one is its own piece of glass over the
+     * wallpaper (LiquidGlass), made once the panel is laid out, and the screen behind is barely dimmed.
+     */
+    private final boolean liquid;
+    /** liquid_glass: each tile's corner radius (-1 for a circle) and its glass fill, until the glass is made. */
+    private final java.util.Map<View, float[]> glassTiles = new java.util.LinkedHashMap<>();
     private FrameLayout overlay;
     private View returnFocus;
     /** Where the panel was last open, in root coordinates: submenus (Entradas, Ajustes) open in its place. */
@@ -94,6 +103,7 @@ final class ControlCenter {
         this.actions = actions;
         this.dp = activity.getResources().getDisplayMetrics().density;
         this.tvosFocus = WeatherLine.configFlag(activity, "tvos_focus");
+        this.liquid = WeatherLine.configFlag(activity, "liquid_glass");
     }
 
     boolean isShowing() {
@@ -107,7 +117,9 @@ final class ControlCenter {
         Context c = activity;
         overlay = new FrameLayout(c);
         overlay.setClickable(true);
-        overlay.setBackgroundColor(0x14000000);
+        glassTiles.clear();
+        boolean liquid = this.liquid && picture != null;
+        overlay.setBackgroundColor(liquid ? 0x0A000000 : 0x14000000);
         overlay.setOnClickListener(v -> hide());
 
         int width = px(340);
@@ -123,7 +135,8 @@ final class ControlCenter {
         lastPicture = picture;
         FrameLayout panel = new FrameLayout(c);
         panel.setClickable(true);
-        panel.setClipToOutline(true);
+        panel.setClipToOutline(!liquid);
+        panel.setClipChildren(!liquid);
         float radius = px(26);
         panel.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -131,7 +144,7 @@ final class ControlCenter {
                 outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
             }
         });
-        panel.setElevation(px(18));
+        if (!liquid) panel.setElevation(px(18));
         FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.TOP | Gravity.END);
         plp.topMargin = top;
@@ -139,7 +152,7 @@ final class ControlCenter {
         overlay.addView(panel, plp);
 
         // The glass: the same picture, at the same place and zoom as the wallpaper, blurred and darkened a little.
-        if (picture != null && Build.VERSION.SDK_INT >= 31) {
+        if (!liquid && picture != null && Build.VERSION.SDK_INT >= 31) {
             ImageView blur = new ImageView(c);
             blur.setScaleType(ImageView.ScaleType.CENTER_CROP);
             blur.setImageBitmap(picture);
@@ -170,7 +183,7 @@ final class ControlCenter {
         glass.setCornerRadius(radius);
         glass.setStroke(Math.max(1, Math.round(dp)), 0x40FFFFFF);
         tint.setBackground(glass);
-        panel.addView(tint, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        if (!liquid) panel.addView(tint, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         LinearLayout content = new LinearLayout(c);
         content.setOrientation(LinearLayout.VERTICAL);
@@ -194,6 +207,12 @@ final class ControlCenter {
         View power = bigTile(R.drawable.ic_atv_power, activity.getString(R.string.tv_power_off_short), actions::powerOff);
         grid.addView(power, cell(0, 0, 2, col, 2 * pill + gap, 0, gap));
         View net = pillTile(actions.networkIcon(), activity.getString(R.string.cc_network), actions.networkLabel(), actions::network);
+        if (liquid && actions.networkState() == 2) {
+            // Online: the icon in blue, like tvOS's Wi-Fi.
+            int blue = 0xFF0A84FF;
+            ((ImageView) ((ViewGroup) net).getChildAt(0)).setImageTintList(
+                    new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{blue, blue}));
+        }
         if (actions.networkState() < 2) {
             // No connection, or no internet through it: the icon in red, like the VPN's lock when it is off.
             int warn = 0xFFFF6B5E;
@@ -256,6 +275,20 @@ final class ControlCenter {
             View child = root.getChildAt(i);
             if (child != overlay && child instanceof ViewGroup) ((ViewGroup) child).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
+        if (liquid) {
+            actions.panelShown(true);
+            // The glass needs each tile's place on screen: make it once the panel is laid out, before it is drawn.
+            panel.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    panel.getViewTreeObserver().removeOnPreDrawListener(this);
+                    makeGlass();
+                    return true;
+                }
+            });
+        } else {
+            glassTiles.clear();
+        }
         panel.setAlpha(0f);
         panel.setTranslationY(-px(8));
         panel.animate().alpha(1f).translationY(0f).setDuration(200).start();
@@ -270,6 +303,7 @@ final class ControlCenter {
         }
         root.removeView(overlay);
         overlay = null;
+        if (liquid) actions.panelShown(false);
         if (returnFocus != null) returnFocus.requestFocus();
     }
 
@@ -278,25 +312,10 @@ final class ControlCenter {
      * the wallpaper under it, blurred and lifted, under a light frost and a thin edge. Null when there is no picture.
      */
     android.graphics.drawable.Drawable frost(int left, int top, int w, int h) {
-        Bitmap picture = lastPicture;
-        ImageView view = lastWallpaper;
-        if (picture == null || view == null || w <= 0 || h <= 0) return null;
+        if (w <= 0 || h <= 0) return null;
         try {
-            Bitmap soft = picture.getConfig() == Bitmap.Config.HARDWARE ? picture.copy(Bitmap.Config.ARGB_8888, false) : picture;
-            if (soft == null) return null;
-            // Root point -> wallpaper view point (undo its zoom about the pivot) -> picture point (undo centre-crop).
-            android.graphics.Matrix toPicture = new android.graphics.Matrix();
-            view.getImageMatrix().invert(toPicture);
-            float[] pts = {left, top, left + w, top + h};
-            for (int i = 0; i < 4; i += 2) {
-                pts[i] = view.getPivotX() + (pts[i] - view.getPivotX()) / view.getScaleX();
-                pts[i + 1] = view.getPivotY() + (pts[i + 1] - view.getPivotY()) / view.getScaleY();
-            }
-            toPicture.mapPoints(pts);
-            int x0 = Math.max(0, (int) pts[0]), y0 = Math.max(0, (int) pts[1]);
-            int x1 = Math.min(soft.getWidth(), (int) pts[2]), y1 = Math.min(soft.getHeight(), (int) pts[3]);
-            if (x1 - x0 < 4 || y1 - y0 < 4) return null;
-            Bitmap crop = Bitmap.createBitmap(soft, x0, y0, x1 - x0, y1 - y0);
+            Bitmap crop = wallpaperCrop(softPicture(), left, top, w, h);
+            if (crop == null) return null;
             // A wide, smooth blur: shrink to an eighth of the panel, box-blur that three times, and let the drawable's
             // filtering scale it back up (already soft, so no blocks show).
             Bitmap smooth = Bitmap.createScaledBitmap(crop, Math.max(4, w / 8), Math.max(4, h / 8), true);
@@ -552,6 +571,7 @@ final class ControlCenter {
         bg.addState(new int[]{android.R.attr.state_focused}, on);
         bg.addState(new int[]{}, off);
         tile.setBackground(bg);
+        glassTiles.put(tile, new float[]{corner, LIQUID_TILE});
         tile.setOnClickListener(v -> {
             hide();
             action.run();
@@ -565,6 +585,8 @@ final class ControlCenter {
 
     /** A pill tile's look for on (brighter glass) or off; focused stays white either way. */
     void setActive(View tile, boolean active) {
+        float[] g = glassTiles.get(tile);
+        if (g != null) g[1] = active ? LIQUID_ACTIVE : LIQUID_TILE;
         float corner = px(31);
         GradientDrawable on = new GradientDrawable();
         on.setColor(FOCUS);
@@ -602,6 +624,108 @@ final class ControlCenter {
         }
         t.setTextColor(new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{INK, Color.WHITE}));
         return t;
+    }
+
+    /** liquid_glass fills: a faint frost at rest, a brighter one for something switched on. */
+    private static final int LIQUID_TILE = 0x0AFFFFFF;
+    private static final int LIQUID_ACTIVE = 0x38FFFFFF;
+
+    /** liquid_glass: gives every tile of the open panel its own piece of glass (LiquidGlass), white while focused. */
+    private void makeGlass() {
+        Bitmap soft;
+        try {
+            soft = softPicture();
+        } catch (RuntimeException | OutOfMemoryError e) {
+            soft = null;
+        }
+        for (java.util.Map.Entry<View, float[]> e : glassTiles.entrySet()) {
+            View tile = e.getKey();
+            int w = tile.getWidth(), h = tile.getHeight();
+            if (w <= 0 || h <= 0 || tile.getParent() == null) continue;
+            android.graphics.Rect at = new android.graphics.Rect(0, 0, w, h);
+            root.offsetDescendantRectToMyCoords(tile, at);
+            float corner = e.getValue()[0];
+            int margin = dpx(16);
+            Bitmap source = glassSource(soft, at.left - margin, at.top - margin, w + 2 * margin, h + 2 * margin);
+            LiquidGlass glass = new LiquidGlass(source, margin, w, h, corner, dp, (int) e.getValue()[1]);
+            GradientDrawable on = new GradientDrawable();
+            on.setColor(FOCUS);
+            if (corner < 0) on.setShape(GradientDrawable.OVAL);
+            else on.setCornerRadius(corner);
+            StateListDrawable bg = new StateListDrawable();
+            bg.addState(new int[]{android.R.attr.state_focused}, on);
+            bg.addState(new int[]{}, glass);
+            tile.setBackground(bg);
+        }
+        glassTiles.clear();
+    }
+
+    /** The wallpaper under (left, top, w, h) in root coordinates: blurred wide, lifted, at LiquidGlass's work scale. */
+    private Bitmap glassSource(Bitmap soft, int left, int top, int w, int h) {
+        try {
+            Bitmap crop = wallpaperCrop(soft, left, top, w, h);
+            if (crop == null) return null;
+            // Softer than the old panel's frost: shapes behind the glass still show through, as on tvOS.
+            Bitmap smooth = Bitmap.createScaledBitmap(crop, Math.max(4, w / 5), Math.max(4, h / 5), true);
+            smooth = boxBlur(smooth.copy(Bitmap.Config.ARGB_8888, true), 2, 2);
+            int ow = Math.max(4, Math.round(w * 0.5f)), oh = Math.max(4, Math.round(h * 0.5f));
+            Bitmap out = Bitmap.createBitmap(ow, oh, Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(out);
+            android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG);
+            android.graphics.ColorMatrix vivid = new android.graphics.ColorMatrix();
+            // Vivid and a touch milky, as tvOS's glass; the contrast is pressed a little so white type still reads.
+            vivid.setSaturation(1.4f);
+            vivid.postConcat(new android.graphics.ColorMatrix(new float[] {
+                    0.85f, 0, 0, 0, 16, 0, 0.85f, 0, 0, 16, 0, 0, 0.85f, 0, 16, 0, 0, 0, 1, 0}));
+            paint.setColorFilter(new android.graphics.ColorMatrixColorFilter(vivid));
+            canvas.drawBitmap(smooth, null, new android.graphics.Rect(0, 0, ow, oh), paint);
+            return out;
+        } catch (RuntimeException | OutOfMemoryError e) {
+            return null;
+        }
+    }
+
+    /**
+     * The wallpaper's picture in a form whose pixels can be read (a hardware bitmap is copied), or null.
+     */
+    private Bitmap softPicture() {
+        Bitmap picture = lastPicture;
+        if (picture == null) return null;
+        return picture.getConfig() == Bitmap.Config.HARDWARE ? picture.copy(Bitmap.Config.ARGB_8888, false) : picture;
+    }
+
+    /**
+     * The part of the wallpaper's picture (soft, from softPicture()) shown at (left, top, w, h) in root coordinates, in the picture's own pixels;
+     * null when it cannot be cut. A region past the picture's edge is cut at the edge.
+     */
+    private Bitmap wallpaperCrop(Bitmap soft, int left, int top, int w, int h) {
+        ImageView view = lastWallpaper;
+        if (soft == null || view == null || w <= 0 || h <= 0) return null;
+        // Root point -> wallpaper view point (undo its zoom about the pivot) -> picture point (undo centre-crop).
+        android.graphics.Matrix toPicture = new android.graphics.Matrix();
+        view.getImageMatrix().invert(toPicture);
+        float[] pts = {left, top, left + w, top + h};
+        for (int i = 0; i < 4; i += 2) {
+            pts[i] = view.getPivotX() + (pts[i] - view.getPivotX()) / view.getScaleX();
+            pts[i + 1] = view.getPivotY() + (pts[i + 1] - view.getPivotY()) / view.getScaleY();
+        }
+        toPicture.mapPoints(pts);
+        // The view may show a smaller copy of the picture than the one given here: scale to the picture's pixels.
+        android.graphics.drawable.Drawable shown = view.getDrawable();
+        if (shown != null && shown.getIntrinsicWidth() > 0 && shown.getIntrinsicHeight() > 0) {
+            float fx = soft.getWidth() / (float) shown.getIntrinsicWidth(), fy = soft.getHeight() / (float) shown.getIntrinsicHeight();
+            for (int i = 0; i < 4; i += 2) {
+                pts[i] *= fx;
+                pts[i + 1] *= fy;
+            }
+        }
+        int x0 = Math.max(0, (int) pts[0]), y0 = Math.max(0, (int) pts[1]);
+        int x1 = Math.min(soft.getWidth(), (int) pts[2]), y1 = Math.min(soft.getHeight(), (int) pts[3]);
+        if (x1 - x0 < 4 || y1 - y0 < 4) return null;
+        Bitmap crop = Bitmap.createBitmap(soft, x0, y0, x1 - x0, y1 - y0);
+        // The picture carries a high density for its view; drawn as is, the crop would shrink into a corner.
+        crop.setDensity(Bitmap.DENSITY_NONE);
+        return crop;
     }
 
     /** The panel's layout scale: 0.6 of the first try covered too little, 20 % more than that reads well. */
