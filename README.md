@@ -12,7 +12,21 @@
 
 | Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
 |---|---|---|
-| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
+| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock con TV en Vivo enfocada](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
+| **Foco tvOS en la cuadrícula / tvOS focus in the grid** | **Modo noche / Night mode** | **Menú de ajustes / Settings menu** |
+| ![Atresplayer enfocado: crece un 25 % desde su centro, sin marco, y su nombre aparece debajo](docs/fork/foco-cuadricula.jpg) | ![Modo noche activado: fondo nocturno de auroras y la pantalla atenuada, con el Centro de control abierto](docs/fork/modo-noche.jpg) | ![Ajustes del televisor, Ajustes del lanzador, Tarjetas de módulos, Editar el dock y Reordenar apps, en cristal](docs/fork/menu-ajustes.jpg) |
+
+*Detalles · Details*
+
+| El tiempo bajo el reloj / Weather under the clock | Curvas concéntricas / Concentric corners |
+|---|---|
+| ![Saludo, hora, fecha y la línea del tiempo: icono, temperatura, cielo y humedad](docs/fork/reloj-tiempo.jpg) | ![Ampliación del extremo izquierdo del dock: la banda se ensancha con TV en Vivo y su curva sigue la esquina del icono](docs/fork/dock-curva.jpg) |
+
+| Dock: extremo izquierdo enfocado / left end focused |
+|---|
+| ![Dock con TV en Vivo enfocada: solo el borde izquierdo de la banda se ensancha](docs/fork/dock-izquierda.jpg) |
+| **Dock: extremo derecho enfocado / right end focused** |
+| ![Dock con Prime Video enfocado: solo el borde derecho de la banda se ensancha](docs/fork/dock-derecha.jpg) |
 
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore." width="800"></a>
