@@ -10,3 +10,29 @@ n2-via-lactea "Human looking at the stars during Perseids with the Milky Way" �
 n3-paris      "Paris Night" — Benh LIEU SONG, CC BY-SA 4.0
 n4-hong-kong  "Hong Kong Harbour Night 2019-06-11" — Benh LIEU SONG, CC BY-SA 4.0
 n5-venecia    "Santa Maria della Salute from Hotel Monaco nightview" — Wolfgang Moroder, CC BY-SA 3.0
+España y Portugal, de día y de noche (Wikimedia Commons, recortadas a 3840x2160):
+06-alhambra          "Granada - View from Mirador de San Nicolás - 02" — Diego Delso, CC BY-SA 4.0
+07-catedrales        "Praia de Augas Santas ou das Catedrais. Devesa. Ribadeo. Galiza-20" — Luis Miguel Bugallo Sánchez (Lmbuga), CC BY-SA 3.0
+08-gaztelugatxe      "Gaztelugache, Bermeo, País Vasco, España, 2019-08-13, DD 14" — Diego Delso, CC BY-SA 4.0
+09-ronda             "Ronda - View from Puente Nuevo - 5" — Benjamin Smith, CC BY-SA 4.0
+10-plaza-espana      "Plaza de España (Sevilla) - 01" — Carlos Delgado, CC BY-SA 4.0
+11-teide             "Teide Canadas" — Ingo Mehling, CC BY-SA 4.0
+12-ordesa            "Parque nacional de Ordesa y Monte Perdido, Huesca, España, 2015-01-07, DD 01" — Diego Delso, CC BY-SA 4.0
+13-montserrat        "Montserrat Natural Park 12" — kallerna, CC BY-SA 4.0
+14-cordoba           "Centro Histórico, 16.9 -- 2023 -- Córdoba, España" — Jose María Ligero Loarte, CC BY-SA 4.0
+15-toledo            "Toledo - 02" — Carlos Delgado, CC BY-SA 3.0 es
+16-santiago          "2010-Catedral de Santiago de Compostela-Galicia (Spain) 3" — Luis Miguel Bugallo Sánchez, CC BY-SA 3.0
+17-sintra            "Palacio Nacional da Pena, Sintra, Portugal, 2019-05-25, DD 84" — Diego Delso, CC BY-SA 4.0
+18-oporto            "Rabelo boats and Ribeira seen from Cais de Gaia, 20250605 1623 9879" — Jakub Hałun, CC BY 4.0
+19-azores            "Lago verde, isla de San Miguel, Azores, Portugal, 2020-07-29, DD 16" — Diego Delso, CC BY-SA 4.0
+n6-alhambra          "Dusk Charles V Palace Alhambra Granada Andalusia Spain" — Jebulon, CC0
+n7-cuenca            "Casas colgadas, Cuenca, España, 2017-01-03, DD 121-123 HDR" — Diego Delso, CC BY-SA 4.0
+n8-segovia           "Roman Aqueduct Segovia night 2012 Spain" — Jebulon, CC0
+n9-sevilla           "Sevilla - Torre del Oro and river Guadalquivir at night" — Benjamin Smith, CC BY-SA 4.0
+n10-valencia         "El Hemisférico, Ciudad de las Artes y las Ciencias, Valencia, España, 2014-06-29, DD 60-62 HDR" — Diego Delso, CC BY-SA 3.0
+n11-oporto           "Puente de Don Luis I, Oporto, Portugal, 2019-06-02, DD 29-31 HDR" — Diego Delso, CC BY-SA 4.0
+n12-lisboa           "25 de Abril Bridge (36211658443)" — Deensel, CC BY 2.0
+n13-madrid           "Skyline view of Madrid, Spain at night - 50317258357" — Tim Adams, CC BY 2.0
+n14-sagrada-familia  "Sagrada Familia at night 01" — Maksim Sokolov (maxergon.com), CC BY-SA 4.0
+n15-teide            "Road to the stars" — AstroAnthony, CC BY 4.0
+n16-toledo           "1 toledo spain evening sunset 2014 DXR edit" — Chensiyuan, CC BY-SA 3.0

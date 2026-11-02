@@ -22,6 +22,10 @@
 |---|---|
 | ![Saludo, hora, fecha y la línea del tiempo: icono, temperatura, cielo y humedad](docs/fork/reloj-tiempo.jpg) | ![Ampliación del extremo izquierdo del dock: la banda se ensancha con TV en Vivo y su curva sigue la esquina del icono](docs/fork/dock-curva.jpg) |
 
+| Fondos de España y Portugal: de día / Spain and Portugal wallpapers: day | De noche / Night |
+|---|---|
+| ![Inicio con la Alhambra y Sierra Nevada de fondo](docs/fork/fondos-dia.jpg) | ![Inicio con el Puente 25 de Abril de Lisboa iluminado de noche](docs/fork/fondos-noche.jpg) |
+
 | Dock: extremo izquierdo enfocado / left end focused |
 |---|
 | ![Dock con TV en Vivo enfocada: solo el borde izquierdo de la banda se ensancha](docs/fork/dock-izquierda.jpg) |

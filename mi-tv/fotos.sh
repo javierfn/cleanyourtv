@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 W=theme-glass-oscuro/wallpapers
 TMP=$(mktemp -d)
-get() { t="$1"; out="$2"
+get() { t="$1"; out="$2"; top="${3:-}"
   [ -f "$W/$out.jpg" ] && return
   u=$(curl -s -A "cleanyourtv-wallpapers" -G "https://commons.wikimedia.org/w/api.php" --data-urlencode "titles=$t" \
       -d action=query -d prop=imageinfo -d iiprop=url -d format=json \
@@ -16,7 +16,9 @@ get() { t="$1"; out="$2"
   w=$(sips -g pixelWidth "$TMP/big.jpg" | awk '/pixelWidth/{print $2}'); h=$(sips -g pixelHeight "$TMP/big.jpg" | awk '/pixelHeight/{print $2}')
   if [ $((w*9)) -gt $((h*16)) ]; then sips --resampleHeight 2160 "$TMP/big.jpg" --out "$TMP/a.jpg" >/dev/null
   else sips --resampleWidth 3840 "$TMP/big.jpg" --out "$TMP/a.jpg" >/dev/null; fi
-  sips -c 2160 3840 "$TMP/a.jpg" --out "$TMP/b.jpg" >/dev/null
+  # The crop is centred; a third argument moves it to that many pixels from the top (a tall subject).
+  if [ -n "$top" ]; then sips -c 2160 3840 --cropOffset "$top" 0 "$TMP/a.jpg" --out "$TMP/b.jpg" >/dev/null
+  else sips -c 2160 3840 "$TMP/a.jpg" --out "$TMP/b.jpg" >/dev/null; fi
   sips -s format jpeg -s formatOptions 92 "$TMP/b.jpg" --out "$W/$out.jpg" >/dev/null
   echo "$out"
 }
@@ -30,6 +32,32 @@ get "File:018 Human looking at the stars during Perseids with the Milky Way in t
 get "File:Paris Night.jpg" n3-paris
 get "File:Hong Kong Harbour Night 2019-06-11.jpg" n4-hong-kong
 get "File:Santa Maria della Salute from Hotel Monaco nightview.jpg" n5-venecia
+# Spain and Portugal, by day and by night
+get "File:Granada - View from Mirador de San Nicolás - 02.jpg" 06-alhambra
+get "File:Praia de Augas Santas ou das Catedrais. Devesa. Ribadeo. Galiza-20.jpg" 07-catedrales
+get "File:Gaztelugache, Bermeo, País Vasco, España, 2019-08-13, DD 14.jpg" 08-gaztelugatxe
+get "File:Ronda - View from Puente Nuevo - 5.jpg" 09-ronda
+get "File:Plaza de España (Sevilla) - 01.jpg" 10-plaza-espana
+get "File:Teide Canadas.jpg" 11-teide
+get "File:Parque nacional de Ordesa y Monte Perdido, Huesca, España, 2015-01-07, DD 01.JPG" 12-ordesa
+get "File:Montserrat Natural Park 12.jpg" 13-montserrat
+get "File:Centro Histórico, 16.9 -- 2023 -- Córdoba, España.jpg" 14-cordoba
+get "File:Toledo - 02.jpg" 15-toledo
+get "File:2010-Catedral de Santiago de Compostela-Galicia (Spain) 3.jpg" 16-santiago
+get "File:Palacio Nacional da Pena, Sintra, Portugal, 2019-05-25, DD 84.jpg" 17-sintra
+get "File:Rabelo boats and Ribeira seen from Cais de Gaia, 20250605 1623 9879.jpg" 18-oporto
+get "File:Lago verde, isla de San Miguel, Azores, Portugal, 2020-07-29, DD 16.jpg" 19-azores
+get "File:Dusk Charles V Palace Alhambra Granada Andalusia Spain.jpg" n6-alhambra
+get "File:Casas colgadas, Cuenca, España, 2017-01-03, DD 121-123 HDR.jpg" n7-cuenca
+get "File:Roman Aqueduct Segovia night 2012 Spain.jpg" n8-segovia
+get "File:Sevilla - Torre del Oro and river Guadalquivir at night.jpg" n9-sevilla
+get "File:El Hemisférico, Ciudad de las Artes y las Ciencias, Valencia, España, 2014-06-29, DD 60-62 HDR.JPG" n10-valencia
+get "File:Puente de Don Luis I, Oporto, Portugal, 2019-06-02, DD 29-31 HDR.jpg" n11-oporto
+get "File:25 de Abril Bridge (36211658443).jpg" n12-lisboa
+get "File:Skyline view of Madrid, Spain at night - 50317258357.jpg" n13-madrid
+get "File:Sagrada Familia at night 01.jpg" n14-sagrada-familia 33
+get "File:Road to the stars.jpg" n15-teide
+get "File:1 toledo spain evening sunset 2014 DXR edit.jpg" n16-toledo
 [ -f theme-glass-oscuro/wallpaper.jpg ] || cp "$W/01-lysefjord.jpg" theme-glass-oscuro/wallpaper.jpg
 cp -n ../themes/halloween/wallpapers/*.jpg theme-halloween/wallpapers/ 2>/dev/null || true
 rm -rf "$TMP"
