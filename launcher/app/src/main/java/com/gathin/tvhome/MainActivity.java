@@ -3807,13 +3807,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // No taller than the screen below the panel's top: a long list (Module cards) scrolls inside.
             int h = Math.min(panel.getMeasuredHeight(), root.getHeight() - at.top - (int) (24 * density));
             popup.setHeight(h);
-            android.graphics.drawable.Drawable glass = controlCenter.frost(at.left, at.top, w, h);
+            // liquid_glass: no box, each row its own glass like the panel's tiles, and the photo's name out of the way.
+            boolean liquid = rowsView != null && controlCenter.liquidMenus();
+            android.graphics.drawable.Drawable glass = liquid ? null : controlCenter.frost(at.left, at.top, w, h);
+            if (liquid) {
+                panel.setBackground(null);
+                controlCenter.glassRows(rowsView, panel);
+                wallpaperPlayer.hideCaption(true);
+            }
             if (glass != null) panel.setBackground(glass);
             int[] origin = new int[2];
             root.getLocationOnScreen(origin);
             panel.setAlpha(0f);
             panel.setTranslationY(-8 * density);
             popup.setOnDismissListener(() -> {
+                if (liquid) wallpaperPlayer.hideCaption(false);
                 if (openPopup == popup) openPopup = null;
                 View back = findViewById(R.id.btnControl);
                 if (back != null) back.requestFocus();

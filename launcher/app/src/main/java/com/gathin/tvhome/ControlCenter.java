@@ -74,7 +74,14 @@ final class ControlCenter {
      */
     private final boolean liquid;
     /** liquid_glass: each tile's corner radius (-1 for a circle) and its glass fill, until the glass is made. */
-    private final java.util.Map<View, float[]> glassTiles = new java.util.LinkedHashMap<>();
+    private final java.util.Map<View, int[]> glassTiles = new java.util.LinkedHashMap<>();
+    /** liquid_glass: tiles that have their glass, to make it again when they turn on or off or scroll. */
+    private final java.util.Map<View, int[]> glassMade = new java.util.WeakHashMap<>();
+    /** The view that slides in with the tiles: its offset is left out when working out where they will rest. */
+    private View glassMoving;
+    /** softPicture()'s copy of lastPicture, kept while that picture is shown. */
+    private Bitmap softCache;
+    private Bitmap softCacheOf;
     private FrameLayout overlay;
     private View returnFocus;
     /** Where the panel was last open, in root coordinates: submenus (Entradas, Ajustes) open in its place. */
@@ -282,6 +289,7 @@ final class ControlCenter {
                 @Override
                 public boolean onPreDraw() {
                     panel.getViewTreeObserver().removeOnPreDrawListener(this);
+                    glassMoving = panel;
                     makeGlass();
                     return true;
                 }
@@ -571,7 +579,7 @@ final class ControlCenter {
         bg.addState(new int[]{android.R.attr.state_focused}, on);
         bg.addState(new int[]{}, off);
         tile.setBackground(bg);
-        glassTiles.put(tile, new float[]{corner, LIQUID_TILE});
+        glassTiles.put(tile, new int[]{Math.round(corner), LIQUID_TILE});
         tile.setOnClickListener(v -> {
             hide();
             action.run();
@@ -585,8 +593,18 @@ final class ControlCenter {
 
     /** A pill tile's look for on (brighter glass) or off; focused stays white either way. */
     void setActive(View tile, boolean active) {
-        float[] g = glassTiles.get(tile);
-        if (g != null) g[1] = active ? LIQUID_ACTIVE : LIQUID_TILE;
+        int fill = active ? LIQUID_ACTIVE : LIQUID_TILE;
+        int[] g = glassTiles.get(tile);
+        if (g != null) g[1] = fill;
+        int[] made = glassMade.get(tile);
+        if (made != null) {
+            // Already glass (a module card switched on or off): make its glass again with the new fill.
+            if (made[1] != fill) {
+                glassTiles.put(tile, new int[]{made[0], fill});
+                makeGlass();
+            }
+            return;
+        }
         float corner = px(31);
         GradientDrawable on = new GradientDrawable();
         on.setColor(FOCUS);
@@ -626,9 +644,9 @@ final class ControlCenter {
         return t;
     }
 
-    /** liquid_glass fills: a faint frost at rest, a brighter one for something switched on. */
-    private static final int LIQUID_TILE = 0x0AFFFFFF;
-    private static final int LIQUID_ACTIVE = 0x38FFFFFF;
+    /** liquid_glass fills: a faint shade at rest, a brighter frost for something switched on. */
+    private static final int LIQUID_TILE = 0x0B000000;
+    private static final int LIQUID_ACTIVE = 0x40FFFFFF;
 
     /** liquid_glass: gives every tile of the open panel its own piece of glass (LiquidGlass), white while focused. */
     private void makeGlass() {
@@ -638,16 +656,25 @@ final class ControlCenter {
         } catch (RuntimeException | OutOfMemoryError e) {
             soft = null;
         }
-        for (java.util.Map.Entry<View, float[]> e : glassTiles.entrySet()) {
+        int[] rootAt = new int[2], tileAt = new int[2];
+        root.getLocationOnScreen(rootAt);
+        for (java.util.Map.Entry<View, int[]> e : glassTiles.entrySet()) {
             View tile = e.getKey();
             int w = tile.getWidth(), h = tile.getHeight();
-            if (w <= 0 || h <= 0 || tile.getParent() == null) continue;
-            android.graphics.Rect at = new android.graphics.Rect(0, 0, w, h);
-            root.offsetDescendantRectToMyCoords(tile, at);
+            if (w <= 0 || h <= 0 || !tile.isAttachedToWindow()) continue;
+            glassMade.put(tile, e.getValue());
+            // On screen, so a menu in its own window (Entradas, Ajustes) works too; less the slide-in still to come.
+            tile.getLocationOnScreen(tileAt);
+            int left = tileAt[0] - rootAt[0], top = tileAt[1] - rootAt[1];
+            if (glassMoving != null) {
+                left -= Math.round(glassMoving.getTranslationX());
+                top -= Math.round(glassMoving.getTranslationY());
+            }
+            android.graphics.Rect at = new android.graphics.Rect(left, top, left + w, top + h);
             float corner = e.getValue()[0];
             int margin = dpx(16);
             Bitmap source = glassSource(soft, at.left - margin, at.top - margin, w + 2 * margin, h + 2 * margin);
-            LiquidGlass glass = new LiquidGlass(source, margin, w, h, corner, dp, (int) e.getValue()[1]);
+            LiquidGlass glass = new LiquidGlass(source, margin, w, h, corner, dp, e.getValue()[1]);
             GradientDrawable on = new GradientDrawable();
             on.setColor(FOCUS);
             if (corner < 0) on.setShape(GradientDrawable.OVAL);
@@ -691,7 +718,52 @@ final class ControlCenter {
     private Bitmap softPicture() {
         Bitmap picture = lastPicture;
         if (picture == null) return null;
-        return picture.getConfig() == Bitmap.Config.HARDWARE ? picture.copy(Bitmap.Config.ARGB_8888, false) : picture;
+        if (picture.getConfig() != Bitmap.Config.HARDWARE) return picture;
+        if (softCacheOf != picture) {
+            softCache = picture.copy(Bitmap.Config.ARGB_8888, false);
+            softCacheOf = picture;
+        }
+        return softCache;
+    }
+
+    /** liquid_glass with a wallpaper to see through: menus opened from the panel take its glass too (glassRows()). */
+    boolean liquidMenus() {
+        return liquid && lastPicture != null && lastWallpaper != null;
+    }
+
+    /**
+     * liquid_glass: the rows of a menu opened from the panel (styleAsPanel() first) each become their own piece of
+     * glass, made before the menu is first drawn; moving is the view that slides in with them. In a scrolling list
+     * the glass is made again for the rows' new places once the list stops.
+     */
+    void glassRows(ViewGroup rows, View moving) {
+        for (int i = 0; i < rows.getChildCount(); i++) {
+            View row = rows.getChildAt(i);
+            if (row.isFocusable() && !glassTiles.containsKey(row)) glassTiles.put(row, new int[]{px(31), LIQUID_TILE});
+        }
+        rows.getViewTreeObserver().addOnPreDrawListener(new android.view.ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                rows.getViewTreeObserver().removeOnPreDrawListener(this);
+                glassMoving = moving;
+                makeGlass();
+                return true;
+            }
+        });
+        if (rows.getParent() instanceof android.widget.ScrollView) {
+            Runnable again = () -> {
+                glassMoving = null;
+                for (int i = 0; i < rows.getChildCount(); i++) {
+                    int[] g = glassMade.get(rows.getChildAt(i));
+                    if (g != null) glassTiles.put(rows.getChildAt(i), g);
+                }
+                makeGlass();
+            };
+            ((View) rows.getParent()).setOnScrollChangeListener((v, x, y, ox, oy) -> {
+                rows.removeCallbacks(again);
+                rows.postDelayed(again, 80);
+            });
+        }
     }
 
     /**
