@@ -591,7 +591,7 @@ final class ControlCenter {
             action.run();
         });
         // tvos_focus: no light sweep here, the focused tile is already white.
-        if (tvosFocus) tile.setOnFocusChangeListener((v, focused) -> TvFocus.apply(v, focused, 1.06f, 0f, 0f));
+        if (tvosFocus) tile.setOnFocusChangeListener((v, focused) -> TvFocus.apply(v, focused, 1.06f, 0f));
         else tile.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                 .setDuration(140).start());
         return tile;

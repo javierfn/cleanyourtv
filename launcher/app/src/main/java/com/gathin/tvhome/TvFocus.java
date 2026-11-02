@@ -33,8 +33,10 @@ import android.view.animation.PathInterpolator;
 final class TvFocus {
     private TvFocus() { }
 
-    /** How far a grid tile rises and the shadow it lifts onto (dock tiles grow in place, see AppAdapter.Holder.inDock). */
-    static final float LIFT_DP = 10f;
+    /**
+     * The shadow a focused tile lifts onto. The lift is only this elevation: moving the tile up as well made it look
+     * as if it grew upwards, where tvOS grows it evenly from its centre.
+     */
     static final float SHADOW_DP = 28f;
     /** tvOS grows a focused tile about 15%; AppAdapter leaves room for it between columns and inside the dock band. */
     static final float SCALE = 1.15f;
@@ -75,15 +77,17 @@ final class TvFocus {
     }
 
     /**
-     * Focus or unfocus a tile: scale, lift (px, negative is up), shadow (px), the lean and, with a {@link Shine}
-     * as its foreground, the sweep.
+     * Focus or unfocus a tile: scale from its centre, shadow (px), the lean and, with a {@link Shine} as its
+     * foreground, the sweep.
      */
-    static void apply(View card, boolean focused, float scale, float lift, float elevation) {
+    static void apply(View card, boolean focused, float scale, float elevation) {
         float density = card.getResources().getDisplayMetrics().density;
         card.setCameraDistance(12000f * density);
+        card.setPivotX(card.getWidth() / 2f);
+        card.setPivotY(card.getHeight() / 2f);
         float s = focused ? scale : 1f;
         card.animate().scaleX(s).scaleY(s)
-                .translationY(focused ? lift : 0f)
+                .translationY(0f)
                 .translationZ(focused ? elevation : 0f)
                 .setDuration(focused ? FOCUS_MS : UNFOCUS_MS)
                 .setInterpolator(focused ? FOCUS_EASE : UNFOCUS_EASE).setStartDelay(0)
