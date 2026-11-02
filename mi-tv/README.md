@@ -1,7 +1,7 @@
 # Una TV con estilo Apple TV, sobre Clean Your TV 3.3
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama es la versión 3.3.1 con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama es la versión 3.4 con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -33,10 +33,11 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 | `theme-halloween/` | El mismo tema con los fondos y el disfraz de Halloween de Clean Your TV |
 | `banner_tvenvivo.png` / `.html` | Icono de "TV en Vivo" propio (se copia dentro del launcher antes de compilar; el tema oscuro usa ahora el `banner_tv` magenta del launcher y el de Halloween, este) |
 | (opción del launcher) `tvos_focus` | Foco estilo tvOS: la app enfocada se eleva con sombra, se inclina hacia donde se mueve el mando y le pasa un brillo. Viene apagado: se activa con `"tvos_focus": true` en `config.json` |
+| (opción del launcher) `liquid_glass` | Cristal estilo tvOS 26 en el Centro de control, sus menús (Entradas, Ajustes, Tarjetas de módulos) y el menú de las apps: sin caja, cada botón es su propio cristal con el fondo desenfocado, un borde que curva la imagen como una lente y el canto iluminado. Viene apagado: se activa con `"liquid_glass": true` en `config.json` (este tema lo trae encendido) |
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
-| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md` | Resumen en español de las notas de cada versión |
+| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md` | Resumen en español de las notas de cada versión |
 
 `vpn_app` en el tema es un ejemplo (`com.example.vpn`): pon el paquete de tu app de VPN. La ciudad del tiempo se
 elige en la app "El tiempo" de la TV.

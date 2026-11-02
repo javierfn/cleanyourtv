@@ -70,5 +70,6 @@
   "icon_only_vpn": false,
   "weather_now": "io.github.sumyabazar1.weather",
   "weather_now_place": false,
-  "control_center": true
+  "control_center": true,
+  "liquid_glass": true
 }
