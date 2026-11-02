@@ -22,6 +22,8 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
   del tiempo y Brightness sin que el launcher se conecte a internet. El botón cambia a día o a noche hasta el
   siguiente cambio de horario; mantener pulsado abre un menú (volver al horario, noche más clara u oscura).
   Con `"weather_now_place": false` en el tema, la línea del tiempo no muestra la ciudad (así está el tema oscuro).
+- **Fondos de España y Portugal**: el tema trae 25 fotos más (Alhambra, Catedrales, Gaztelugatxe, Teide, Sintra,
+  Oporto…; de noche Cuenca, Segovia, Lisboa, Gran Vía, Sagrada Família…) mezcladas con las de siempre.
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
@@ -29,7 +31,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 
 | Ruta | Qué es |
 |---|---|
-| `theme-glass-oscuro/` | El tema: dock, nombres, iconos, 6 columnas, cristal oscuro, fondos de día y de noche (`wallpaper_moods`), rotación cada 15 minutos. Las fotos no están en git: `fotos.sh` las baja de Wikimedia Commons (créditos en `wallpapers/CREDITOS.txt`) |
+| `theme-glass-oscuro/` | El tema: dock, nombres, iconos, 6 columnas, cristal oscuro, fondos de día y de noche (`wallpaper_moods`): 19 de día y 16 de noche, 25 de ellos de lugares emblemáticos de España y Portugal (ver `novedades-fondos.md`), mezclados y rotando cada 15 minutos. Las fotos no están en git: `fotos.sh` las baja de Wikimedia Commons (créditos en `wallpapers/CREDITOS.txt`) |
 | `theme-halloween/` | El mismo tema con los fondos y el disfraz de Halloween de Clean Your TV |
 | `banner_tvenvivo.png` / `.html` | Icono de "TV en Vivo" propio (se copia dentro del launcher antes de compilar; el tema oscuro usa ahora el `banner_tv` magenta del launcher y el de Halloween, este) |
 | (opción del launcher) `tvos_focus` | Foco estilo tvOS: la app enfocada se eleva con sombra, se inclina hacia donde se mueve el mando y le pasa un brillo. Viene apagado: se activa con `"tvos_focus": true` en `config.json` |

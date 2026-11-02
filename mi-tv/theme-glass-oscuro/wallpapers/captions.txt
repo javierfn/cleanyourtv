@@ -9,3 +9,28 @@ n2-via-lactea.jpg	Vía Láctea
 n3-paris.jpg	París de noche
 n4-hong-kong.jpg	Hong Kong de noche
 n5-venecia.jpg	Venecia, Santa Maria della Salute
+06-alhambra.jpg	La Alhambra, Granada
+07-catedrales.jpg	Playa de las Catedrales, Lugo
+08-gaztelugatxe.jpg	San Juan de Gaztelugatxe, Bizkaia
+09-ronda.jpg	Ronda, Málaga
+10-plaza-espana.jpg	Plaza de España, Sevilla
+11-teide.jpg	Las Cañadas del Teide, Tenerife
+12-ordesa.jpg	Ordesa y Monte Perdido, Huesca
+13-montserrat.jpg	Montserrat, Barcelona
+14-cordoba.jpg	Mezquita y Puente Romano, Córdoba
+15-toledo.jpg	Toledo
+16-santiago.jpg	Catedral de Santiago de Compostela
+17-sintra.jpg	Palacio da Pena, Sintra, Portugal
+18-oporto.jpg	La Ribeira, Oporto, Portugal
+19-azores.jpg	Sete Cidades, Azores, Portugal
+n6-alhambra.jpg	La Alhambra al anochecer, Granada
+n7-cuenca.jpg	Casas Colgadas, Cuenca
+n8-segovia.jpg	Acueducto de Segovia
+n9-sevilla.jpg	Torre del Oro, Sevilla
+n10-valencia.jpg	Ciudad de las Artes y las Ciencias, Valencia
+n11-oporto.jpg	Puente Don Luis I, Oporto, Portugal
+n12-lisboa.jpg	Puente 25 de Abril, Lisboa, Portugal
+n13-madrid.jpg	Gran Vía, Madrid
+n14-sagrada-familia.jpg	Sagrada Família, Barcelona
+n15-teide.jpg	Vía Láctea sobre el Teide, Tenerife
+n16-toledo.jpg	Toledo al anochecer
