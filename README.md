@@ -1,5 +1,5 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
-> es la versión **3.3.0** con un estilo más cercano al Apple TV: un menú de ajustes único, fondos con movimiento, el
+> es la versión **3.3.1** con un estilo más cercano al Apple TV: un menú de ajustes único, fondos con movimiento, el
 > tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
 > internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
@@ -8,7 +8,7 @@
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows.*
 
-*Capturas de la versión 3.3.0 en un Panasonic Google TV (1 nov 2026) · Screenshots of version 3.3.0.*
+*Capturas en un Panasonic Google TV: el inicio, de la versión 3.3.1 (2 nov 2026); el resto, de la 3.3.0 · Screenshots: Home from version 3.3.1, the rest from 3.3.0.*
 
 | Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
 |---|---|---|
