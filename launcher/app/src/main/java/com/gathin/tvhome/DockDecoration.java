@@ -3,6 +3,7 @@ package com.gathin.tvhome;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -34,6 +35,14 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     private final boolean singleRow;
     /** dock_band_all: in a single row, the band runs behind every app instead of the dock apps only. */
     private final boolean bandAll;
+    /**
+     * tvos_focus: as on tvOS, the band's end widens when the first or last tile grows, so its rounded end stays
+     * concentric with the grown tile's corners; a middle tile leaves the band alone. AppAdapter redraws the grid on
+     * every frame of a dock tile's zoom, so the band moves with it.
+     */
+    private final boolean tvosFocus;
+    private final Path path = new Path();
+    private final float[] radii = new float[8];
 
     /**
      * @param translucent the cinematic shelf's band: the artwork and the glow show through it.
@@ -44,10 +53,12 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
      * @param bandVisible false skips the band and its edge, so the tiles float on the wallpaper (dock_band).
      * @param singleRow   every app sits in the dock's row (single_row); the band covers the dock apps only, unless bandAll.
      * @param bandAll     with singleRow, the band runs behind every app in the row (dock_band_all).
+     * @param tvosFocus   the band grows with a focused tile, keeping its margin and concentric corners (tvos_focus).
      */
     DockDecoration(int dockSize, float density, boolean translucent, boolean names, int opacity, boolean lightGlass,
-                   boolean evenPadding, boolean bandVisible, boolean singleRow, boolean bandAll) {
+                   boolean evenPadding, boolean bandVisible, boolean singleRow, boolean bandAll, boolean tvosFocus) {
         this.dockSize = dockSize;
+        this.tvosFocus = tvosFocus;
         this.singleRow = singleRow;
         this.bandAll = singleRow && bandAll;
         this.density = density;
@@ -90,6 +101,9 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         if (!bandVisible) return;
         boolean any = false;
         int cardWidth = 0;
+        // tvos_focus: the end tiles, to widen the band's ends as they grow.
+        View firstCard = null, lastCard = null;
+        float firstLeft = 0f, lastRight = 0f;
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(child);
@@ -102,6 +116,14 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
             float r = l + card.getWidth();
             float b = t + card.getHeight();
             cardWidth = card.getWidth();
+            if (firstCard == null || l < firstLeft) {
+                firstCard = card;
+                firstLeft = l;
+            }
+            if (lastCard == null || r > lastRight) {
+                lastCard = card;
+                lastRight = r;
+            }
             if (!any) {
                 rect.set(l, t, r, b);
                 any = true;
@@ -118,7 +140,8 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         // outwards and still keeps about the band's top margin from its rounded end.
         float sidePad = 22 * density;
         float side = Math.max(0f, Math.min(sidePad, Math.min(rect.left, parent.getWidth() - rect.right) - density));
-        float radius = AppAdapter.cornerRadius(cardWidth, density);
+        float tileRadius = AppAdapter.cornerRadius(cardWidth, density);
+        float radius = tileRadius;
         if (evenPadding) {
             // The same padding on all four sides, so the band's corners are concentric with the tiles' everywhere.
             int inner = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
@@ -127,6 +150,10 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
             float even = evenPaddingPx(inner, dockSize, cardWidth, room);
             rect.inset(-even, -even);
             radius = radiusPx(radius, even);
+        } else if (tvosFocus) {
+            // The same 14dp margin on all four sides, so the band's corners are concentric with the tiles'.
+            rect.inset(-pad, -pad);
+            radius = radiusPx(radius, pad);
         } else {
             // dock_even_padding off: the band as before, with its fixed 26 dp corners.
             rect.inset(singleRow ? -sidePad : -side, -pad);
@@ -145,6 +172,33 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
                     Shader.TileMode.CLAMP));
             shaderTop = rect.top;
             shaderBottom = rect.bottom;
+        }
+        if (tvosFocus && !singleRow && firstCard != null) {
+            // A grown end tile: its edge is now `grow` further out and the band's top and bottom margin there is
+            // `margin` (the band keeps its height). Widen that end so the side margin matches, with corners of the
+            // grown tile's radius plus that margin: concentric, as on tvOS.
+            float left = rect.left, right = rect.right, rl = radius, rr = radius;
+            float s = firstCard.getScaleX();
+            if (s > 1f) {
+                float margin = Math.max(0f, (rect.height() - namesRoom - firstCard.getHeight() * s) / 2f);
+                left = Math.min(left, firstLeft - firstCard.getWidth() * (s - 1f) / 2f - margin);
+                rl = tileRadius * s + margin;
+            }
+            s = lastCard.getScaleX();
+            if (s > 1f) {
+                float margin = Math.max(0f, (rect.height() - namesRoom - lastCard.getHeight() * s) / 2f);
+                right = Math.max(right, lastRight + lastCard.getWidth() * (s - 1f) / 2f + margin);
+                rr = tileRadius * s + margin;
+            }
+            rect.left = Math.max(density, left);
+            rect.right = Math.min(parent.getWidth() - density, right);
+            radii[0] = radii[1] = radii[6] = radii[7] = Math.min(rl, rect.height() / 2f);
+            radii[2] = radii[3] = radii[4] = radii[5] = Math.min(rr, rect.height() / 2f);
+            path.reset();
+            path.addRoundRect(rect, radii, Path.Direction.CW);
+            c.drawPath(path, band);
+            c.drawPath(path, edge);
+            return;
         }
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);

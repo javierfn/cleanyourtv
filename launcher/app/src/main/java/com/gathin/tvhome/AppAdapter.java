@@ -502,7 +502,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             float density = ctx.getResources().getDisplayMetrics().density;
             h.card.setScaleX(focused ? TvFocus.SCALE : 1f);
             h.card.setScaleY(focused ? TvFocus.SCALE : 1f);
-            h.card.setTranslationY(focused && !dockKind ? -TvFocus.LIFT_DP * density : 0f);
+            h.card.setTranslationY(0f);
             h.card.setTranslationZ(focused ? TvFocus.SHADOW_DP * density : 0f);
             TvFocus.rest(h.card, focused);
         }
@@ -673,7 +673,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return emptySlots > 0 ? docked : dockSize;
     }
 
-    /** config tvos_focus: the focused tile lifts by TvFocus.LIFT_DP, and the glass highlight follows it. */
+    /** config tvos_focus: the focused tile grows to TvFocus.SCALE from its centre, with no glass highlight around it. */
     boolean tvosFocus() {
         return tvosFocus;
     }
@@ -992,12 +992,14 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     name.setAlpha(focused ? 1f : restNameAlpha);
                     name.setTranslationY(0f);
                 } else if (tvosFocus) {
-                    TvFocus.apply(view, focused, TvFocus.SCALE, inDock ? 0f : -TvFocus.LIFT_DP * density,
-                            TvFocus.SHADOW_DP * density);
+                    TvFocus.apply(view, focused, TvFocus.SCALE, TvFocus.SHADOW_DP * density,
+                            inDock ? (View) itemView.getParent() : null);
                     banner.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                             .setDuration(focused ? 520 : 170).start();
+                    // The tile grows down as much as up; half of that keeps the name clear of it and of the next row.
+                    float grow = view.getHeight() * (TvFocus.SCALE - 1f) / 4f;
                     name.animate().alpha(focused ? 1f : restNameAlpha)
-                            .translationY(focused ? density * 4f : -density * 6f)
+                            .translationY(focused ? density * 4f + grow : -density * 6f)
                             .setDuration(220).start();
                 } else if (reducedMotion) {
                     // A short zoom with no hardware layer: building a layer for so short an animation costs more
