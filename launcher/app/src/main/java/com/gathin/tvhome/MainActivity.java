@@ -3359,6 +3359,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return vpnPillState == VpnBadge.PILL_UP ? 1 : 0;
             }
             @Override public void settings() { ccSubmenu = true; root.post(MainActivity.this::showSettingsMenu); }
+            @Override public void panelShown(boolean shown) { wallpaperPlayer.hideCaption(shown); }
         });
         btnControl.setOnClickListener(v -> controlCenter.show(v, wallpaperPlayer.imageView(), wallpaperPlayer.currentBitmap()));
     }
@@ -3806,13 +3807,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // No taller than the screen below the panel's top: a long list (Module cards) scrolls inside.
             int h = Math.min(panel.getMeasuredHeight(), root.getHeight() - at.top - (int) (24 * density));
             popup.setHeight(h);
-            android.graphics.drawable.Drawable glass = controlCenter.frost(at.left, at.top, w, h);
+            // liquid_glass: no box, each row its own glass like the panel's tiles, and the photo's name out of the way.
+            boolean liquid = rowsView != null && controlCenter.liquidMenus();
+            android.graphics.drawable.Drawable glass = liquid ? null : controlCenter.frost(at.left, at.top, w, h);
+            if (liquid) {
+                panel.setBackground(null);
+                controlCenter.glassRows(rowsView, panel);
+                wallpaperPlayer.hideCaption(true);
+            }
             if (glass != null) panel.setBackground(glass);
             int[] origin = new int[2];
             root.getLocationOnScreen(origin);
             panel.setAlpha(0f);
             panel.setTranslationY(-8 * density);
             popup.setOnDismissListener(() -> {
+                if (liquid) wallpaperPlayer.hideCaption(false);
                 if (openPopup == popup) openPopup = null;
                 View back = findViewById(R.id.btnControl);
                 if (back != null) back.requestFocus();
@@ -4133,11 +4142,50 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int gap = (int) (10 * density), margin = (int) (16 * density);
         int left = Math.max(margin, Math.min(x, root.getWidth() - w - margin));
         int top = y + card.getHeight() + gap + h <= root.getHeight() - margin ? y + card.getHeight() + gap : Math.max(margin, y - gap - h);
+        // liquid_glass: as the Control Center's menus, no box and each row its own glass. Over the apps, the glass
+        // shows a copy of the screen taken first, so the icons under the menu show through it.
+        if (controlCenter.liquidMenus()) {
+            panel.setBackground(null);
+            popup.setOnDismissListener(() -> {
+                controlCenter.useScreen(null);
+                if (openPopup == popup) openPopup = null;
+            });
+            Runnable show = () -> {
+                if (openPopup != popup) return;   // closed or replaced while the screen was copied
+                controlCenter.glassRows(rows, panel);
+                showTileMenuAt(popup, panel, rows, rootAt[0] + left, rootAt[1] + top);
+            };
+            Window window = getWindow();
+            Bitmap copy = null;
+            try {
+                copy = Bitmap.createBitmap(window.getDecorView().getWidth(), window.getDecorView().getHeight(), Bitmap.Config.ARGB_8888);
+            } catch (RuntimeException | OutOfMemoryError e) {
+                // No copy: the glass shows the wallpaper.
+            }
+            if (copy == null) {
+                show.run();
+                return;
+            }
+            final Bitmap screen = copy;
+            try {
+                android.view.PixelCopy.request(window, screen, result -> {
+                    if (result == android.view.PixelCopy.SUCCESS) controlCenter.useScreen(screen);
+                    show.run();
+                }, handler);
+            } catch (RuntimeException e) {
+                show.run();
+            }
+            return;
+        }
         android.graphics.drawable.Drawable glass = controlCenter.frost(left, top, w, h);
         if (glass != null) panel.setBackground(glass);
+        showTileMenuAt(popup, panel, rows, rootAt[0] + left, rootAt[1] + top);
+    }
+
+    private void showTileMenuAt(PopupWindow popup, View panel, LinearLayout rows, int x, int y) {
         panel.setAlpha(0f);
         panel.animate().alpha(1f).setDuration(reducedMotion ? Motion.REDUCED_MS : 200).start();
-        popup.showAtLocation(root, Gravity.TOP | Gravity.START, rootAt[0] + left, rootAt[1] + top);
+        popup.showAtLocation(root, Gravity.TOP | Gravity.START, x, y);
         rows.getChildAt(0).requestFocus();
     }
 

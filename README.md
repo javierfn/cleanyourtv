@@ -1,5 +1,5 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
-> es la versión **3.3.1** con un estilo más cercano al Apple TV: un menú de ajustes único, fondos con movimiento, el
+> es la versión **3.4** con un estilo más cercano al Apple TV: un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
 > tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
 > internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
@@ -8,11 +8,11 @@
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows.*
 
-*Capturas en un Panasonic Google TV: el inicio, de la versión 3.3.1 (2 nov 2026); el resto, de la 3.3.0 · Screenshots: Home from version 3.3.1, the rest from 3.3.0.*
+*Capturas de la versión 3.4 en un Panasonic Google TV (2 nov 2026) · Screenshots of version 3.4.*
 
 | Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
 |---|---|---|
-| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes sobre cristal](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar](docs/fork/menu-app.jpg) |
+| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
 
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore." width="800"></a>

@@ -390,6 +390,11 @@ final class WallpaperPlayer {
         caption.addOnLayoutChangeListener(align);
     }
 
+    /** Hides the caption while something covers its place (the liquid_glass Control Center), and shows it again. */
+    void hideCaption(boolean hidden) {
+        if (caption != null) caption.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+    }
+
     /** The displayed picture's name, faded across a change; a picture without a name hides the caption. */
     private void showCaption(boolean fade) {
         if (caption == null) return;
