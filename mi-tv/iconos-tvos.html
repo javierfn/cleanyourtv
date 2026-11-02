@@ -1,6 +1,7 @@
 <!doctype html>
 <!-- Source of the tvOS-style icons (own design, no third-party art). Render with mi-tv/iconos-tvos.sh:
-     #ajustes -> banner_ajustes.png (launcher), #tiempo -> banner.png and #tiempo-icono -> icon.png (weather add-on).
+     #ajustes -> banner_ajustes.png (launcher), #tiempo -> banner.png and #tiempo-icono -> icon.png (weather add-on),
+     #envivo -> banner_envivo.png (launcher, Live TV tile).
      Layers like a tvOS parallax icon: background, middle glass, front object, each with its own light. -->
 <html><head><meta charset="utf-8"><style>
   html, body { margin: 0; background: transparent; }
@@ -53,6 +54,43 @@
       background: linear-gradient(178deg, rgba(255,255,255,.93) 0%, rgba(250,252,255,.72) 45%, rgba(214,232,252,.55) 100%); }
   .cloud .shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(40,90,170,.22)); }
   .glint { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, #fff, rgba(255,255,255,0)); }
+
+  /* ---------- TV en Vivo: night studio, a glass screen lit from behind, metal antenna, a live red light ---------- */
+  #envivo { background: radial-gradient(120% 100% at 50% 0%, #2A1240 0%, #140B26 45%, #07060E 100%); }
+  #envivo .stage { background:
+      radial-gradient(34% 48% at 40% 56%, rgba(255,40,140,.55), transparent 70%),
+      radial-gradient(30% 44% at 62% 50%, rgba(80,120,255,.50), transparent 70%),
+      radial-gradient(26% 30% at 52% 70%, rgba(255,150,60,.30), transparent 70%); filter: blur(6px); }
+  #envivo .sheen { background: linear-gradient(118deg, transparent 30%, rgba(255,255,255,.06) 42%, transparent 55%); }
+  .tv { position: absolute; left: 180px; top: 102px; width: 280px; height: 176px; border-radius: 30px;
+      backdrop-filter: blur(14px) saturate(1.6) brightness(1.15);
+      background: linear-gradient(165deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.08) 45%, rgba(255,255,255,.14) 100%);
+      box-shadow: 0 22px 30px rgba(0,0,0,.55), inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(255,255,255,.18),
+                  inset 1px 0 0 rgba(255,255,255,.25); }
+  .tv .screen { position: absolute; left: 14px; top: 14px; right: 14px; bottom: 14px; border-radius: 18px; overflow: hidden;
+      background: radial-gradient(90% 120% at 30% 20%, #FF4FA0 0%, #C8197A 30%, #4A1C9E 65%, #120C3A 100%);
+      box-shadow: inset 0 6px 14px rgba(0,0,0,.55), inset 0 -1px 0 rgba(255,255,255,.25); }
+  .tv .screen::before { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(60% 50% at 75% 85%, rgba(90,160,255,.55), transparent 70%); }
+  .tv .screen::after { content: ''; position: absolute; left: -20%; top: -60%; width: 90%; height: 120%; transform: rotate(-18deg);
+      background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0)); filter: blur(10px); }
+  .tv::before { content: ''; position: absolute; inset: 0; border-radius: 30px; padding: 2.5px;
+      background: conic-gradient(from 200deg, #F4F6FA, #8D929C 15%, #E3E6EC 30%, #6E737D 45%, #F1F3F7 60%, #80858F 78%, #F4F6FA);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 72px; transform: translate(-38%, -50%);
+      clip-path: path('M10,4 Q4,0 4,8 L4,64 Q4,72 10,68 L60,40 Q66,36 60,32 Z');
+      background: linear-gradient(170deg, rgba(255,255,255,.98), rgba(255,255,255,.70));
+      filter: drop-shadow(0 6px 8px rgba(60,0,60,.5)); }
+  .antenna { position: absolute; width: 5px; height: 64px; border-radius: 3px; top: 44px; transform-origin: 50% 100%;
+      background: linear-gradient(90deg, #6E737D, #F4F6FA 45%, #8D929C); box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+  .antenna::after { content: ''; position: absolute; left: -4px; top: -6px; width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #B9BEC7 45%, #5F646D); }
+  .knob { position: absolute; left: 304px; top: 92px; width: 32px; height: 14px; border-radius: 8px;
+      background: linear-gradient(180deg, #F1F3F7, #80858F); box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+  .live { position: absolute; left: 418px; top: 82px; width: 30px; height: 30px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #FFD3D3 0%, #FF4848 35%, #D50F1E 75%, #8A0010 100%);
+      box-shadow: 0 0 18px 6px rgba(255,40,50,.55), inset 0 -3px 5px rgba(90,0,0,.5); }
+  .live-ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(255,90,100,.5); }
 </style></head><body>
 
 <div id="ajustes" class="art banner">
@@ -76,6 +114,20 @@
 </div>
 
 <div id="tiempo" class="art banner" data-weather="banner"></div>
+
+<div id="envivo" class="art banner">
+  <div class="layer stage"></div>
+  <div class="layer" style="transform: translateY(14px) scale(1.22); transform-origin: 320px 196px">
+  <div class="antenna" style="left:300px;transform:rotate(-24deg)"></div>
+  <div class="antenna" style="left:335px;transform:rotate(24deg)"></div>
+  <div class="knob"></div>
+  <div class="tv"><div class="screen"></div><div class="play"></div></div>
+  <div class="live-ring" style="left:405px;top:69px;width:54px;height:54px"></div>
+  <div class="live-ring" style="left:394px;top:58px;width:76px;height:76px;opacity:.45"></div>
+  <div class="live"></div>
+  </div>
+  <div class="layer sheen"></div>
+</div>
 <div id="tiempo-icono" class="art square" data-weather="square"></div>
 
 <script>

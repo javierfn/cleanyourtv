@@ -7,5 +7,6 @@ SRC="file://$PWD/mi-tv/iconos-tvos.html"
 shot() { "$CHROME" --headless --disable-gpu --hide-scrollbars --force-device-scale-factor="$4" --window-size="$2" \
            --screenshot="$3" "$SRC#$1" 2>/dev/null; }
 shot ajustes 640,360 launcher/app/src/main/res/drawable-nodpi/banner_ajustes.png 1.5
+shot envivo 640,360 launcher/app/src/main/res/drawable-nodpi/banner_envivo.png 1.5
 shot tiempo 640,360 addons/weather/app/src/main/res/drawable-nodpi/banner.png 1.5
 shot tiempo-icono 432,432 addons/weather/app/src/main/res/drawable-nodpi/icon.png 1
