@@ -394,7 +394,9 @@ final class ControlCenter {
             }
             if (lp instanceof ViewGroup.MarginLayoutParams) ((ViewGroup.MarginLayoutParams) lp).setMargins(0, 0, 0, gap);
             row.setLayoutParams(lp);
-            row.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
+            // liquid_glass: the focused row only turns white, as on tvOS; it does not grow.
+            if (liquidMenus()) row.setOnFocusChangeListener(null);
+            else row.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                     .setDuration(140).start());
             if (row instanceof ViewGroup) shrink((ViewGroup) row);
         }
@@ -590,6 +592,8 @@ final class ControlCenter {
             hide();
             action.run();
         });
+        // liquid_glass: the focused tile only turns white, as on tvOS; it does not grow or lean.
+        if (liquidMenus()) return tile;
         // tvos_focus: no light sweep here, the focused tile is already white.
         if (tvosFocus) tile.setOnFocusChangeListener((v, focused) -> TvFocus.apply(v, focused, 1.06f, 0f));
         else tile.setOnFocusChangeListener((v, focused) -> v.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
