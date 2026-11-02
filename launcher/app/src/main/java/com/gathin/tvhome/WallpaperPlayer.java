@@ -109,6 +109,12 @@ final class WallpaperPlayer {
         String previous = preferences.getString("image", "");
         List<File> playable = playable();
         File first = WallpaperRotation.find(playable, previous);
+        // Home opened after the interval (the TV was off, or an app was in front) starts on the next picture
+        // instead of showing the old one and changing it a moment later.
+        if (first != null && interval > 0
+                && WallpaperRotation.due(preferences.getLong("changed", 0), System.currentTimeMillis(), interval)) {
+            first = null;
+        }
         if (first == null) first = WallpaperRotation.pick(playable, previous, order, random);
         while (first != null) {
             Bitmap bitmap = decode(first);
