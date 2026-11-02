@@ -1,6 +1,7 @@
 # Add-ons
 
-Small, optional Android TV apps that plug into the launcher as a **module card**, kept in this repo
+Small, optional Android TV apps that plug into the launcher as a **module card** (or through one of the
+other contracts in [`docs/modules.md`](../docs/modules.md)), kept in this repo
 so they are easy to find, build and review. The launcher in [`launcher/`](../launcher/) never
 depends on them: it is built, tested and size-checked without this folder, so an add-on can't make
 the core bigger or change how it behaves. You install an add-on only if you want it.
@@ -45,6 +46,7 @@ the core bigger or change how it behaves. You install an add-on only if you want
 | [Neon Dream](neon-dream/) | A neon screensaver and a card: a city in the rain or a synthwave grid with a clock drifting over it; scene, colours (magenta, amber, green) and clock are set in its own screen, with a Preview and a shortcut to the screensaver menu | [@SmartGenius2](https://github.com/SmartGenius2) | Challenger R3 (Android TV 11) | None | <img src="neon-dream/screenshot.jpg" width="240" alt="Neon Dream on a TV"> |
 | [Koi Pond](koi-pond/) | A pixel-art koi pond seen from above as the screensaver and a card: koi and fry over a rippling, light-netted floor, lily pads and lotus, the time of day from the clock with fireflies after dark, rain now and then, and on the card OK starts a breathing guide (in 4 s, out 6 s) while arrows drop a pebble; drawn on the TV with no network | [@nottoobright](https://github.com/nottoobright) | TCL Smart TV Pro G08 (Google TV 14) | None | <img src="koi-pond/screenshot.jpg" width="240" alt="Koi Pond on a TV"> |
 | [Files card](files-card/) | A card for your file manager: OK opens Amaze File Manager, or another installed one (X-plore, Solid Explorer, FX, CX, Files by Google); it only starts the app | [@maxhayim](https://github.com/maxhayim) | MOKA R8G (Android 14) | None | <img src="files-card/screenshot.jpg" width="240" alt="Files card on a TV"> |
+| [TV Posters](posters/) | Real posters on the launcher's Continue watching row (`continue_watching`), fetched for it so the launcher stays offline | [@burnhamrobertp](https://github.com/burnhamrobertp) | TCL G10 (`G10_4K_US_NF`), Google TV 12 | `INTERNET` (the row's posters only) | <img src="posters/screenshot.jpg" width="240" alt="TV Posters: the Continue watching row with real posters on a TV"> |
 
 A widget, an info tile, a storage or smart-home card: if it can live as its own small app, it can live
 here. See the rules below.
