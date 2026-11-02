@@ -1,6 +1,6 @@
 # Novedades de esta rama 3.4 (2 nov 2026)
 
-Un cambio propio de esta rama, no de Clean Your TV. Marcado con ★ lo que afecta a esta TV.
+Cambios propios de esta rama, no de Clean Your TV. Marcado con ★ lo que afecta a esta TV.
 
 ## Liquid Glass
 - ★ **Nueva opción `liquid_glass`** (apagada por defecto; el tema `theme-glass-oscuro` la enciende): el cristal del
@@ -18,3 +18,9 @@ Un cambio propio de esta rama, no de Clean Your TV. Marcado con ★ lo que afect
 - Arreglo: el cristal de Entradas y Ajustes (también sin `liquid_glass`) salía encogido en una esquina y dejaba ver
   el fondo sin desenfocar.
 - No cambian las pantallas de Android ni de otras apps (Red, VPN, Desinstalar, Información de la aplicación…).
+
+## Arreglos
+- ★ **Foco estilo tvOS (`tvos_focus`)**: el icono enfocado de la cuadrícula parecía crecer solo hacia arriba, porque
+  además de agrandarse subía 10 dp. Ahora crece desde su centro por igual hacia arriba, abajo y los lados, como en
+  Apple TV; la elevación es solo la sombra. El marco de cristal queda centrado y el nombre baja lo justo para no
+  tocarlo.
