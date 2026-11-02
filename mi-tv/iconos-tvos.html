@@ -1,0 +1,184 @@
+<!doctype html>
+<!-- Source of the tvOS-style icons (own design, no third-party art). Render with mi-tv/iconos-tvos.sh:
+     #ajustes -> banner_ajustes.png (launcher), #tiempo -> banner.png and #tiempo-icono -> icon.png (weather add-on),
+     #envivo -> banner_envivo.png (launcher, Live TV tile).
+     Layers like a tvOS parallax icon: background, middle glass, front object, each with its own light. -->
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; background: transparent; }
+  .art { position: relative; overflow: hidden; }
+  .banner { width: 640px; height: 360px; }
+  .square { width: 432px; height: 432px; }
+  .layer, .layer svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* ---------- Ajustes: graphite, a frosted glass gear behind, a polished metal gear in front ---------- */
+  #ajustes { background:
+      radial-gradient(120% 95% at 50% 18%, #5A5F6B 0%, #2E3139 42%, #15161B 78%, #0A0A0D 100%); }
+  #ajustes .sheen { background: linear-gradient(118deg, transparent 30%, rgba(255,255,255,.07) 42%, transparent 55%); }
+  #ajustes .glow { background: radial-gradient(40% 55% at 47% 52%, rgba(160,190,255,.22), transparent 70%); }
+  .gear-back { position: absolute; left: 346px; top: 38px; width: 150px; height: 150px; transform: rotate(9deg);
+      backdrop-filter: blur(6px) brightness(1.25); background: linear-gradient(160deg, rgba(255,255,255,.30), rgba(255,255,255,.06) 70%); }
+  .gear-front { position: absolute; left: 170px; top: 58px; width: 248px; height: 248px;
+      filter: drop-shadow(0 18px 18px rgba(0,0,0,.55)) drop-shadow(0 3px 3px rgba(0,0,0,.45)); }
+  .gear-front .metal { position: absolute; inset: 0;
+      background: conic-gradient(from 200deg, #F4F6FA, #8D929C 12%, #DDE1E8 24%, #6E737D 37%, #F1F3F7 50%, #80858F 62%,
+                  #D5D9E0 75%, #6A6F79 87%, #F4F6FA); }
+  .gear-front .bevel { position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,0) 60%, rgba(0,0,0,.45) 100%); }
+  .well { position: absolute; border-radius: 50%; }
+  .well.ring { left: 66px; top: 66px; width: 116px; height: 116px;
+      background: radial-gradient(circle at 50% 30%, #1B1D22 0%, #2C2F36 60%, #4B4F58 100%);
+      box-shadow: inset 0 8px 12px rgba(0,0,0,.75), inset 0 -2px 3px rgba(255,255,255,.35), 0 -1px 1px rgba(0,0,0,.4), 0 1px 1px rgba(255,255,255,.55); }
+  .well.cog { left: 76px; top: 76px; width: 96px; height: 96px; border-radius: 0;
+      background: conic-gradient(from 30deg, #C9CDD5, #6B7079 25%, #E9ECF1 50%, #5F646D 75%, #C9CDD5);
+      filter: drop-shadow(0 4px 4px rgba(0,0,0,.6)); }
+  .well.hub { left: 104px; top: 104px; width: 40px; height: 40px;
+      background: radial-gradient(circle at 50% 35%, #07080A 0%, #1E2026 65%, #3A3E46 100%);
+      box-shadow: inset 0 5px 7px rgba(0,0,0,.9), 0 1px 1px rgba(255,255,255,.7), 0 -1px 1px rgba(0,0,0,.5); }
+  .well.spark { left: 112px; top: 126px; width: 24px; height: 9px; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(170,200,255,.55), transparent); }
+
+  /* ---------- El tiempo: deep sky, a sun with corona, two glass clouds the sun shows through ---------- */
+  .sky { background: linear-gradient(172deg, #062A6E 0%, #0F4FB4 34%, #2A86E0 64%, #59C2F2 88%, #8BE0FF 100%); }
+  .air { background: radial-gradient(60% 70% at 64% 30%, rgba(255,236,170,.32), transparent 70%),
+                     radial-gradient(90% 40% at 50% 108%, rgba(200,250,255,.35), transparent 70%); }
+  .vignette { background: radial-gradient(130% 120% at 50% 40%, transparent 55%, rgba(0,10,40,.45) 100%); }
+  .sun-halo, .sun { position: absolute; border-radius: 50%; }
+  .sun-halo { background: radial-gradient(closest-side, rgba(255,214,90,.75), rgba(255,170,40,.28) 55%, transparent); filter: blur(10px); }
+  .sun { background: radial-gradient(circle at 38% 34%, #FFFDF0 0%, #FFE680 26%, #FFC531 58%, #FF9A1A 100%);
+      box-shadow: inset 0 -6px 14px rgba(230,110,0,.45), inset 0 4px 8px rgba(255,255,255,.6); }
+  .cloud { position: absolute; }
+  .cloud .glass { position: absolute; inset: 0; }
+  .cloud.back .glass { backdrop-filter: blur(4px) saturate(1.3);
+      background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(225,240,255,.16)); }
+  .cloud.front .glass { backdrop-filter: blur(10px) saturate(1.3) brightness(1.3);
+      background: linear-gradient(178deg, rgba(255,255,255,.93) 0%, rgba(250,252,255,.72) 45%, rgba(214,232,252,.55) 100%); }
+  .cloud .shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(40,90,170,.22)); }
+  .glint { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, #fff, rgba(255,255,255,0)); }
+
+  /* ---------- TV en Vivo: night studio, a glass screen lit from behind, metal antenna, a live red light ---------- */
+  #envivo { background: radial-gradient(120% 100% at 50% 0%, #2A1240 0%, #140B26 45%, #07060E 100%); }
+  #envivo .stage { background:
+      radial-gradient(34% 48% at 40% 56%, rgba(255,40,140,.55), transparent 70%),
+      radial-gradient(30% 44% at 62% 50%, rgba(80,120,255,.50), transparent 70%),
+      radial-gradient(26% 30% at 52% 70%, rgba(255,150,60,.30), transparent 70%); filter: blur(6px); }
+  #envivo .sheen { background: linear-gradient(118deg, transparent 30%, rgba(255,255,255,.06) 42%, transparent 55%); }
+  .tv { position: absolute; left: 180px; top: 102px; width: 280px; height: 176px; border-radius: 30px;
+      backdrop-filter: blur(14px) saturate(1.6) brightness(1.15);
+      background: linear-gradient(165deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.08) 45%, rgba(255,255,255,.14) 100%);
+      box-shadow: 0 22px 30px rgba(0,0,0,.55), inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(255,255,255,.18),
+                  inset 1px 0 0 rgba(255,255,255,.25); }
+  .tv .screen { position: absolute; left: 14px; top: 14px; right: 14px; bottom: 14px; border-radius: 18px; overflow: hidden;
+      background: radial-gradient(90% 120% at 30% 20%, #FF4FA0 0%, #C8197A 30%, #4A1C9E 65%, #120C3A 100%);
+      box-shadow: inset 0 6px 14px rgba(0,0,0,.55), inset 0 -1px 0 rgba(255,255,255,.25); }
+  .tv .screen::before { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(60% 50% at 75% 85%, rgba(90,160,255,.55), transparent 70%); }
+  .tv .screen::after { content: ''; position: absolute; left: -20%; top: -60%; width: 90%; height: 120%; transform: rotate(-18deg);
+      background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0)); filter: blur(10px); }
+  .tv::before { content: ''; position: absolute; inset: 0; border-radius: 30px; padding: 2.5px;
+      background: conic-gradient(from 200deg, #F4F6FA, #8D929C 15%, #E3E6EC 30%, #6E737D 45%, #F1F3F7 60%, #80858F 78%, #F4F6FA);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 72px; transform: translate(-38%, -50%);
+      clip-path: path('M10,4 Q4,0 4,8 L4,64 Q4,72 10,68 L60,40 Q66,36 60,32 Z');
+      background: linear-gradient(170deg, rgba(255,255,255,.98), rgba(255,255,255,.70));
+      filter: drop-shadow(0 6px 8px rgba(60,0,60,.5)); }
+  .antenna { position: absolute; width: 5px; height: 64px; border-radius: 3px; top: 44px; transform-origin: 50% 100%;
+      background: linear-gradient(90deg, #6E737D, #F4F6FA 45%, #8D929C); box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+  .antenna::after { content: ''; position: absolute; left: -4px; top: -6px; width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #B9BEC7 45%, #5F646D); }
+  .knob { position: absolute; left: 304px; top: 92px; width: 32px; height: 14px; border-radius: 8px;
+      background: linear-gradient(180deg, #F1F3F7, #80858F); box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+  .live { position: absolute; left: 418px; top: 82px; width: 30px; height: 30px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #FFD3D3 0%, #FF4848 35%, #D50F1E 75%, #8A0010 100%);
+      box-shadow: 0 0 18px 6px rgba(255,40,50,.55), inset 0 -3px 5px rgba(90,0,0,.5); }
+  .live-ring { position: absolute; border-radius: 50%; border: 1.5px solid rgba(255,90,100,.5); }
+</style></head><body>
+
+<div id="ajustes" class="art banner">
+  <div class="layer glow"></div>
+  <div class="gear-back" data-gear="back"></div>
+  <svg class="layer" viewBox="0 0 640 360"><path id="backStroke" fill="none" stroke="url(#backEdge)" stroke-width="2.2"/>
+    <defs><linearGradient id="backEdge" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs></svg>
+  <div class="gear-front">
+    <div class="metal" data-gear="front"></div>
+    <div class="bevel" data-gear="front"></div>
+    <svg class="layer" viewBox="0 0 248 248"><path id="frontStroke" fill="none" stroke="url(#frontEdge)" stroke-width="1.6"/>
+      <defs><linearGradient id="frontEdge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+        <stop offset=".5" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient></defs></svg>
+    <div class="well ring"></div>
+    <div class="well cog" data-gear="cog"></div>
+    <div class="well hub"></div>
+    <div class="well spark"></div>
+  </div>
+  <div class="layer sheen"></div>
+</div>
+
+<div id="tiempo" class="art banner" data-weather="banner"></div>
+
+<div id="envivo" class="art banner">
+  <div class="layer stage"></div>
+  <div class="layer" style="transform: translateY(14px) scale(1.22); transform-origin: 320px 196px">
+  <div class="antenna" style="left:300px;transform:rotate(-24deg)"></div>
+  <div class="antenna" style="left:335px;transform:rotate(24deg)"></div>
+  <div class="knob"></div>
+  <div class="tv"><div class="screen"></div><div class="play"></div></div>
+  <div class="live-ring" style="left:405px;top:69px;width:54px;height:54px"></div>
+  <div class="live-ring" style="left:394px;top:58px;width:76px;height:76px;opacity:.45"></div>
+  <div class="live"></div>
+  </div>
+  <div class="layer sheen"></div>
+</div>
+<div id="tiempo-icono" class="art square" data-weather="square"></div>
+
+<script>
+// Gear outline: rounded trapezoid teeth around a circle, in a box of size s.
+function gear(s, teeth, rRoot, rTip, hole, tipFrac) {
+  const c = s / 2, step = 2 * Math.PI / teeth, p = [];
+  for (let i = 0; i < teeth; i++) {
+    const a = i * step - Math.PI / 2, t = tipFrac * step / 2, b = t * 1.45;
+    for (const [ang, r] of [[a - step / 2, rRoot], [a - b, rRoot], [a - t, rTip], [a + t, rTip], [a + b, rRoot]])
+      p.push((c + r * s * Math.cos(ang)).toFixed(2) + ',' + (c + r * s * Math.sin(ang)).toFixed(2));
+  }
+  let d = 'M' + p.join('L') + 'Z';
+  if (hole) { const r = hole * s; d += `M${c + r},${c}A${r},${r} 0 1 0 ${c - r},${c}A${r},${r} 0 1 0 ${c + r},${c}Z`; }
+  return d;
+}
+function mask(el, s, d) {
+  const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${s} ${s}'><path fill-rule='evenodd' d='${d}'/></svg>`)}")`;
+  el.style.webkitMaskImage = el.style.maskImage = url;
+  el.style.webkitMaskSize = el.style.maskSize = '100% 100%';
+}
+const FRONT = gear(248, 20, 0.415, 0.485, 0, 0.5), BACK = gear(150, 14, 0.4, 0.49, 0.2, 0.5), COG = gear(96, 12, 0.41, 0.5, 0, 0.55);
+document.querySelectorAll('[data-gear=front]').forEach(e => mask(e, 248, FRONT));
+document.querySelectorAll('[data-gear=back]').forEach(e => { e.style.clipPath = `path(evenodd, '${BACK}')`; });
+document.querySelectorAll('[data-gear=cog]').forEach(e => mask(e, 96, COG));
+document.getElementById('frontStroke').setAttribute('d', FRONT);
+// the back gear's stroke, moved to its place and rotated like the glass
+(() => { const g = document.querySelector('.gear-back'), p = document.getElementById('backStroke');
+  p.setAttribute('d', BACK); p.setAttribute('transform', `translate(346 38) rotate(9 75 75)`); })();
+
+// Cumulus outline in a 100x56 box: flat base, three lobes.
+const cloud = k => { const n = v => (v * k).toFixed(2);
+  return `M${n(15)},${n(56)} A${n(15)},${n(15)} 0 0 1 ${n(11)},${n(27)} A${n(18)},${n(18)} 0 0 1 ${n(38)},${n(16)}`
+       + ` A${n(26)},${n(26)} 0 0 1 ${n(85)},${n(27)} A${n(15)},${n(15)} 0 0 1 ${n(86)},${n(56)} Z`; };
+function weather(root, W, H, k, sun, back, front) {
+  root.innerHTML = `<div class="layer sky"></div><div class="layer air"></div>
+    <div class="sun-halo" style="left:${sun[0] - sun[2] * 1.9}px;top:${sun[1] - sun[2] * 1.9}px;width:${sun[2] * 3.8}px;height:${sun[2] * 3.8}px"></div>
+    <div class="sun" style="left:${sun[0] - sun[2]}px;top:${sun[1] - sun[2]}px;width:${sun[2] * 2}px;height:${sun[2] * 2}px"></div>`
+    + [['back', back], ['front', front]].map(([cls, [x, y, w]]) => {
+      const h = w * 0.56, d = cloud(w / 100);
+      return `<div class="cloud ${cls}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;filter:drop-shadow(0 ${8 * k}px ${12 * k}px rgba(0,30,90,.35))">
+        <div class="glass" style="clip-path:path('${d}')"></div><div class="shade" style="clip-path:path('${d}')"></div>
+        <svg class="layer" viewBox="0 0 ${w} ${h}" style="overflow:visible"><defs><linearGradient id="e${cls}${W}" x1="0" y1="0" x2=".3" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".45" stop-color="#fff" stop-opacity=".25"/>
+          <stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient></defs>
+          <path d="${d}" fill="none" stroke="url(#e${cls}${W})" stroke-width="${(cls == 'front' ? 2 : 1.4) * k}"/></svg></div>`;
+    }).join('')
+    + `<div class="glint" style="left:${sun[0] - sun[2] * .62}px;top:${sun[1] - sun[2] * .7}px;width:${sun[2] * .5}px;height:${sun[2] * .32}px;opacity:.7"></div>
+       <div class="layer vignette"></div>`;
+}
+weather(document.getElementById('tiempo'), 640, 360, 1, [384, 128, 54], [176, 106, 196], [214, 160, 250]);
+weather(document.getElementById('tiempo-icono'), 432, 432, 0.8, [270, 150, 58], [50, 150, 180], [86, 206, 250]);
+// Render one icon per page: iconos-tvos.html#ajustes
+if (location.hash) document.querySelectorAll('.art').forEach(e => { if ('#' + e.id !== location.hash) e.remove(); });
+</script></body></html>

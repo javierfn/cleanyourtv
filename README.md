@@ -1,20 +1,28 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
-> es la versión **3.4.1** con un estilo más cercano al Apple TV: un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
+> está **basada en Clean Your TV 3.3 · versión de esta rama: 3.3-tv.5**, con un estilo más cercano al Apple TV: iconos propios estilo tvOS, un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
 > tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
 > internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
 > [tv-extras](https://github.com/javierfn/cleanyourtv/blob/tv-extras/FORK.md). Lo que sigue es el README original.
 >
+> Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1).
+>
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
-> The original README follows.*
+> The original README follows. Versioning: Clean Your TV's release, then `-tv.N` counts this branch's drops on top of it.*
 
-*Capturas de la versión 3.4.1 en un Panasonic Google TV (2 nov 2026) · Screenshots of version 3.4.1.*
+*Capturas de la versión 3.3-tv.5 en un Panasonic Google TV (2 nov 2026) · Screenshots of version 3.3-tv.5 (Clean Your TV 3.3 + this branch's 5th drop).*
 
 | Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
 |---|---|---|
-| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock con TV en Vivo enfocada](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
+| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock con el icono nuevo de TV en Vivo enfocado](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
 | **Foco tvOS en la cuadrícula / tvOS focus in the grid** | **Modo noche / Night mode** | **Menú de ajustes / Settings menu** |
 | ![Atresplayer enfocado: crece un 25 % desde su centro, sin marco, y su nombre aparece debajo](docs/fork/foco-cuadricula.jpg) | ![Modo noche activado: fondo nocturno de auroras y la pantalla atenuada, con el Centro de control abierto](docs/fork/modo-noche.jpg) | ![Ajustes del televisor, Ajustes del lanzador, Tarjetas de módulos, Editar el dock y Reordenar apps, en cristal](docs/fork/menu-ajustes.jpg) |
+
+*Iconos estilo tvOS (3.3-tv.5) · tvOS-style icons*
+
+| TV en Vivo / Live TV | Ajustes / Settings | El tiempo / Weather | Ajustes del Centro de control |
+|---|---|---|---|
+| ![TV en Vivo: televisor de cristal con canto de aluminio, pantalla iluminada y luz roja de directo](docs/fork/icono-envivo.jpg) | ![Ajustes: engranaje de metal pulido con otro de cristal detrás, sobre grafito](docs/fork/icono-ajustes.jpg) | ![El tiempo: sol con corona y nubes de cristal sobre cielo azul](docs/fork/icono-tiempo.jpg) | ![Centro de control con el botón redondo de Ajustes enfocado y su engranaje fino](docs/fork/icono-boton-ajustes.jpg) |
 
 *Detalles · Details*
 
