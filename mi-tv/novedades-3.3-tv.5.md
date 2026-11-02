@@ -1,4 +1,6 @@
-# Novedades de esta rama 3.5 (2 nov 2026): iconos tvOS
+# Novedades de esta rama 3.3-tv.5 (2 nov 2026): iconos tvOS
+
+Basada en Clean Your TV 3.3; quinta entrega de esta rama sobre ella (antes numeradas 3.3.1, 3.4, 3.4.1 y fondos).
 
 Iconos propios de esta rama, no de Clean Your TV. Marcado con ★ lo que afecta a esta TV.
 
