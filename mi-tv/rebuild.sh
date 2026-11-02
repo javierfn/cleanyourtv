@@ -19,9 +19,10 @@ cp mi-tv/banner_tvenvivo.png launcher/app/src/main/res/drawable-nodpi/banner_tve
 
 # 1a. Build folders outside the synced Desktop: its sync makes "X 2.xml" copies that break the build.
 C="$HOME/Library/Caches/cleanyourtv-build"
-for d in launcher/app/build launcher/build launcher/.gradle addons/weather/app/build addons/weather/.gradle addons/brightness/app/build addons/brightness/.gradle \
-         addons/bluetooth-connect/app/build addons/bluetooth-connect/.gradle mi-tv/hdmi-appletv/app/build mi-tv/hdmi-appletv/.gradle; do
-  [ -L "$d" ] && continue
+BUILD_DIRS="launcher/app/build launcher/build launcher/.gradle addons/weather/app/build addons/weather/.gradle addons/brightness/app/build addons/brightness/.gradle
+         addons/bluetooth-connect/app/build addons/bluetooth-connect/.gradle mi-tv/hdmi-appletv/app/build mi-tv/hdmi-appletv/.gradle"
+for d in $BUILD_DIRS; do
+  [ -L "$d" ] && { mkdir -p "$C/$d"; continue; }
   rm -rf "$d"; mkdir -p "$C/$d"; ln -s "$C/$d" "$d"
 done
 
@@ -53,4 +54,6 @@ addons/brightness/install.sh
 
 # 4. Theme: dock order, labels, banners, wallpaper, hidden apps, 6 columns...
 tools/theme.sh "mi-tv/${TEMA:-theme-glass-oscuro}"   # otro tema: TEMA=theme-halloween mi-tv/rebuild.sh
+# 5. Empty the build folders once installed, so repeated rebuilds don't fill the disk (the links stay).
+for d in $BUILD_DIRS; do rm -rf "${C:?}/${d:?}"; mkdir -p "$C/$d"; done
 echo "Listo. Pulsa Inicio en el mando."
