@@ -1838,7 +1838,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         float h = card.getHeight() * scale + 2 * pad;
         float x = r.exactCenterX() - w / 2f;
         // advanced_effects lifts a focused grid tile by 4dp and the glass follows it; dock tiles stay put (#2135).
-        // tvos_focus grows the tile from its centre without moving it, so the glass stays centred on it too.
         boolean lifted = advancedEffects && !adapter.tvosFocus() && !DockSlots.inDockRow(dockRow, singleRow, position, COLUMNS);
         float y = r.exactCenterY() - h / 2f - (lifted ? 4f * density : 0f);
 
@@ -1862,7 +1861,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             glassAccent = accent;
             glass.setAccent(accent);
         }
-        if (!glassShown) {
+        if (adapter.tvosFocus()) {
+            // tvos_focus: no highlight travelling from tile to tile, as on Apple TV; the tile itself grows (TvFocus).
+            glass.animate().cancel();
+            glass.setAlpha(0f);
+        } else if (!glassShown) {
             springX.cancel();
             springY.cancel();
             glass.setTranslationX(x);

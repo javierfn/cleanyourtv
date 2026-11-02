@@ -38,8 +38,11 @@ final class TvFocus {
      * as if it grew upwards, where tvOS grows it evenly from its centre.
      */
     static final float SHADOW_DP = 28f;
-    /** tvOS grows a focused tile about 15%; AppAdapter leaves room for it between columns and inside the dock band. */
-    static final float SCALE = 1.15f;
+    /**
+     * How much a focused tile grows. With no highlight around it the growth is the focus, so it is a clear 25%: the
+     * columns' gap and the dock band still leave room for it (one tile grows at a time).
+     */
+    static final float SCALE = 1.25f;
     private static final float TILT_DEG = 9f;
     private static final long FOCUS_MS = 260;
     private static final long UNFOCUS_MS = 180;

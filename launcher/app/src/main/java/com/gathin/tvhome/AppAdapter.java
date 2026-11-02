@@ -673,7 +673,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return emptySlots > 0 ? docked : dockSize;
     }
 
-    /** config tvos_focus: the focused tile grows to TvFocus.SCALE from its centre, and the glass highlight with it. */
+    /** config tvos_focus: the focused tile grows to TvFocus.SCALE from its centre, with no glass highlight around it. */
     boolean tvosFocus() {
         return tvosFocus;
     }
@@ -995,8 +995,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     TvFocus.apply(view, focused, TvFocus.SCALE, TvFocus.SHADOW_DP * density);
                     banner.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                             .setDuration(focused ? 520 : 170).start();
-                    // The tile grows down as much as up: the name moves down by that much to stay clear of it.
-                    float grow = view.getHeight() * (TvFocus.SCALE - 1f) / 2f;
+                    // The tile grows down as much as up; half of that keeps the name clear of it and of the next row.
+                    float grow = view.getHeight() * (TvFocus.SCALE - 1f) / 4f;
                     name.animate().alpha(focused ? 1f : restNameAlpha)
                             .translationY(focused ? density * 4f + grow : -density * 6f)
                             .setDuration(220).start();

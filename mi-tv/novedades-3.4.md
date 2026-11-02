@@ -20,7 +20,8 @@ Cambios propios de esta rama, no de Clean Your TV. Marcado con ★ lo que afecta
 - No cambian las pantallas de Android ni de otras apps (Red, VPN, Desinstalar, Información de la aplicación…).
 
 ## Arreglos
-- ★ **Foco estilo tvOS (`tvos_focus`)**: el icono enfocado de la cuadrícula parecía crecer solo hacia arriba, porque
-  además de agrandarse subía 10 dp. Ahora crece desde su centro por igual hacia arriba, abajo y los lados, como en
-  Apple TV; la elevación es solo la sombra. El marco de cristal queda centrado y el nombre baja lo justo para no
-  tocarlo.
+- ★ **Foco estilo tvOS (`tvos_focus`)**, como en Apple TV:
+  - Sin marco que se desplaza de una app a otra: el foco es solo el icono, que crece un 25 % (antes un 15 %) con
+    sombra, inclinación y brillo.
+  - Crece desde su centro, por igual hacia arriba, abajo y los lados. Antes además subía 10 dp y parecía crecer solo
+    hacia arriba. El nombre baja lo justo para no tocarlo.
