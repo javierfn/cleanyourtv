@@ -84,6 +84,11 @@ final class TvFocus {
      * foreground, the sweep.
      */
     static void apply(View card, boolean focused, float scale, float elevation) {
+        apply(card, focused, scale, elevation, null);
+    }
+
+    /** redraw: a view to invalidate on every frame of the zoom (the grid, so the dock band follows the tile), or null. */
+    static void apply(View card, boolean focused, float scale, float elevation, View redraw) {
         float density = card.getResources().getDisplayMetrics().density;
         card.setCameraDistance(12000f * density);
         card.setPivotX(card.getWidth() / 2f);
@@ -94,6 +99,7 @@ final class TvFocus {
                 .translationZ(focused ? elevation : 0f)
                 .setDuration(focused ? FOCUS_MS : UNFOCUS_MS)
                 .setInterpolator(focused ? FOCUS_EASE : UNFOCUS_EASE).setStartDelay(0)
+                .setUpdateListener(redraw == null ? null : a -> redraw.invalidate())
                 .start();
 
         int dir = focused ? direction() : 0;

@@ -25,3 +25,6 @@ Cambios propios de esta rama, no de Clean Your TV. Marcado con ★ lo que afecta
     sombra, inclinación y brillo.
   - Crece desde su centro, por igual hacia arriba, abajo y los lados. Antes además subía 10 dp y parecía crecer solo
     hacia arriba. El nombre baja lo justo para no tocarlo.
+  - En el dock, al crecer la app de un extremo (TV en Vivo o Prime Video), la banda de cristal ensancha solo ese
+    lado, a la vez que el icono, para que su curva siga siendo concéntrica con la del icono. Con una app del medio la
+    banda no cambia.

@@ -992,7 +992,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     name.setAlpha(focused ? 1f : restNameAlpha);
                     name.setTranslationY(0f);
                 } else if (tvosFocus) {
-                    TvFocus.apply(view, focused, TvFocus.SCALE, TvFocus.SHADOW_DP * density);
+                    TvFocus.apply(view, focused, TvFocus.SCALE, TvFocus.SHADOW_DP * density,
+                            inDock ? (View) itemView.getParent() : null);
                     banner.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                             .setDuration(focused ? 520 : 170).start();
                     // The tile grows down as much as up; half of that keeps the name clear of it and of the next row.
