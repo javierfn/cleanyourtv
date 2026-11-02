@@ -22,7 +22,8 @@
   "advanced_effects": false,
   "columns": 6,
   "app_banners": [
-    "com.mediatek.wwtv.tvcenter=banner_tv"
+    "com.mediatek.wwtv.tvcenter=banner_tv",
+    "com.android.tv.settings=banner_ajustes"
   ],
   "live_tv_package": "com.mediatek.wwtv.tvcenter",
   "hidden_apps": [

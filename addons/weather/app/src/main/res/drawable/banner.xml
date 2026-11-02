@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The TV banner: a sun behind a cloud on a day sky. Drawn for this add-on, no third-party art. -->
+<!-- The TV banner: a sun behind a cloud on a blue day sky, tvOS style. Drawn for this add-on, no third-party art. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="320dp" android:height="180dp"
     android:viewportWidth="320" android:viewportHeight="180">
-    <path android:fillColor="#FF1E4A7A" android:pathData="M0,0h320v180h-320z" />
-    <path android:fillColor="#FF2A6AA8" android:pathData="M0,110h320v70h-320z" />
-    <path android:fillColor="#FFFFC94A" android:pathData="M190,72m-34,0a34,34 0,1 1,68 0a34,34 0,1 1,-68 0" />
-    <path android:fillColor="#FFFFFFFF"
-        android:pathData="M110,128h96a22,22 0,0 0,0 -44a30,30 0,0 0,-56 -10a24,24 0,0 0,-40 18a18,18 0,0 0,0 36z" />
+    <path android:pathData="M0,0h320v180h-320z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="0" android:endY="180">
+                <item android:offset="0" android:color="#FF1F6FD1" />
+                <item android:offset="0.6" android:color="#FF4A9BE6" />
+                <item android:offset="1" android:color="#FF7CC3F4" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M196,66m-60.8,0a60.8,60.8 0,1 1,121.6,0a60.8,60.8 0,1 1,-121.6,0z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="196" android:centerY="66" android:gradientRadius="60.8">
+                <item android:offset="0.45" android:color="#66FFE680" />
+                <item android:offset="1" android:color="#00FFE680" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M196,66m-32,0a32,32 0,1 1,64,0a32,32 0,1 1,-64,0z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="186.4" android:centerY="56.4" android:gradientRadius="44.8">
+                <item android:offset="0" android:color="#FFFFF6B0" />
+                <item android:offset="0.6" android:color="#FFFFD23F" />
+                <item android:offset="1" android:color="#FFFFB300" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#1A0A3A70"
+        android:pathData="M108,137h96a22,22 0,0 0,0 -44a30,30 0,0 0,-56 -10a24,24 0,0 0,-40 18a18,18 0,0 0,0 36z" />
+    <path android:pathData="M106,132h96a22,22 0,0 0,0 -44a30,30 0,0 0,-56 -10a24,24 0,0 0,-40 18a18,18 0,0 0,0 36z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="70" android:endX="0" android:endY="132">
+                <item android:offset="0" android:color="#FFFFFFFF" />
+                <item android:offset="1" android:color="#FFDCEAF8" />
+            </gradient>
+        </aapt:attr>
+    </path>
 </vector>
