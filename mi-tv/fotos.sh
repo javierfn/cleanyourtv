@@ -6,13 +6,15 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 W=theme-glass-oscuro/wallpapers
+# Wikimedia answers 429 to generic user agents: name the project (https://meta.wikimedia.org/wiki/User-Agent_policy)
+UA="cleanyourtv-wallpapers/1.0 (https://github.com/javierfn/cleanyourtv)"
 TMP=$(mktemp -d)
 get() { t="$1"; out="$2"; top="${3:-}"
   [ -f "$W/$out.jpg" ] && return
-  u=$(curl -s -A "cleanyourtv-wallpapers" -G "https://commons.wikimedia.org/w/api.php" --data-urlencode "titles=$t" \
+  u=$(curl -s -A "$UA" -G "https://commons.wikimedia.org/w/api.php" --data-urlencode "titles=$t" \
       -d action=query -d prop=imageinfo -d iiprop=url -d format=json \
       | python3 -c "import sys,json;d=json.load(sys.stdin);print(list(d['query']['pages'].values())[0]['imageinfo'][0]['url'])")
-  curl -s -A "cleanyourtv-wallpapers" -o "$TMP/big.jpg" "$u"
+  curl -s -A "$UA" -o "$TMP/big.jpg" "$u"
   w=$(sips -g pixelWidth "$TMP/big.jpg" | awk '/pixelWidth/{print $2}'); h=$(sips -g pixelHeight "$TMP/big.jpg" | awk '/pixelHeight/{print $2}')
   if [ $((w*9)) -gt $((h*16)) ]; then sips --resampleHeight 2160 "$TMP/big.jpg" --out "$TMP/a.jpg" >/dev/null
   else sips --resampleWidth 3840 "$TMP/big.jpg" --out "$TMP/a.jpg" >/dev/null; fi
@@ -58,6 +60,17 @@ get "File:Skyline view of Madrid, Spain at night - 50317258357.jpg" n13-madrid
 get "File:Sagrada Familia at night 01.jpg" n14-sagrada-familia 33
 get "File:Road to the stars.jpg" n15-teide
 get "File:1 toledo spain evening sunset 2014 DXR edit.jpg" n16-toledo
+# From space: NASA photos from the International Space Station (public domain), night only
+get "File:ISS-43 Earth sunrise, aurora and sparling cities in northern Europe.jpg" n17-aurora-norte-europa
+get "File:ISS-43 Southern Scandinavia.jpg" n18-escandinavia
+get "File:The aurora borealis blankets the Earth (iss072e159172).jpg" n19-aurora-boreal 390
+get "File:Sunset from the ISS.JPG" n20-atardecer-orbital 330
+get "File:Egypt’s Nile River stretches from Luxor to Cairo (iss073e0422271).jpg" n21-nilo
+get "File:ISS-39 Moscow, Aurora borealis and Moon.jpg" n22-moscu-aurora-luna
+get "File:A reddish airglow blankets Earth beneath the Milky Way (iss073e0982696).jpg" n23-luminiscencia
+get "File:ISS-62 Aurora australis over the Indian Ocean.jpg" n24-aurora-austral
+get "File:ISS-62 City lights of northeastern Europe.jpg" n25-europa-nordeste 390
+get "File:ISS-46 Aurora over nocturnal Canada.jpg" n26-aurora-canada
 [ -f theme-glass-oscuro/wallpaper.jpg ] || cp "$W/01-lysefjord.jpg" theme-glass-oscuro/wallpaper.jpg
 cp -n ../themes/halloween/wallpapers/*.jpg theme-halloween/wallpapers/ 2>/dev/null || true
 rm -rf "$TMP"

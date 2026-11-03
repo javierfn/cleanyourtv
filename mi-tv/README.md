@@ -1,7 +1,7 @@
 # Una TV con estilo Apple TV, sobre Clean Your TV 3.3
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.6) con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.7) con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -24,6 +24,9 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
   Con `"weather_now_place": false` en el tema, la línea del tiempo no muestra la ciudad (así está el tema oscuro).
 - **Fondos de España y Portugal**: el tema trae 25 fotos más (Alhambra, Catedrales, Gaztelugatxe, Teide, Sintra,
   Oporto…; de noche Cuenca, Segovia, Lisboa, Gran Vía, Sagrada Família…) mezcladas con las de siempre.
+- **Fondos desde el espacio** (3.3-tv.7): 10 fotos nocturnas de la NASA tomadas desde la Estación Espacial
+  (auroras, el Nilo, Moscú con la Luna, la Vía Láctea…; dominio público), las del tema `aerial` de Clean Your TV,
+  pero a 3840x2160 y solo en el modo noche, mezcladas con las demás.
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
@@ -31,7 +34,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 
 | Ruta | Qué es |
 |---|---|
-| `theme-glass-oscuro/` | El tema: dock, nombres, iconos, 6 columnas, cristal oscuro, fondos de día y de noche (`wallpaper_moods`): 19 de día y 16 de noche, 25 de ellos de lugares emblemáticos de España y Portugal (ver `novedades-fondos.md`), mezclados y al azar, uno nuevo cada 10 minutos y también al abrir Inicio si ya tocaba (3.3-tv.6). Las fotos no están en git: `fotos.sh` las baja de Wikimedia Commons (créditos en `wallpapers/CREDITOS.txt`) |
+| `theme-glass-oscuro/` | El tema: dock, nombres, iconos, 6 columnas, cristal oscuro, fondos de día y de noche (`wallpaper_moods`): 19 de día y 26 de noche, 25 de ellos de lugares emblemáticos de España y Portugal (ver `novedades-fondos.md`) y 10 nocturnos desde el espacio de la NASA (3.3-tv.7), mezclados y al azar, uno nuevo cada 10 minutos y también al abrir Inicio si ya tocaba (3.3-tv.6). Las fotos no están en git: `fotos.sh` las baja de Wikimedia Commons (créditos en `wallpapers/CREDITOS.txt`) |
 | `theme-halloween/` | El mismo tema con los fondos y el disfraz de Halloween de Clean Your TV |
 | `banner_tvenvivo.png` / `.html` | Icono de "TV en Vivo" propio (se copia dentro del launcher antes de compilar; el tema oscuro usa ahora `banner_envivo`, ver `iconos-tvos.html`, y el de Halloween, este) |
 | `iconos-tvos.html` / `.sh` | Fuente de los iconos estilo tvOS (diseño propio): `banner_envivo.png` (TV en Vivo vía `app_banners`: televisor de cristal con canto de aluminio pulido, pantalla iluminada magenta-azul con botón de reproducir, antena de metal y luz roja de directo con ondas, sobre azul noche), `banner_ajustes.png` (tarjeta Ajustes vía `app_banners`: engranaje de metal pulido con biselado y centro hundido, y un engranaje de cristal esmerilado detrás, sobre grafito con viñeteado) y `banner.png`/`icon.png` del complemento El tiempo (cielo profundo azul a cian, sol con corona y halo, dos nubes de cristal translúcido con borde luminoso). `mi-tv/iconos-tvos.sh` los renderiza con Chrome sin cabeza a PNG (960×540) dentro del launcher y del complemento. El glifo `ic_settings` (Centro de control y menús) es vectorial |
@@ -40,7 +43,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
-| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1). |
+| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md`, `novedades-3.3-tv.7.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1). |
 
 `vpn_app` en el tema es un ejemplo (`com.example.vpn`): pon el paquete de tu app de VPN. La ciudad del tiempo se
 elige en la app "El tiempo" de la TV.
