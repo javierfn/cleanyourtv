@@ -173,10 +173,13 @@ final class WeatherNow {
                 Object[] row = null;
                 try (Cursor c = ctx.getContentResolver().query(uri, COLUMNS, null, null, null)) {
                     if (c != null && c.moveToFirst()) {
-                        int skyAt = c.getColumnIndex("sky"), humidityAt = c.getColumnIndex("humidity");
-                        row = new Object[] {c.getString(0), c.getInt(1), c.getString(2), c.getInt(3), c.getInt(4), c.getLong(5),
-                                skyAt >= 0 ? c.getString(skyAt) : null,
-                                humidityAt >= 0 && !c.isNull(humidityAt) ? c.getInt(humidityAt) : null};
+                        // By name, as the contract says: a provider may answer in another order or with fewer columns.
+                        row = new Object[COLUMNS.length];
+                        for (int i = 0; i < COLUMNS.length; i++) {
+                            int at = c.getColumnIndex(COLUMNS[i]);
+                            if (at < 0 || c.isNull(at)) continue;   // getInt answers 0 for NULL: keep it missing
+                            row[i] = c.getType(at) == Cursor.FIELD_TYPE_STRING ? c.getString(at) : c.getLong(at);
+                        }
                     }
                 } catch (RuntimeException gone) {
                     // Uninstalled or crashed mid-query: keep what is on screen.
@@ -222,18 +225,22 @@ final class WeatherNow {
         int code = r[3] instanceof Number ? ((Number) r[3]).intValue() : 3;
         boolean day = !(r[4] instanceof Number) || ((Number) r[4]).intValue() != 0;
         String skyText = r.length > 6 && r[6] instanceof String ? ((String) r[6]).trim() : "";
-        int humidity = r.length > 7 && r[7] instanceof Number ? Math.max(0, Math.min(100, ((Number) r[7]).intValue())) : -1;
+        int humidity = r.length > 7 && r[7] instanceof Number ? ((Number) r[7]).intValue() : -1;
+        if (humidity > 100) humidity = -1;   // out of range is a wrong figure, not 100 %
         return new Reading(place, ((Number) r[1]).intValue(), code, day, updated, skyText, humidity);
     }
 
-    /** WMO weather code to a sky symbol, drawn as text (U+FE0E asks for the plain glyph, not a colour emoji). */
+    /**
+     * WMO weather code to a sky symbol, drawn as text (U+FE0E asks for the plain glyph, not a colour emoji). The same
+     * set as LostInInaka's header_weather, so both forks draw one symbol per code: ≡ fog, ☔ wet, ⚡ storm, ❄ snow.
+     */
     static String sky(int code, boolean day) {
         if (code == 0 || code == 1) return day ? "\u2600\uFE0E" : "\u263E";
         if (code == 2 && day) return "\u26C5\uFE0E";
-        if (code == 45 || code == 48) return "\u2248";
+        if (code == 45 || code == 48) return "\u2261";
         if ((code >= 71 && code <= 77) || code == 85 || code == 86) return "\u2744\uFE0E";
         if (code >= 95) return "\u26A1\uFE0E";
-        if (code >= 51) return "\u2602\uFE0E";
+        if (code >= 51) return "\u2614\uFE0E";
         return "\u2601\uFE0E";
     }
 }
