@@ -1398,6 +1398,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         cancelHoldOk();
         if (gameDay != null) gameDay.shutdown();
         if (weatherNow != null) weatherNow.shutdown();
+        if (castStatus != null) castStatus.unbind();
         unregisterReceiver(packageReceiver);
         if (openOnStartOnWake) unregisterReceiver(wakeReceiver);
         wallpaperPlayer.close();
@@ -3302,6 +3303,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private ControlCenter controlCenter;
+    /** cast_pill: the Cast receiver, bound while Home lives (shows Chromecast in the Control Center, keeps it awake). */
+    private CastStatus castStatus;
     /** The next dropIn() is a Control Center submenu: it opens in the panel's place, on the same glass. */
     private boolean ccSubmenu;
 
@@ -3329,6 +3332,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean hasNight = getPackageManager().resolveActivity(nightToggle, 0) != null;
         Intent timer = new Intent().setClassName("io.github.luyzfernando08.sleeptimer", "io.github.luyzfernando08.sleeptimer.TimerActivity");
         boolean hasTimer = getPackageManager().resolveActivity(timer, 0) != null;
+        if (WeatherLine.configFlag(this, "cast_pill")) {
+            castStatus = new CastStatus(this);
+            castStatus.bind();
+        }
         controlCenter = new ControlCenter(this, root, new ControlCenter.Actions() {
             @Override public void powerOff() { HomeKeyService.powerAction(false); }
             @Override public void network() { openNetworkPill(); }
@@ -3364,6 +3371,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
             @Override public void settings() { ccSubmenu = true; root.post(MainActivity.this::showSettingsMenu); }
             @Override public void panelShown(boolean shown) { wallpaperPlayer.hideCaption(shown); }
+            @Override public int castState() { return castStatus != null ? castStatus.state() : CastStatus.MISSING; }
+            @Override public String castName() { return castStatus != null ? castStatus.name() : ""; }
+            @Override public void cast() { ccSubmenu = true; root.post(MainActivity.this::showCast); }
         });
         btnControl.setOnClickListener(v -> controlCenter.show(v, wallpaperPlayer.imageView(), wallpaperPlayer.currentBitmap()));
     }
@@ -3942,6 +3952,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar)
                 ? Gravity.START : Gravity.END);
         rows.getChildAt(0).requestFocus();
+    }
+
+    /**
+     * cast_pill: the Chromecast card, in the Control Center's place: the name phones list, how to cast to it, and
+     * the receiver's own settings (or its App info page where it has none).
+     */
+    private void showCast() {
+        if (castStatus == null) return;
+        View anchor = findViewById(R.id.btnControl);
+        View panel = getLayoutInflater().inflate(R.layout.popup_atv_menu, root, false);
+        LinearLayout rows = panel.findViewById(R.id.rows);
+        PopupWindow popup = glassPopup(panel, (int) (300 * density));
+        boolean ready = castStatus.state() == CastStatus.READY;
+        View info = controlCenter.infoTile(R.drawable.ic_cast, castStatus.name(),
+                getString(ready ? R.string.cc_cast_hint : R.string.cc_cast_down_hint));
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ilp.bottomMargin = controlCenter.tileGap();
+        ((LinearLayout) panel).addView(info, 0, ilp);
+        Intent settings = castStatus.settingsIntent();
+        if (settings != null) {
+            addAtvMenuRow(rows, popup, R.string.cc_cast_settings, R.drawable.ic_settings,
+                    () -> open(new Intent(settings).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
+        }
+        dropIn(popup, panel, anchor, Gravity.END);
+        if (rows.getChildCount() > 0) rows.getChildAt(0).requestFocus();
     }
 
     /** A tile configured with launch_actions "input:<id>" (config.xml): switch to that TV input directly,

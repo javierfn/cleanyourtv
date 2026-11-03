@@ -181,6 +181,12 @@
     <string name="cc_open">Centro de control</string>
     <string name="cc_inputs_detail">HDMI y TV</string>
     <string name="cc_vpn">VPN</string>
+    <string name="cc_cast">Chromecast</string>
+    <string name="cc_cast_ready">Listo · %1$s</string>
+    <string name="cc_cast_down">No disponible</string>
+    <string name="cc_cast_hint">En el móvil, pulsa Enviar y elige esta tele</string>
+    <string name="cc_cast_down_hint">Cast no responde ahora mismo</string>
+    <string name="cc_cast_settings">Ajustes de Chromecast</string>
     <string name="tile_uninstall">Desinstalar</string>
     <string name="tile_uninstall_failed">No se pudo abrir el desinstalador</string>
     <string name="cc_no_internet">sin internet</string>

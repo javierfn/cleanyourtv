@@ -30,6 +30,8 @@
     <queries>
         <!-- The Brightness add-on's night state (NightState), for the night wallpapers and the moon button. -->
         <package android:name="io.github.maxhayim.brightness" />
+        <!-- cast_pill: Google TV's Cast receiver, bound to show (and keep awake) Chromecast in the Control Center. -->
+        <package android:name="com.google.android.apps.mediashell" />
         <!-- The standard settings handlers, so package visibility doesn't hide them and send the pills to a vendor fallback by mistake. -->
         <intent>
             <action android:name="android.settings.SETTINGS" />
