@@ -36,3 +36,16 @@ n13-madrid           "Skyline view of Madrid, Spain at night - 50317258357" — 
 n14-sagrada-familia  "Sagrada Familia at night 01" — Maksim Sokolov (maxergon.com), CC BY-SA 4.0
 n15-teide            "Road to the stars" — AstroAnthony, CC BY 4.0
 n16-toledo           "1 toledo spain evening sunset 2014 DXR edit" — Chensiyuan, CC BY-SA 3.0
+Desde el espacio, solo de noche (fotos de astronautas de la NASA en la Estación Espacial Internacional, Wikimedia Commons,
+recortadas a 3840x2160; las mismas del tema "aerial" de Clean Your TV). Las fotos de la NASA son de DOMINIO PÚBLICO;
+se cita a la NASA como fuente y la NASA no respalda este proyecto:
+n17-aurora-norte-europa "ISS-43 Earth sunrise, aurora and sparling cities in northern Europe" — NASA (Expedición 43), dominio público
+n18-escandinavia        "ISS-43 Southern Scandinavia" — NASA (Expedición 43), dominio público
+n19-aurora-boreal       "The aurora borealis blankets the Earth (iss072e159172)" — NASA (Expedición 72), dominio público
+n20-atardecer-orbital   "Sunset from the ISS" — NASA (Expedición 23), dominio público
+n21-nilo                "Egypt’s Nile River stretches from Luxor to Cairo (iss073e0422271)" — NASA (Expedición 73), dominio público
+n22-moscu-aurora-luna   "ISS-39 Moscow, Aurora borealis and Moon" — NASA (Expedición 39), dominio público
+n23-luminiscencia       "A reddish airglow blankets Earth beneath the Milky Way (iss073e0982696)" — NASA (Expedición 73), dominio público
+n24-aurora-austral      "ISS-62 Aurora australis over the Indian Ocean" — NASA (Expedición 62), dominio público
+n25-europa-nordeste     "ISS-62 City lights of northeastern Europe" — NASA (Expedición 62), dominio público
+n26-aurora-canada       "ISS-46 Aurora over nocturnal Canada" — NASA (Expedición 46), dominio público

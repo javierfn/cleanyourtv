@@ -34,3 +34,13 @@ n13-madrid.jpg	Gran Vía, Madrid
 n14-sagrada-familia.jpg	Sagrada Família, Barcelona
 n15-teide.jpg	Vía Láctea sobre el Teide, Tenerife
 n16-toledo.jpg	Toledo al anochecer
+n17-aurora-norte-europa.jpg	Amanecer y aurora sobre el norte de Europa · desde la ISS
+n18-escandinavia.jpg	El sur de Escandinavia de noche · desde la ISS
+n19-aurora-boreal.jpg	Aurora boreal sobre la Tierra · desde la ISS
+n20-atardecer-orbital.jpg	Puesta de sol vista desde la órbita · desde la ISS
+n21-nilo.jpg	El Nilo, de Luxor a El Cairo, de noche · desde la ISS
+n22-moscu-aurora-luna.jpg	Moscú, una aurora y la Luna · desde la ISS
+n23-luminiscencia.jpg	Luminiscencia del aire bajo la Vía Láctea · desde la ISS
+n24-aurora-austral.jpg	Aurora austral sobre el océano Índico · desde la ISS
+n25-europa-nordeste.jpg	Luces del nordeste de Europa · desde la ISS
+n26-aurora-canada.jpg	Aurora sobre Canadá · desde la ISS
