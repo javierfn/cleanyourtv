@@ -148,3 +148,62 @@ the `game_day` key (`config.xml` or a theme); there is no card prompt for it.
    pressed on Home, right after a row ends, and on each change, and watches only while Home is on screen.
 
 The [Game Day](../addons/README.md) add-on implements this from calendar links the person adds.
+
+## The weather now on Home (weather_now)
+
+An app can hand Home the weather now, which the launcher shows under the clock in the stats line's place: a sky
+symbol, the temperature and whatever else the app publishes ("☔  11° · Lluvia · 80 % · Humedad 90 %"). The
+launcher only reads; it never writes to the app and never goes online, so the app does the fetching. The owner
+opts in by naming the app's package in the `weather_now` key (`config.xml` or a theme); there is no card prompt
+for it. This is the same contract as LostInInaka's `header_weather` (Weather Glance), so one add-on works with
+either launcher.
+
+1. Name a read-only content provider in a `meta-data` on your `<application>`:
+
+   ```xml
+   <meta-data android:name="com.gathin.tvhome.weather" android:value="com.example.weather" />
+   <provider android:name=".NowProvider" android:authorities="com.example.weather" android:exported="true" />
+   ```
+
+   The provider must belong to the package the owner named; the launcher ignores an authority another app holds.
+2. Answer a query on `content://<authority>/now` with one row. Columns are read by name, so their order does not
+   matter, and a `null` or missing optional column drops that part of the line and nothing else:
+
+   | Column | Type | What |
+   |---|---|---|
+   | `place` | text | *Optional.* The place's name, shown at the end ("· Madrid") only when the theme's `weather_now_place` is true. |
+   | `temperature` | number | Degrees in the app's own unit, rounded by the launcher, which adds only "°". |
+   | `unit` | text | `C` or `F`; not shown. |
+   | `code` | integer | The WMO weather code, which picks the sky symbol (table below). |
+   | `is_day` | integer | 1 by day, 0 at night (a moon for a clear night). |
+   | `updated_ms` | integer | Epoch milliseconds of the reading. A row without it, or older than three hours, hides the line. |
+   | `sky` | text | *Optional.* The sky in words, in the TV's language ("Nublado"), shown after the temperature. |
+   | `humidity` | integer | *Optional.* Relative humidity, 0 to 100, shown as the launcher's `weather_humidity` string ("Humedad 90 %"). Out of range is dropped. |
+   | `precipitation_chance` | integer | *Optional.* Chance of precipitation in %, e.g. Open-Meteo's `precipitation_probability`. Shown from 30 % up ("Lluvia 60 %"). |
+   | `snow_chance` | integer | *Optional.* The chance of snow in %. Open-Meteo has no such figure, so send the precipitation chance here only when the reading says snow (a snow code or snowfall above zero), and `null` otherwise. |
+
+   The chance on the line follows three rules: nothing below 30 %; snow wins over rain, and a snow sky (a snow
+   code, whatever the words) never shows a rain figure; and the word is left out when the sky already says it
+   ("Nieve · 70 %", not "Nieve · Nieve 70 %"). The words come from the launcher's strings, one set per language.
+
+   An empty cursor hides the line. Keep it to what Home shows: the provider is exported without a permission, so
+   it must hold no coordinates, accounts or other private data.
+3. Call `notifyChange` on that URI when a new reading arrives. The launcher queries when Home comes back, on each
+   change and every 31 minutes while Home stays on screen; a query is the app's cue to refresh a reading that is
+   getting old.
+
+The sky symbols, shared with `header_weather` (each but ≡ and ☾ followed by U+FE0E, so it is drawn as text rather
+than a colour emoji); a code not in the table draws no symbol:
+
+| WMO code | Symbol |
+|---|---|
+| 0, 1 | ☀ by day, ☾ at night |
+| 2 | ⛅ |
+| 3 | ☁ |
+| 45, 48 | ≡ |
+| 51–57 (drizzle) | ☂ |
+| 61–67, 80–82 (rain, showers) | ☔ |
+| 71–77, 85, 86 (snow) | ❄ |
+| 95, 96, 99 (thunderstorm) | ⚡ |
+
+The [Weather](../addons/weather/README.md) add-on implements this with Open-Meteo.

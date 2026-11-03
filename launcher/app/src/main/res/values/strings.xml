@@ -173,6 +173,12 @@
     <string name="card_desc_weather">Weather and air quality</string>
     <string name="card_desc_btconnect">Speakers and headphones</string>
     <string name="weather_humidity">Humidity %1$d%%</string>
+    <string name="weather_rain">Rain %1$d%%</string>
+    <string name="weather_snow">Snow %1$d%%</string>
+    <string name="weather_chance">%1$d%%</string>
+    <!-- The words the add-on's sky may already say, so the line does not repeat them: lower case. -->
+    <string name="weather_rain_word">rain</string>
+    <string name="weather_snow_word">snow</string>
     <!-- control_center: the tvOS-style Control Center over Home. -->
     <string name="tv_power_off_short">Power off</string>
     <string name="cc_network">Network</string>
