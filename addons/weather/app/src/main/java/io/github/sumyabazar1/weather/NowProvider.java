@@ -23,7 +23,8 @@ import java.util.concurrent.Executors;
 public final class NowProvider extends ContentProvider {
     static final String AUTHORITY = "io.github.sumyabazar1.weather.now";
     static final Uri URI = Uri.parse("content://" + AUTHORITY + "/now");
-    static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms", "sky", "humidity"};
+    static final String[] COLUMNS = {"place", "temperature", "unit", "code", "is_day", "updated_ms", "sky", "humidity",
+            "precipitation_chance", "snow_chance"};
     private static final String PREFS = "now";
 
     private final ExecutorService io = Executors.newSingleThreadExecutor();
@@ -68,7 +69,10 @@ public final class NowProvider extends ContentProvider {
                 fahrenheit ? "F" : "C", now.getInt("code", 0), now.getBoolean("day", true) ? 1 : 0, updated,
                 // The sky in words, in the TV's language, and the relative humidity in % (null when unknown).
                 c.getString(Forecast.sky(now.getInt("code", 0), now.getBoolean("day", true))),
-                now.contains("humidity") ? now.getInt("humidity", 0) : null});
+                now.contains("humidity") ? now.getInt("humidity", 0) : null,
+                // The chance of precipitation in %, and the same figure as snow_chance only when it snows (else null).
+                now.contains("precip") ? now.getInt("precip", 0) : null,
+                now.contains("snow") ? now.getInt("snow", 0) : null});
         return out;
     }
 
@@ -80,8 +84,11 @@ public final class NowProvider extends ContentProvider {
     static synchronized void publish(Context c, Forecast.Report r, long lat, long lon) {
         SharedPreferences place = c.getSharedPreferences("place", Context.MODE_PRIVATE);
         if (place.getLong("lat", 0) != lat || place.getLong("lon", 0) != lon) return;
-        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putLong("lat", lat)
+        SharedPreferences.Editor e = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+        // Cleared when the reading has none, so a dry reading never keeps the last one's chance of rain.
+        if (r.precipChance >= 0) e.putInt("precip", r.precipChance); else e.remove("precip");
+        if (r.snowChance >= 0) e.putInt("snow", r.snowChance); else e.remove("snow");
+        e.putLong("lat", lat)
                 .putLong("lon", lon)
                 .putLong("temp_c", Double.doubleToRawLongBits(r.tempC))
                 .putInt("code", r.code)

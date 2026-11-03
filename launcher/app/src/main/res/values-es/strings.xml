@@ -163,6 +163,11 @@
     <string name="card_desc_weather">Tiempo y calidad del aire</string>
     <string name="card_desc_btconnect">Altavoces y auriculares</string>
     <string name="weather_humidity">Humedad %1$d %%</string>
+    <string name="weather_rain">Lluvia %1$d %%</string>
+    <string name="weather_snow">Nieve %1$d %%</string>
+    <string name="weather_chance">%1$d %%</string>
+    <string name="weather_rain_word">lluvia</string>
+    <string name="weather_snow_word">nieve</string>
     <string name="tv_power_off_short">Apagar</string>
     <string name="cc_network">Red</string>
     <string name="cc_night">Modo noche</string>

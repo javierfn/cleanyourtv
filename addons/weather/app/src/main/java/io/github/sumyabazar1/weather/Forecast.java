@@ -64,8 +64,17 @@ final class Forecast {
         final int aqi;
         final int humidity;
         final int windKmh;
+        /** Open-Meteo's precipitation_probability now, in %, or -1 when it sends none. */
+        final int precipChance;
+        /** The same figure, only when the reading says snow (see {@link #snowChance}); -1 otherwise. */
+        final int snowChance;
 
         Report(double tempC, double feelsC, int code, boolean day, List<Day> days, int aqi, int humidity, int windKmh) {
+            this(tempC, feelsC, code, day, days, aqi, humidity, windKmh, -1, -1);
+        }
+
+        Report(double tempC, double feelsC, int code, boolean day, List<Day> days, int aqi, int humidity, int windKmh,
+                int precipChance, int snowChance) {
             this.tempC = tempC;
             this.feelsC = feelsC;
             this.code = code;
@@ -74,6 +83,8 @@ final class Forecast {
             this.aqi = aqi;
             this.humidity = humidity;
             this.windKmh = windKmh;
+            this.precipChance = precipChance;
+            this.snowChance = snowChance;
         }
     }
 
@@ -124,16 +135,19 @@ final class Forecast {
         // and Google, had snow falling.
         JSONObject reply = get("https://api.open-meteo.com/v1/forecast?" + where + "&models=icon_seamless"
                 + "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,is_day,wind_speed_10m"
+                + ",precipitation_probability,snowfall"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days="
                 + (forecastDays(days) + 1));
         JSONObject current = reply.getJSONObject("current");
         double temp = current.getDouble("temperature_2m");
         double humidity = current.getDouble("relative_humidity_2m");
         int code = snowIfCold(current.getInt("weather_code"), temp, humidity);
+        int chance = percent(current, "precipitation_probability");
         return new Report(temp, current.getDouble("apparent_temperature"),
                 code, current.getInt("is_day") == 1,
                 days(reply.getJSONObject("daily")), aqiOrUnknown(where),
-                (int) Math.round(humidity), (int) Math.round(current.optDouble("wind_speed_10m", 0)));
+                (int) Math.round(humidity), (int) Math.round(current.optDouble("wind_speed_10m", 0)),
+                chance, snowChance(code, chance, current.optDouble("snowfall", 0)));
     }
 
     /**
@@ -143,13 +157,36 @@ final class Forecast {
     static Report now(double latitude, double longitude) throws IOException, JSONException {
         String where = String.format(Locale.ROOT, "latitude=%.4f&longitude=%.4f", latitude, longitude);
         JSONObject reply = get("https://api.open-meteo.com/v1/forecast?" + where + "&models=icon_seamless"
-                + "&current=temperature_2m,relative_humidity_2m,weather_code,is_day&timezone=auto");
+                + "&current=temperature_2m,relative_humidity_2m,weather_code,is_day,precipitation_probability,snowfall"
+                + "&timezone=auto");
         JSONObject current = reply.getJSONObject("current");
         double temp = current.getDouble("temperature_2m");
         double humidity = current.getDouble("relative_humidity_2m");
         int code = snowIfCold(current.getInt("weather_code"), temp, humidity);
+        int chance = percent(current, "precipitation_probability");
         return new Report(temp, temp, code, current.getInt("is_day") == 1, new ArrayList<>(), -1,
-                (int) Math.round(humidity), 0);
+                (int) Math.round(humidity), 0, chance, snowChance(code, chance, current.optDouble("snowfall", 0)));
+    }
+
+    /** A percentage field of the reply, or -1 when it is missing, null or outside 0..100. */
+    static int percent(JSONObject o, String key) {
+        if (!o.has(key) || o.isNull(key)) return -1;
+        int v = (int) Math.round(o.optDouble(key, -1));
+        return v >= 0 && v <= 100 ? v : -1;
+    }
+
+    /**
+     * Open-Meteo publishes no probability of snow, so the chance of precipitation stands for it only when the reading
+     * itself says snow: a snow code (after {@link #snowIfCold}) or snowfall above zero. Otherwise -1, as in
+     * LostInInaka's Weather Glance: a number we cannot stand behind is worse than none.
+     */
+    static int snowChance(int code, int chance, double snowfallCm) {
+        return chance >= 0 && (isSnow(code) || snowfallCm > 0) ? chance : -1;
+    }
+
+    /** The WMO codes that are snow: 71-77 and the snow showers 85 and 86. */
+    static boolean isSnow(int code) {
+        return (code >= 71 && code <= 77) || code == 85 || code == 86;
     }
 
     /**

@@ -1,7 +1,7 @@
 # Una TV con estilo Apple TV, sobre Clean Your TV 3.3
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.7) con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.8) con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -22,6 +22,9 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
   del tiempo y Brightness sin que el launcher se conecte a internet. El botón cambia a día o a noche hasta el
   siguiente cambio de horario; mantener pulsado abre un menú (volver al horario, noche más clara u oscura).
   Con `"weather_now_place": false` en el tema, la línea del tiempo no muestra la ciudad (así está el tema oscuro).
+  Desde 3.3-tv.8 la línea muestra también la probabilidad de lluvia o nieve desde el 30 % («☔ 11° · Lluvia · 80 % ·
+  Humedad 90 %») y usa los mismos símbolos y columnas que `header_weather` de LostInInaka (contrato en
+  `docs/modules.md`).
 - **Fondos de España y Portugal**: el tema trae 25 fotos más (Alhambra, Catedrales, Gaztelugatxe, Teide, Sintra,
   Oporto…; de noche Cuenca, Segovia, Lisboa, Gran Vía, Sagrada Família…) mezcladas con las de siempre.
 - **Fondos desde el espacio** (3.3-tv.7): 10 fotos nocturnas de la NASA tomadas desde la Estación Espacial
@@ -43,7 +46,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
-| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md`, `novedades-3.3-tv.7.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1). |
+| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md`, `novedades-3.3-tv.7.md`, `novedades-3.3-tv.8.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1). |
 
 `vpn_app` en el tema es un ejemplo (`com.example.vpn`): pon el paquete de tu app de VPN. La ciudad del tiempo se
 elige en la app "El tiempo" de la TV.
