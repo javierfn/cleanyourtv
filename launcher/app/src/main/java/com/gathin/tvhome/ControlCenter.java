@@ -49,6 +49,12 @@ final class ControlCenter {
         /** -1 no VPN app, 0 off, 1 up. */
         int vpnState();
         void settings();
+        /** cast_pill: CastStatus.MISSING (no tile), DOWN or READY. */
+        default int castState() { return CastStatus.MISSING; }
+        /** The name phones see for this TV. */
+        default String castName() { return ""; }
+        /** Opens the Chromecast card in the panel's place. */
+        default void cast() {}
         /** liquid_glass: the panel opened (true) or closed; with no box around the tiles, Home hides what shows between them. */
         default void panelShown(boolean shown) {}
     }
@@ -254,6 +260,31 @@ final class ControlCenter {
             grid.addView(pillTile(R.drawable.ic_cc_timer, activity.getString(R.string.cc_timer),
                     activity.getString(R.string.cc_timer_detail), actions::timer),
                     cell(slot / 2 + 1, slot % 2, 1, col, pill, slot % 2 == 0 ? 0 : gap, gap));
+            slot++;
+        }
+        // Chromecast, wide like Entradas: ready with the name phones see, or grey while the receiver does not answer.
+        int cast = actions.castState();
+        if (cast != CastStatus.MISSING) {
+            View castTile = pillTile(R.drawable.ic_cast, activity.getString(R.string.cc_cast), cast == CastStatus.READY
+                    ? activity.getString(R.string.cc_cast_ready, actions.castName())
+                    : activity.getString(R.string.cc_cast_down), actions::cast);
+            ViewGroup words = (ViewGroup) ((ViewGroup) castTile).getChildAt(1);
+            TextView detail = (TextView) words.getChildAt(1);
+            if (cast != CastStatus.READY) {
+                int grey = 0x80FFFFFF;
+                ((ImageView) ((ViewGroup) castTile).getChildAt(0)).setImageTintList(
+                        new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{0xFF8E8E93, grey}));
+                detail.setTextColor(new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}}, new int[]{0xFF6E6E73, grey}));
+            }
+            // The name rarely fits: it scrolls while the tile is focused, as tvOS does with long titles.
+            detail.setEllipsize(android.text.TextUtils.TruncateAt.MARQUEE);
+            detail.setMarqueeRepeatLimit(-1);
+            View.OnFocusChangeListener focus = castTile.getOnFocusChangeListener();
+            castTile.setOnFocusChangeListener((v, focused) -> {
+                if (focus != null) focus.onFocusChange(v, focused);
+                detail.setSelected(focused);
+            });
+            grid.addView(castTile, cell(slot / 2 + 1, slot % 2, 1, col, pill, slot % 2 == 0 ? 0 : gap, gap));
         }
 
         LinearLayout rounds = new LinearLayout(c);
@@ -440,6 +471,43 @@ final class ControlCenter {
                 shrink((ViewGroup) v);
             }
         }
+    }
+
+    /**
+     * A tile that only shows something (the Chromecast card's name and hint): the panel's glass and type, not
+     * focusable. With liquid_glass it gets its own piece of glass with the menu's rows (glassRows()).
+     */
+    View infoTile(int icon, String title, String detail) {
+        LinearLayout tile = new LinearLayout(activity);
+        tile.setOrientation(LinearLayout.HORIZONTAL);
+        tile.setGravity(Gravity.CENTER_VERTICAL);
+        tile.setPadding(px(18), px(14), px(18), px(14));
+        GradientDrawable off = new GradientDrawable();
+        off.setColor(TILE);
+        off.setCornerRadius(px(26));
+        off.setStroke(Math.max(1, Math.round(dp)), TILE_STROKE);
+        tile.setBackground(off);
+        tile.addView(icon(icon, 26));
+        LinearLayout words = new LinearLayout(activity);
+        words.setOrientation(LinearLayout.VERTICAL);
+        words.addView(text(title, 11 * TYPE, true));
+        TextView d = text(detail, 9.5f * TYPE, false);
+        d.setSingleLine(false);
+        d.setMaxLines(3);
+        d.setTextColor(0xE6FFFFFF);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dlp.topMargin = px(3);
+        words.addView(d, dlp);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lp.leftMargin = px(14);
+        tile.addView(words, lp);
+        if (liquidMenus()) glassTiles.put(tile, new int[]{px(26), LIQUID_TILE});
+        return tile;
+    }
+
+    /** The gap between a submenu's tiles. */
+    int tileGap() {
+        return px(10);
     }
 
     /** A separable box blur of the given radius, run this many times (three come close to a Gaussian). */
