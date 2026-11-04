@@ -48,6 +48,8 @@ final class WallpaperPlayer {
     private final int dimColor;
     /** The picture on screen, released once the next one has been drawn. */
     private Bitmap current;
+    /** dock_blur: gets a blurred copy of each picture shown; null when off. */
+    private final DockBackdrop backdrop;
     private boolean active;
     private boolean closed;
     private boolean loading;
@@ -63,9 +65,10 @@ final class WallpaperPlayer {
     private LocalDate sunDay;
     private int[] sun;
 
-    WallpaperPlayer(Context context, FrameLayout root, Config config) {
+    WallpaperPlayer(Context context, FrameLayout root, Config config, DockBackdrop backdrop) {
         this.context = context.getApplicationContext();
         this.root = root;
+        this.backdrop = backdrop;
         backgroundColor = config.backgroundColor;
         files = new ArrayList<>(config.wallpapers);
         interval = config.wallpaperRotationMinutes * 60_000L;
@@ -90,6 +93,7 @@ final class WallpaperPlayer {
         image = new ImageView(context);
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        if (backdrop != null) backdrop.setSource(image, dimColor);
         names = config.wallpaperCaptions && config.wallpaperEnabled && !files.isEmpty()
                 ? WallpaperCaptions.read(files.get(0).getParentFile()) : Collections.emptyMap();
         caption = names.isEmpty() ? null : makeCaption(context, root);
@@ -120,6 +124,7 @@ final class WallpaperPlayer {
             Bitmap bitmap = decode(first);
             if (bitmap != null) {
                 show(bitmap);
+                blurBehindDock(first, bitmap);
                 // The picture covers the whole screen: the root's plain colour under it is overdraw.
                 root.setBackground(null);
                 displayed = first.getName();
@@ -333,6 +338,7 @@ final class WallpaperPlayer {
                 }
                 show(bitmap);
                 displayed = next.getName();
+                blurBehindDock(next, bitmap);
                 showCaption(true);
                 if (!displayed.equals(previous) || changed == 0) {
                     preferences.edit().putString("image", displayed)
@@ -438,6 +444,18 @@ final class WallpaperPlayer {
         image.setImageBitmap(bitmap);
         if (old != bitmap) nextRoute();
         if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
+    }
+
+    /** dock_blur: the blurred copy is made on the decoder thread, so Home's first frame does not wait for it. */
+    private void blurBehindDock(File file, Bitmap shown) {
+        if (backdrop == null) return;
+        int width = shown.getWidth(), height = shown.getHeight();
+        decoder.execute(() -> {
+            Bitmap blurred = DockBackdrop.blur(file);
+            root.post(() -> {
+                if (!closed && file.getName().equals(displayed)) backdrop.set(blurred, width, height);
+            });
+        });
     }
 
     private Bitmap decode(File file) {
