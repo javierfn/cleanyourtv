@@ -1049,10 +1049,38 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return true;
     }
 
+    /**
+     * The launcher's settings. With tvos_settings they open over a blurred copy of Home, so a small copy of the
+     * screen is taken first (PixelCopy: what is really shown, glass and all) and handed to TvosSettings.
+     */
+    private void openLauncherSettings() {
+        Intent intent = new Intent(this, LauncherSettingsActivity.class);
+        View decor = getWindow().getDecorView();
+        int w = decor.getWidth(), h = decor.getHeight();
+        if (!WeatherLine.configFlag(this, "tvos_settings") || w <= 0 || h <= 0) {
+            startActivityForResult(intent, LAUNCHER_SETTINGS_REQUEST);
+            return;
+        }
+        android.graphics.Bitmap shot = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888);
+        try {
+            android.view.PixelCopy.request(getWindow(), shot, result -> {
+                if (result == android.view.PixelCopy.SUCCESS) {
+                    TvosSettings.backdrop = android.graphics.Bitmap.createScaledBitmap(shot, Math.max(1, w / 4),
+                            Math.max(1, h / 4), true);
+                }
+                shot.recycle();
+                if (!isFinishing() && !isDestroyed()) startActivityForResult(intent, LAUNCHER_SETTINGS_REQUEST);
+            }, new android.os.Handler(android.os.Looper.getMainLooper()));
+        } catch (IllegalArgumentException e) {
+            shot.recycle();
+            startActivityForResult(intent, LAUNCHER_SETTINGS_REQUEST);
+        }
+    }
+
     private boolean openLauncherSettingsIfAsked(Intent intent) {
         if (intent == null || !ACTION_LAUNCHER_SETTINGS.equals(intent.getAction())) return false;
         setIntent(new Intent(Intent.ACTION_MAIN));
-        startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
+        openLauncherSettings();
         return true;
     }
 
@@ -3909,7 +3937,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         addInputRow(rows, popup, R.drawable.ic_swap_vert, getString(R.string.reorder), -1, this::toggleReorder);
         if (launcherSettingsButton) {
             addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
-                    () -> startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
+                    this::openLauncherSettings);
         } else {
             addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.settings), -1,
                     () -> open(systemIntent(Settings.ACTION_SETTINGS)));
@@ -3933,8 +3961,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             Intent vendor = SystemSettings.vendorIntent(this);
             open(vendor != null ? vendor : systemIntent(Settings.ACTION_SETTINGS));
         });
-        addAtvMenuRow(rows, popup, R.string.launcher_settings, R.drawable.ic_home_settings_pill, () -> startActivityForResult(
-                new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
+        addAtvMenuRow(rows, popup, R.string.launcher_settings, R.drawable.ic_home_settings_pill, this::openLauncherSettings);
         addAtvMenuSeparator(rows);
         if (moduleCards) addAtvMenuRow(rows, popup, R.string.module_cards, R.drawable.ic_atv_cards, this::showModuleCards);
         if (dockRow) addAtvMenuRow(rows, popup, R.string.dock_edit, R.drawable.ic_atv_dock, this::startDockEdit);

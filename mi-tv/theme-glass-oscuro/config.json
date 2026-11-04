@@ -122,5 +122,6 @@
   "weather_now_place": false,
   "control_center": true,
   "liquid_glass": true,
+  "tvos_settings": true,
   "cast_pill": true
 }
