@@ -130,10 +130,11 @@ final class TvosSettings {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         dp2.topMargin = px(24);
         left.addView(this.description, dp2);
+        // A fixed top, not centred: a longer line under the icon grows downwards and the icon stays put.
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(px(330), ViewGroup.LayoutParams.WRAP_CONTENT,
-                Gravity.START | Gravity.CENTER_VERTICAL);
+                Gravity.START | Gravity.TOP);
         lp.leftMargin = px(62);
-        lp.topMargin = px(20);
+        lp.topMargin = px(176);
         root.addView(left, lp);
 
         // Right: the options, scrolling under a soft edge. Padding leaves room for the focused row to grow.
@@ -171,7 +172,7 @@ final class TvosSettings {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         p.topMargin = list.getChildCount() == 0 ? px(4) : px(16);
         p.bottomMargin = px(5);
-        p.leftMargin = px(15);
+        p.leftMargin = px(22);
         list.addView(t, p);
     }
 
@@ -301,7 +302,7 @@ final class TvosSettings {
         LinearLayout v = new LinearLayout(activity);
         v.setOrientation(LinearLayout.HORIZONTAL);
         v.setGravity(Gravity.CENTER_VERTICAL);
-        v.setPadding(px(15), 0, px(15), 0);
+        v.setPadding(px(22), 0, px(22), 0);
         v.setMinimumHeight(height);
         v.setFocusable(true);
         v.setClickable(true);
