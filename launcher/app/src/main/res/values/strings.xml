@@ -206,4 +206,23 @@
     <string name="clock_format_system">System</string>
     <string name="clock_format_12">12-hour</string>
     <string name="clock_format_24">24-hour</string>
+    <!-- tvos_settings: the launcher's settings in the look of tvOS Settings. -->
+    <string name="tvos_section_home">Home</string>
+    <string name="tvos_section_look">Wallpaper and clock</string>
+    <string name="tvos_section_effects">Effects</string>
+    <string name="tvos_section_general">General</string>
+    <string name="tvos_animations">Animations</string>
+    <string name="tvos_wallpaper_motion">Wallpaper motion</string>
+    <string name="tvos_wallpaper_theme">From the theme</string>
+    <string name="tvos_desc_main">Layout, wallpaper and effects of this Home screen.</string>
+    <string name="tvos_desc_columns">How many apps fit in each row of the Home grid.</string>
+    <string name="tvos_desc_rows">How many rows of apps show below the dock without scrolling.</string>
+    <string name="tvos_desc_dock">How much the glass band behind the dock shows.</string>
+    <string name="tvos_desc_reorder">Move the apps on Home to another place with the remote.</string>
+    <string name="tvos_desc_wallpaper">The picture behind Home. From the theme follows the theme\'s own rotation.</string>
+    <string name="tvos_desc_clock">How the time is written on the clock.</string>
+    <string name="tvos_desc_motion">A very slow zoom and pan of the wallpaper.</string>
+    <string name="tvos_desc_animations">Smooth movement when focus moves and menus open.</string>
+    <string name="tvos_desc_open_on_start">An app that opens by itself when the TV turns on.</string>
+    <string name="tvos_desc_tv_settings">The TV\'s own Android TV settings.</string>
 </resources>

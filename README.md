@@ -1,11 +1,11 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
-> está **basada en Clean Your TV 3.3 · versión de esta rama: 3.3-tv.9**, con un estilo más cercano al Apple TV: iconos propios estilo tvOS, un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
+> está **basada en Clean Your TV 3.3 · versión de esta rama: 3.3-tv.10**, con un estilo más cercano al Apple TV: iconos propios estilo tvOS, un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
 > tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
 > internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
 > [tv-extras](https://github.com/javierfn/cleanyourtv/blob/tv-extras/FORK.md). Lo que sigue es el README original.
 >
-> Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1).
+> Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9, Ajustes del lanzador estilo tvOS = 3.3-tv.10; los archivos `novedades-*` antiguos conservan su nombre). Con una versión oficial nueva vuelve a empezar (3.4-tv.1).
 >
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows. Versioning: Clean Your TV's release, then `-tv.N` counts this branch's drops on top of it.*
@@ -49,6 +49,14 @@
 | | |
 |---|---|
 | ![Centro de control con la píldora Chromecast enfocada: Listo y el nombre de la TV](docs/fork/chromecast-centro.jpg) | ![Tarjeta de Chromecast: nombre de la TV, En el móvil, pulsa Enviar y elige esta tele, y Ajustes de Chromecast](docs/fork/chromecast-tarjeta.jpg) |
+
+*Ajustes del lanzador estilo tvOS (3.3-tv.10): el inicio desenfocado detrás, el icono con la explicación de la opción enfocada y las listas con ✓ · tvOS-style launcher settings: Home blurred behind, the icon with the focused option's line, and value lists with a tick*
+
+| | |
+|---|---|
+| ![Ajustes del lanzador estilo tvOS con Aplicaciones por fila enfocada](docs/fork/ajustes-tvos.jpg) | ![Lista de Aplicaciones por fila: 4, 5, 6 con ✓ y 7](docs/fork/ajustes-tvos-lista.jpg) |
+
+![Ajustes del lanzador con Elegir inicio predeterminado enfocada y su explicación larga bajo el icono](docs/fork/ajustes-tvos-texto-largo.jpg)
 
 | Dock: extremo izquierdo enfocado / left end focused |
 |---|

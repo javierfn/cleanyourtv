@@ -1,7 +1,7 @@
 # Una TV con estilo Apple TV, sobre Clean Your TV 3.3
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.9) con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.10) con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -34,6 +34,10 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
   que ven los móviles>», o «No disponible» en gris si el receptor de Cast no responde; al pulsarla, una tarjeta con
   el nombre, cómo enviar desde el móvil y un botón a los ajustes de Google Cast. Sin permisos nuevos (ver
   `novedades-3.3-tv.9.md`).
+- **Ajustes del lanzador estilo tvOS** (`tvos_settings`, 3.3-tv.10): el inicio desenfocado detrás, título centrado,
+  el icono de Ajustes fijo a la izquierda con la explicación de la opción enfocada, las opciones agrupadas a la derecha
+  con su valor en gris, la fila enfocada en blanco y listas con ✓ en lugar de los diálogos de Android (ver
+  `novedades-3.3-tv.10.md`).
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
@@ -47,6 +51,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 | `iconos-tvos.html` / `.sh` | Fuente de los iconos estilo tvOS (diseño propio): `banner_envivo.png` (TV en Vivo vía `app_banners`: televisor de cristal con canto de aluminio pulido, pantalla iluminada magenta-azul con botón de reproducir, antena de metal y luz roja de directo con ondas, sobre azul noche), `banner_ajustes.png` (tarjeta Ajustes vía `app_banners`: engranaje de metal pulido con biselado y centro hundido, y un engranaje de cristal esmerilado detrás, sobre grafito con viñeteado) y `banner.png`/`icon.png` del complemento El tiempo (cielo profundo azul a cian, sol con corona y halo, dos nubes de cristal translúcido con borde luminoso). `mi-tv/iconos-tvos.sh` los renderiza con Chrome sin cabeza a PNG (960×540) dentro del launcher y del complemento. El glifo `ic_settings` (Centro de control y menús) es vectorial |
 | (opción del launcher) `tvos_focus` | Foco estilo tvOS: la app enfocada se eleva con sombra, se inclina hacia donde se mueve el mando y le pasa un brillo. Viene apagado: se activa con `"tvos_focus": true` en `config.json` |
 | (opción del launcher) `liquid_glass` | Cristal estilo tvOS 26 en el Centro de control, sus menús (Entradas, Ajustes, Tarjetas de módulos) y el menú de las apps: sin caja, cada botón es su propio cristal con el fondo desenfocado, un borde que curva la imagen como una lente y el canto iluminado. Viene apagado: se activa con `"liquid_glass": true` en `config.json` (este tema lo trae encendido) |
+| (opción del launcher) `tvos_settings` | Ajustes del lanzador con el aspecto de los Ajustes de tvOS: el inicio desenfocado detrás, título centrado, icono grande a la izquierda con la explicación de la opción enfocada, opciones agrupadas a la derecha con su valor en gris; la fila enfocada se pone blanca y crece un poco. Las opciones con varios valores abren una lista con ✓. |
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
