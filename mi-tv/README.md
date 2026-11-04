@@ -1,7 +1,7 @@
 # Una TV con estilo Apple TV, sobre Clean Your TV 3.3
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.9) con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.3 (versión de la rama: 3.3-tv.10) con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -34,6 +34,10 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
   que ven los móviles>», o «No disponible» en gris si el receptor de Cast no responde; al pulsarla, una tarjeta con
   el nombre, cómo enviar desde el móvil y un botón a los ajustes de Google Cast. Sin permisos nuevos (ver
   `novedades-3.3-tv.9.md`).
+- **Ajustes del lanzador estilo tvOS** (`tvos_settings`, 3.3-tv.10): el inicio desenfocado detrás, título centrado,
+  el icono de Ajustes fijo a la izquierda con la explicación de la opción enfocada, las opciones agrupadas a la derecha
+  con su valor en gris, la fila enfocada en blanco y listas con ✓ en lugar de los diálogos de Android (ver
+  `novedades-3.3-tv.10.md`).
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
