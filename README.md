@@ -10,11 +10,11 @@
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows. Versioning: Clean Your TV's release, then `-tv.N` counts this branch's drops on top of it.*
 
-*Capturas de la versión 3.3-tv.5 en un Panasonic Google TV (2 nov 2026) · Screenshots of version 3.3-tv.5 (Clean Your TV 3.3 + this branch's 5th drop).*
+*Capturas de la versión 3.4-tv.1 en un Panasonic Google TV (6 nov 2026; la fila de abajo, de versiones anteriores) · Screenshots of version 3.4-tv.1 (Clean Your TV 3.4 + this branch's 1st drop on it; bottom row from earlier versions).*
 
 | Inicio / Home | Centro de control / Control Center | Menú de una app / App menu |
 |---|---|---|
-| ![Inicio: reloj, el tiempo, foto de fondo con su nombre y el dock con el icono nuevo de TV en Vivo enfocado](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
+| ![Inicio: reloj, el tiempo con lluvia, foto de Ordesa con su nombre y el dock con TV en Vivo enfocado](docs/fork/inicio.jpg) | ![Centro de control abierto: Apagar, Red, Modo noche, Entradas, Chromecast, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
 | **Foco tvOS en la cuadrícula / tvOS focus in the grid** | **Modo noche / Night mode** | **Menú de ajustes / Settings menu** |
 | ![Atresplayer enfocado: crece un 25 % desde su centro, sin marco, y su nombre aparece debajo](docs/fork/foco-cuadricula.jpg) | ![Modo noche activado: fondo nocturno de auroras y la pantalla atenuada, con el Centro de control abierto](docs/fork/modo-noche.jpg) | ![Ajustes del televisor, Ajustes del lanzador, Tarjetas de módulos, Editar el dock y Reordenar apps, en cristal](docs/fork/menu-ajustes.jpg) |
 
