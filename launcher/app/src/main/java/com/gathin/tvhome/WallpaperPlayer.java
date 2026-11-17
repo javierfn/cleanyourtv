@@ -404,7 +404,20 @@ final class WallpaperPlayer {
 
     /** Hides the caption while something covers its place (the liquid_glass Control Center), and shows it again. */
     void hideCaption(boolean hidden) {
-        if (caption != null) caption.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        panelOver = hidden;
+        showCaptionIfFree();
+    }
+
+    /** A still top shelf picture (continue_watching_static) covers the wallpaper: its name would be wrong. */
+    void coverCaption(boolean covered) {
+        pictureOver = covered;
+        showCaptionIfFree();
+    }
+
+    private boolean panelOver, pictureOver;
+
+    private void showCaptionIfFree() {
+        if (caption != null) caption.setVisibility(panelOver || pictureOver ? View.INVISIBLE : View.VISIBLE);
     }
 
     /** The displayed picture's name, faded across a change; a picture without a name hides the caption. */

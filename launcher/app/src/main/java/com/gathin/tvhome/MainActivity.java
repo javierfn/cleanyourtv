@@ -2674,6 +2674,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (!still && dockBackdrop != null) dockBackdrop.clearOverride();
         stillShown = still;
+        wallpaperPlayer.coverCaption(still);
         heroName.animate().cancel();
         heroName.setAlpha(still ? 0f : 1f);
         if (cinematic) heroMeta.setAlpha(still ? 0f : 1f);
@@ -2711,6 +2712,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void hideShelfLogo(boolean fade) {
         stillShown = false;
+        if (wallpaperPlayer != null) wallpaperPlayer.coverCaption(false);
         if (dockBackdrop != null) dockBackdrop.clearOverride();
         if (shelfLogo == null) return;
         shelfLogo.animate().cancel();
