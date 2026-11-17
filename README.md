@@ -1,11 +1,11 @@
 > **Este es un fork personal de [Clean Your TV](https://github.com/Gathin23/cleanyourtv).** La rama `apple-tv-style`
-> está **basada en Clean Your TV 3.5 · versión de esta rama: 3.5-tv.1**, con un estilo más cercano al Apple TV: iconos propios estilo tvOS, un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
+> está **basada en Clean Your TV 3.5 · versión de esta rama: 3.5-tv.2**, con un estilo más cercano al Apple TV: iconos propios estilo tvOS, un menú de ajustes único con cristal Liquid Glass, fondos con movimiento, el
 > tiempo bajo el reloj, un botón de modo noche y, si se activa, el foco estilo tvOS, sin que el launcher se conecte a
 > internet. Qué cambia y cómo
 > instalarlo: **[mi-tv/README.md](mi-tv/README.md)**. Las dos opciones del inicio, aparte:
 > [tv-extras](https://github.com/javierfn/cleanyourtv/blob/tv-extras/FORK.md). Lo que sigue es el README original.
 >
-> Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9, Ajustes del lanzador estilo tvOS = 3.3-tv.10, paso a Clean Your TV 3.4 = 3.4-tv.1, paso a Clean Your TV 3.5 = 3.5-tv.1; los archivos `novedades-*` antiguos conservan su nombre). Con cada versión oficial nueva vuelve a empezar (3.5 → 3.5-tv.1).
+> Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9, Ajustes del lanzador estilo tvOS = 3.3-tv.10, paso a Clean Your TV 3.4 = 3.4-tv.1, paso a Clean Your TV 3.5 = 3.5-tv.1, dock con el fondo desenfocado = 3.5-tv.2; los archivos `novedades-*` antiguos conservan su nombre). Con cada versión oficial nueva vuelve a empezar (3.5 → 3.5-tv.1).
 >
 > *A personal fork of Clean Your TV in an Apple TV style; see [mi-tv/README.md](mi-tv/README.md) (in Spanish).
 > The original README follows. Versioning: Clean Your TV's release, then `-tv.N` counts this branch's drops on top of it.*
@@ -17,6 +17,12 @@
 | ![Inicio: reloj, el tiempo, foto de Ronda con su nombre y el dock con TV en Vivo enfocado](docs/fork/inicio.jpg) | ![Centro de control abierto sobre Ronda: Apagar, Red, Modo noche, Entradas, Chromecast, VPN y Ajustes, cada botón su propio cristal sobre el fondo](docs/fork/centro-control.jpg) | ![Menú de Plex: Sustituir por otra app, Mover, Información de la aplicación y Desinstalar, en cristal sobre los iconos desenfocados](docs/fork/menu-app.jpg) |
 | **Foco tvOS en la cuadrícula / tvOS focus in the grid** | **Modo noche / Night mode** | **Menú de ajustes / Settings menu** |
 | ![Atresplayer enfocado: crece un 25 % desde su centro, sin marco, y su nombre aparece debajo](docs/fork/foco-cuadricula.jpg) | ![Modo noche activado: fondo nocturno de auroras y la pantalla atenuada, con el Centro de control abierto](docs/fork/modo-noche.jpg) | ![Menú de ajustes: Ajustes del televisor, Ajustes del lanzador, Tarjetas de módulos, Editar el dock y Reordenar apps, en cristal](docs/fork/menu-ajustes.jpg) |
+
+*Dock con el fondo desenfocado (`dock_blur`, 3.5-tv.2; idea y código de devSviat, PR #3688 de Clean Your TV) · Dock with the wallpaper blurred behind it (idea and code by devSviat)*
+
+| Desactivado / Off | Activado / On |
+|---|---|
+| ![Dock sobre el Teide sin desenfoque: el paisaje se ve nítido a través de la banda](docs/fork/dock-blur-off.jpg) | ![Dock sobre el Teide con dock_blur: la banda muestra el fondo desenfocado, como el Apple TV](docs/fork/dock-blur-on.jpg) |
 
 *Iconos estilo tvOS (3.3-tv.5) · tvOS-style icons*
 
