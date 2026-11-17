@@ -207,6 +207,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private Map<String, String> stillArt = Collections.emptyMap();
     /** continue_watching_backdrop: per app, a bundled drawable behind its shelf whether or not it has cards. */
     private Map<String, String> backdropArt = Collections.emptyMap();
+    /** continue_watching_logo: per app, a picture of its name shown over its cards instead of the text. */
+    private Map<String, String> titleLogos = Collections.emptyMap();
     private boolean staticShelf;
     /** That still picture, full screen behind the header and the dock; null when no app has one. */
     private ImageView shelfLogo;
@@ -596,6 +598,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         artTarget = heroArtAlpha;
         stillArt = cfg.continueWatchingStatic;
         backdropArt = cfg.continueWatchingBackdrop;
+        titleLogos = cfg.continueWatching ? cfg.continueWatchingLogo : Collections.<String, String>emptyMap();
         staticShelf = cfg.continueWatching && (!stillArt.isEmpty() || !backdropArt.isEmpty());
         if (cinematic) setUpCinematicShelf(cfg.cinematicScrim);
         // dock_title false: the name above the dock (and the cinematic lines under it) never shows; the glow
@@ -2154,10 +2157,37 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    /**
+     * continue_watching_logo: over its cards, an app named there shows the picture of its name instead of the text,
+     * as tall as the text would be; anywhere else the text comes back.
+     */
+    private void applyShelfTitle() {
+        if (titleLogos.isEmpty() || adapter == null || heroName == null) return;
+        int pos = lastFocused;
+        String pkg = pos >= 0 && pos < adapter.appCount() ? adapter.packageAt(pos) : null;
+        String name = shelfCardsOn && pkg != null ? titleLogos.get(pkg) : null;
+        int res = name == null ? 0 : getResources().getIdentifier(name, "drawable", getPackageName());
+        Drawable logo = res == 0 ? null : getResources().getDrawable(res, getTheme());
+        if (logo == null) {
+            if (heroName.getCompoundDrawablesRelative()[0] != null) {
+                heroName.setCompoundDrawablesRelative(null, null, null, null);
+                if (pos >= 0 && pos < adapter.appCount()) heroName.setText(adapter.labelAt(pos));
+            }
+            return;
+        }
+        int h = Math.round(heroName.getTextSize() * 1.15f);
+        int w = Math.round(h * (float) logo.getIntrinsicWidth() / logo.getIntrinsicHeight());
+        logo.setBounds(0, 0, w, h);
+        heroName.setText("");
+        heroName.setCompoundDrawablesRelative(logo, null, null, null);
+    }
+
     /** The shelf's text for this dock app: its name and, on the cinematic shelf, "Last opened" and the dots. */
     private void fillHero(int position, String label) {
+        heroName.setCompoundDrawablesRelative(null, null, null, null);
         heroName.setText(label);
         bindShelfCards(position);
+        applyShelfTitle();
         if (!cinematic || shelfCardsOn) return;
         updateHeroMeta(position);
         updateHeroDots(position);
@@ -2212,6 +2242,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // The focus goes back onto the dock tile first (which binds nothing, shelfCardsOn is off).
             if (focused) focusTile(lastFocused);
             heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+            applyShelfTitle();
             shelfCards.setVisibility(View.GONE);
             shelfRow.setItems(Collections.<WatchNextShelf.Item>emptyList(), 0);
             if (cinematic) {
@@ -2222,6 +2253,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         sp = browsing ? BROWSE_LABEL_SP : 40f;
         heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+        applyShelfTitle();
         if (cinematic) {
             heroMeta.setVisibility(View.GONE);
             heroDots.setVisibility(View.GONE);
@@ -2260,6 +2292,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int pos = lastFocused;
         if (pos < 0 || pos >= adapter.appCount()) return;
         bindShelfCards(pos);
+        applyShelfTitle();
         placeHero(shelfDockTop);
         // Rows came or went for the focused app: the still picture follows.
         if (staticShelf) showShelfLogo(pos);
@@ -2396,6 +2429,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else gridHolder.setTranslationY(away);
         float from = hero.getY();
         heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, BROWSE_LABEL_SP);
+        applyShelfTitle();
         slideHero(from, rootHeight() - BROWSE_BOTTOM_DP * density - measureHero(), animate);
         browseLayer.setVisibility(View.VISIBLE);
         browseInfo.setVisibility(View.VISIBLE);
@@ -2442,6 +2476,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         browseInfo.animate().cancel();
         float from = hero.getY();
         heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, shelfCardsOn ? 40f : cinematic ? 68f : 48f);
+        applyShelfTitle();
         slideHero(from, shelfDockTop - 14 * density - 26 * density - measureHero(), animate);
         Runnable done = () -> {
             if (browsing) return;
@@ -2572,6 +2607,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     private void setUpCinematicShelf(int scrimPercent) {
         heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 68f);
+        applyShelfTitle();
         heroName.setLetterSpacing(-0.025f);
         heroMeta.setVisibility(View.INVISIBLE);   // keeps its height, so the name does not jump when it fills in
         heroDots.setVisibility(heroDotsShown ? View.VISIBLE : View.GONE);
