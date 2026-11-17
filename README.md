@@ -22,7 +22,7 @@
 
 | YouTube (sin Suscripciones) | Plex | Movistar Plus+ |
 |---|---|---|
-| ![YouTube enfocado: fondo de collage de colores con su logo en el centro](docs/fork/top-shelf-youtube.jpg) | ![Plex enfocado: fondo negro con chevrones dorados y su logo](docs/fork/top-shelf-plex.jpg) | ![Movistar Plus+ enfocado: fondo negro con cintas azul y violeta y su logo](docs/fork/top-shelf-movistar.jpg) ||
+| ![YouTube enfocado: fondo de collage de colores con su logo en el centro](docs/fork/top-shelf-youtube.jpg) | ![Plex enfocado: fondo negro con chevrones dorados y su logo](docs/fork/top-shelf-plex.jpg) | ![Movistar Plus+ enfocado: fondo negro con cintas azul y violeta y su logo](docs/fork/top-shelf-movistar.jpg) |
 
 *Dock con el fondo desenfocado (`dock_blur`, 3.5-tv.2; idea y código de devSviat, PR #3688 de Clean Your TV) · Dock with the wallpaper blurred behind it (idea and code by devSviat)*
 
