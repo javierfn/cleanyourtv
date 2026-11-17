@@ -80,6 +80,8 @@ final class WatchNextShelf {
         final int watchNextType;
         final long engagedMs, positionMs, durationMs;
         final int mediaType;
+        /** The preview channel a recommendation came from, -1 for a Watch Next row. */
+        long channelId = -1;
 
         Item(String pkg, String title, String episodeTitle, String season, String episode, String poster,
              String thumbnail, String intentUri, int watchNextType, long engagedMs, long positionMs,
@@ -251,6 +253,13 @@ final class WatchNextShelf {
         };
     }
 
+    /** continue_watching_channels: per app, its recommendation lists to keep, by name and in this order. */
+    private volatile Map<String, List<String>> channels = Collections.emptyMap();
+
+    void setChannels(Map<String, List<String>> picked) {
+        channels = picked == null ? Collections.<String, List<String>>emptyMap() : picked;
+    }
+
     boolean permitted() {
         return context.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED;
     }
@@ -296,7 +305,7 @@ final class WatchNextShelf {
             return;
         }
         try {
-            reader.execute(() -> publish(select(read(context.getContentResolver()), System.currentTimeMillis())));
+            reader.execute(() -> publish(select(read(context.getContentResolver(), channels), System.currentTimeMillis())));
         } catch (RuntimeException ignored) {
             // Shut down while a refresh was queued.
         }
@@ -311,7 +320,7 @@ final class WatchNextShelf {
     }
 
     /** The whole table with the named columns and no selection; an unreadable table is an empty one. */
-    private static List<Item> read(ContentResolver resolver) {
+    private static List<Item> read(ContentResolver resolver, Map<String, List<String>> picked) {
         List<Item> rows = new ArrayList<>();
         try (Cursor c = resolver.query(TvContract.WatchNextPrograms.CONTENT_URI, PROJECTION, null, null, null)) {
             if (c == null) return rows;
@@ -325,8 +334,13 @@ final class WatchNextShelf {
             // SecurityException without the permission, SQLiteException on a TV whose table lacks a column.
             rows.clear();
         }
-        readPreviews(resolver, rows);
+        readPreviews(resolver, rows, picked);
         return rows;
+    }
+
+    private static int rankOf(Map<Long, Integer> rank, long channel) {
+        Integer r = rank.get(channel);
+        return r == null ? 0 : r;
     }
 
     private static final String[] PREVIEW_PROJECTION = {
@@ -350,19 +364,28 @@ final class WatchNextShelf {
      * app), as TYPE_RECOMMENDED items, from channels the viewer has not hidden. As with Watch Next no selection is
      * allowed, so the filtering is done here.
      */
-    private static void readPreviews(ContentResolver resolver, List<Item> rows) {
+    private static void readPreviews(ContentResolver resolver, List<Item> rows, Map<String, List<String>> picked) {
         // A channel the viewer hid stays out, but only for apps with some channel showing: with the stock home
         // screen disabled nobody ever approves an app's channels, and then every one of them is "hidden".
         Set<Long> hidden = new HashSet<>();
+        Map<Long, Integer> rank = new java.util.HashMap<>();
         Map<String, List<Long>> off = new java.util.HashMap<>();
         Set<String> anyOn = new HashSet<>();
         try (Cursor c = resolver.query(TvContract.Channels.CONTENT_URI,
                 new String[]{TvContract.Channels._ID, TvContract.Channels.COLUMN_TYPE, TvContract.Channels.COLUMN_BROWSABLE,
-                        TvContract.Channels.COLUMN_PACKAGE_NAME},
+                        TvContract.Channels.COLUMN_PACKAGE_NAME, TvContract.Channels.COLUMN_DISPLAY_NAME},
                 null, null, null)) {
             while (c != null && c.moveToNext()) {
                 if (!TvContract.Channels.TYPE_PREVIEW.equals(c.getString(1))) continue;
                 String pkg = c.getString(3);
+                List<String> wanted = picked.get(pkg);
+                if (wanted != null) {
+                    // The theme names this app's lists: only those, in its order, whatever the viewer approved.
+                    int at = wanted.indexOf(c.getString(4) == null ? "" : c.getString(4).trim());
+                    if (at < 0) hidden.add(c.getLong(0));
+                    else rank.put(c.getLong(0), at);
+                    continue;
+                }
                 if (!c.isNull(2) && c.getInt(2) == 0) {
                     List<Long> ids = off.get(pkg);
                     if (ids == null) off.put(pkg, ids = new ArrayList<>());
@@ -379,13 +402,17 @@ final class WatchNextShelf {
         try (Cursor c = resolver.query(TvContract.PreviewPrograms.CONTENT_URI, PREVIEW_PROJECTION, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 if (!c.isNull(11) && hidden.contains(c.getLong(11))) continue;
-                previews.add(new Item(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4),
+                Item item = new Item(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4),
                         c.getString(5), c.getString(6), c.getString(7), TYPE_RECOMMENDED, -1, -1,
-                        c.isNull(8) ? -1 : c.getLong(8), c.isNull(9) ? -1 : c.getInt(9), c.getString(10)));
+                        c.isNull(8) ? -1 : c.getLong(8), c.isNull(9) ? -1 : c.getInt(9), c.getString(10));
+                item.channelId = c.isNull(11) ? -1 : c.getLong(11);
+                previews.add(item);
             }
         } catch (RuntimeException e) {
             previews.clear();
         }
+        // Stable: within a list the app's own order stays.
+        Collections.sort(previews, (a, b) -> Integer.compare(rankOf(rank, a.channelId), rankOf(rank, b.channelId)));
         rows.addAll(previews);
     }
 

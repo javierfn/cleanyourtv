@@ -587,6 +587,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 @Override public void onFocused(int index) { onShelfCardFocused(index); }
             }, cfg.glassStyle);
             watchNext = new WatchNextShelf(this, handler, this::onWatchNextChanged);
+            watchNext.setChannels(cfg.continueWatchingChannels);
             buildBrowseLayers();
         }
         greeting = findViewById(R.id.greeting);

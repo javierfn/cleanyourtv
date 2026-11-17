@@ -14,6 +14,7 @@
   "cinematic_home": true,
   "cinematic_art": 0,
   "continue_watching": true,
+  "continue_watching_channels": {"com.google.android.youtube.tv": ["Suscripciones", "Recomendado para ti"]},
   "dock_glass": true,
   "dock_blur": true,
   "dock_opacity": 50,

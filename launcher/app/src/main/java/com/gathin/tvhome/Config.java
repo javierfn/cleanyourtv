@@ -254,6 +254,8 @@ final class Config {
     final boolean wifiStatusColor;
     /** Continue watching cards under the top shelf's name on a dock app that has them (config.xml, continue_watching). */
     final boolean continueWatching;
+    /** continue_watching_channels (theme only): per app, the names of its recommendation lists to show, in order. */
+    final Map<String, List<String>> continueWatchingChannels;
     /** Opacity of the app's artwork behind the cinematic shelf, 0 to 100 (config.xml, cinematic_art); 50 as before. */
     final int cinematicArt;
     /** Strength of the cinematic shelf's dark scrim, 0 to 100 percent (config.xml, cinematic_scrim); 100 as before. */
@@ -307,7 +309,7 @@ final class Config {
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
                    Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean volumePausesFilter, boolean homeIgnoreChannelKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
                    int openOnStartNetworkWait, boolean openOnStartOnWake, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean glowSnap,
-                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur, boolean continueWatching) {
+                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur, boolean continueWatching, Map<String, List<String>> continueWatchingChannels) {
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -404,6 +406,7 @@ final class Config {
         this.cinematicWhiteFocus = cinematicWhiteFocus;
         this.wifiStatusColor = wifiStatusColor;
         this.continueWatching = continueWatching;
+        this.continueWatchingChannels = continueWatchingChannels;
         this.cinematicArt = cinematicArt;
         this.cinematicScrim = cinematicScrim;
         this.wallpaperMoods = wallpaperMoods;
@@ -549,6 +552,7 @@ final class Config {
         boolean cinematicWhiteFocus = res.getBoolean(R.bool.cinematic_white_focus);
         boolean wifiStatusColor = res.getBoolean(R.bool.wifi_status_color);
         boolean continueWatching = res.getBoolean(R.bool.continue_watching);
+        Map<String, List<String>> continueWatchingChannels = Collections.emptyMap();
         int cinematicArt = res.getInteger(R.integer.cinematic_art);
         int cinematicScrim = res.getInteger(R.integer.cinematic_scrim);
         Map<String, Set<String>> wallpaperMoods = moods(res.getString(R.string.wallpaper_moods));
@@ -670,6 +674,22 @@ final class Config {
             cinematicWhiteFocus = bool(json, "cinematic_white_focus", cinematicWhiteFocus);
             wifiStatusColor = bool(json, "wifi_status_color", wifiStatusColor);
             continueWatching = bool(json, "continue_watching", continueWatching);
+            JSONObject channels = json.optJSONObject("continue_watching_channels");
+            if (channels != null) {
+                Map<String, List<String>> picked = new HashMap<>();
+                for (java.util.Iterator<String> it = channels.keys(); it.hasNext(); ) {
+                    String pkg = it.next();
+                    JSONArray names = channels.optJSONArray(pkg);
+                    if (names == null) continue;
+                    List<String> list = new ArrayList<>();
+                    for (int i = 0; i < names.length(); i++) {
+                        String n = names.optString(i, "").trim();
+                        if (!n.isEmpty()) list.add(n);
+                    }
+                    picked.put(pkg, list);
+                }
+                continueWatchingChannels = picked;
+            }
             cinematicArt = integer(json, "cinematic_art", cinematicArt, 0, 100);
             cinematicScrim = integer(json, "cinematic_scrim", cinematicScrim, 0, 100);
             JSONObject moods = json.optJSONObject("wallpaper_moods");
@@ -752,7 +772,7 @@ final class Config {
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap,
-                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur, continueWatching);
+                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur, continueWatching, continueWatchingChannels);
     }
 
     /**
