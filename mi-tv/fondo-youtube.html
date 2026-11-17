@@ -1,0 +1,43 @@
+<!doctype html>
+<!-- Fondo del top shelf para YouTube cuando no hay Suscripciones (continue_watching_static).
+     Render: mi-tv/fondo-youtube.sh (1920x1080 -> launcher drawable-nodpi/shelf_youtube.webp). Diseño propio. -->
+<html><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=block');
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#2b2b2e}
+svg{position:absolute;inset:0}
+.logo{position:absolute;left:50%;top:500px;transform:translate(-50%,-50%);display:flex;align-items:center;gap:26px;
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,.45))}
+.play{width:236px;height:166px;border-radius:44px;background:#ff1f1f;position:relative}
+.play::after{content:"";position:absolute;left:92px;top:47px;border-left:66px solid #fff;border-top:36px solid transparent;border-bottom:36px solid transparent}
+.word{font-family:"Roboto Condensed",sans-serif;font-weight:700;font-size:200px;letter-spacing:-9px;color:#fff;line-height:1;margin-top:-14px}
+</style></head><body>
+<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="c" cx="50%" cy="46%" r="60%">
+      <stop offset="0" stop-color="#3a3a3e"/><stop offset="1" stop-color="#232326"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#c)"/>
+  <!-- formas en los bordes, como un collage de papel -->
+  <path d="M-40 1080 L-40 760 Q180 690 420 800 L640 1080Z" fill="#59c3d9"/>
+  <circle cx="300" cy="1010" r="190" fill="#5fd4b6"/>
+  <path d="M520 1080 Q760 890 1010 940 Q1180 975 1290 1080Z" fill="#ff6f61"/>
+  <path d="M1150 1080 L1340 860 L1960 820 L1960 1080Z" fill="#3aa0e6"/>
+  <path d="M1640 1080 L1960 640 L1960 1080Z" fill="#f5d33a"/>
+  <path d="M1960 -20 L1520 -20 Q1430 220 1610 420 Q1760 580 1960 560Z" fill="#5fd4b6"/>
+  <path d="M1960 560 L1820 700 L1960 760Z" fill="#ff8c7a"/>
+  <path d="M1060 -20 L1460 -20 L1250 120Z" fill="#f5d33a"/>
+  <circle cx="760" cy="40" r="150" fill="#ff9e95"/>
+  <ellipse cx="730" cy="60" rx="95" ry="120" fill="#59c3d9" transform="rotate(25 730 60)"/>
+  <path d="M-40 520 Q120 470 210 600 Q260 690 -40 720Z" fill="#ff9e95" opacity=".9"/>
+  <!-- trazos a mano -->
+  <g fill="none" stroke-linecap="round" stroke-width="3">
+    <path d="M1500 120 q60 140 -10 260 q-50 90 40 190" stroke="#1d6f66" opacity=".7"/>
+    <path d="M1380 960 q140 -60 260 -10 q90 40 200 -30" stroke="#ffffff" opacity=".55"/>
+    <path d="M80 820 q90 -80 170 10 q60 70 140 -20" stroke="#1d5c78" opacity=".7"/>
+    <path d="M640 140 q-60 -70 20 -120" stroke="#ffffff" opacity=".6"/>
+  </g>
+</svg>
+<div class="logo"><div class="play"></div><div class="word">YouTube</div></div>
+</body></html>

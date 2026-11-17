@@ -3,5 +3,5 @@
      Strict: that is the launcher's only getIdentifier, and safe mode also keeps every resource whose name
      matches a string literal anywhere in the code (AndroidX translations among them). -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/banner_*"
+    tools:keep="@drawable/banner_*,@drawable/shelf_*"
     tools:shrinkMode="strict" />
