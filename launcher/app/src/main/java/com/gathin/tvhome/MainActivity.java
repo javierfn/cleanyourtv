@@ -1,5 +1,9 @@
 package com.gathin.tvhome;
 
+import android.view.ViewOutlineProvider;
+
+import android.graphics.Outline;
+
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -199,6 +203,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private final Map<String, Bitmap> heroArtCache = new HashMap<>();
     /** The app whose artwork heroArt shows, so focusing it again only fades it back in. */
     private String heroArtKey;
+    /** continue_watching_static: a dock app without cards shows its artwork over the screen and its logo, large. */
+    private boolean staticShelf;
+    /** The logo of that still shelf, between the header and the dock; null when staticShelf is off. */
+    private ImageView shelfLogo;
+    /** What heroArt fades to for the focused app: heroArtAlpha, or STATIC_ART_ALPHA on a still shelf. */
+    private float artTarget;
+    private static final float STATIC_ART_ALPHA = 0.92f;
     /** The focus glow's colour while the cinematic shelf tints it, 0 for plain white glass. */
     private int glassAccent;
     private int ambientColor = -1;
@@ -573,6 +584,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroDotsShown = cfg.cinematicDots;
         cinematicWhiteFocus = cfg.cinematicWhiteFocus;
         heroArtAlpha = cfg.cinematicArt / 100f;
+        artTarget = heroArtAlpha;
+        staticShelf = cfg.continueWatching && cfg.continueWatchingStatic;
         if (cinematic) setUpCinematicShelf(cfg.cinematicScrim);
         // dock_title false: the name above the dock (and the cinematic lines under it) never shows; the glow
         // still follows the dock.
@@ -1314,6 +1327,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             ambient.setAlpha(0f);
             heroArt.animate().cancel();
             heroArt.setAlpha(0f);
+            hideShelfLogo(false);
         }
         if (rebuild) reloadTiles();
         if (animate && entrance && animations && !reducedMotion) {
@@ -2063,7 +2077,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int color = adapter.ambientColorAt(position);
         shelfDockTop = dockTopInRoot;
         boolean changed = !label.contentEquals(heroName.getText());
-        if (cinematic && heroArtAlpha > 0f) showHeroArt(position);
+        artTarget = stillShelfFor(position) ? STATIC_ART_ALPHA : heroArtAlpha;
+        if (cinematic && (heroArtAlpha > 0f || staticShelf)) showHeroArt(position);
 
         if (!animations || reducedMotion) {
             // Snap the shelf instead of sliding and fading it: each of those frames repaints the
@@ -2234,6 +2249,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (pos < 0 || pos >= adapter.appCount()) return;
         bindShelfCards(pos);
         placeHero(shelfDockTop);
+        if (staticShelf && cinematic) {
+            // Rows came or went for the focused app: the still shelf follows.
+            artTarget = stillShelfFor(pos) ? STATIC_ART_ALPHA : heroArtAlpha;
+            fadeHeroArt(420);
+            showShelfLogo(pos);
+        }
     }
 
     // ---- browse mode (focus on a card) -----------------------------------------------------------
@@ -2546,7 +2567,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroName.setLetterSpacing(-0.025f);
         heroMeta.setVisibility(View.INVISIBLE);   // keeps its height, so the name does not jump when it fills in
         heroDots.setVisibility(heroDotsShown ? View.VISIBLE : View.GONE);
-        heroArt.setVisibility(heroArtAlpha > 0f ? View.VISIBLE : View.GONE);
+        heroArt.setVisibility(heroArtAlpha > 0f || staticShelf ? View.VISIBLE : View.GONE);
+        if (staticShelf) {
+            shelfLogo = new ImageView(this);
+            shelfLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            shelfLogo.setAlpha(0f);
+            shelfLogo.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            shelfLogo.setClipToOutline(true);
+            shelfLogo.setElevation(18f * density);
+            root.addView(shelfLogo, root.indexOfChild(heroArt) + 1,
+                    new FrameLayout.LayoutParams(0, 0, Gravity.TOP | Gravity.START));
+        }
         // One stretched bitmap: apply its alpha while drawing instead of through an offscreen buffer.
         heroArt.forceHasOverlappingRendering(false);
         if (scrimPercent <= 0) return;   // cinematic_scrim 0: no scrim at all
@@ -2587,6 +2618,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroArt.animate().cancel();
         if (key.equals(heroArtKey)) {
             fadeHeroArt(420);
+            showShelfLogo(position);
             return;
         }
         Bitmap art = heroArtCache.get(key);
@@ -2595,6 +2627,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (art != null) heroArtCache.put(key, art);
         }
         heroArtKey = key;
+        showShelfLogo(position);
         final Bitmap next = art;
         if (!animations || reducedMotion || heroArt.getAlpha() == 0f) {
             heroArt.setImageBitmap(next);
@@ -2603,13 +2636,71 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         heroArt.animate().alpha(0f).setDuration(140).withEndAction(() -> {
             heroArt.setImageBitmap(next);
-            heroArt.animate().alpha(heroArtAlpha).setDuration(420).start();
+            heroArt.animate().alpha(artTarget).setDuration(420).start();
         }).start();
     }
 
     private void fadeHeroArt(int ms) {
-        if (!animations) heroArt.setAlpha(heroArtAlpha);
-        else heroArt.animate().alpha(heroArtAlpha).setDuration(reducedMotion ? Math.min(ms, Motion.REDUCED_MS) : ms).start();
+        if (!animations) heroArt.setAlpha(artTarget);
+        else heroArt.animate().alpha(artTarget).setDuration(reducedMotion ? Math.min(ms, Motion.REDUCED_MS) : ms).start();
+    }
+
+    /** continue_watching_static: a dock app that has no cards gets a still shelf, as on Apple TV. */
+    private boolean stillShelfFor(int position) {
+        if (!staticShelf || watchNext == null || position < 0 || position >= adapter.appCount()) return false;
+        if (!DockSlots.inDockRow(dockRow, singleRow, position, COLUMNS)) return false;
+        return watchNext.itemsFor(adapter.packageAt(position)).isEmpty();
+    }
+
+    /**
+     * The still shelf's logo: the app's banner, large and centred between the header and the dock, and the name
+     * hidden; or the logo away and the name back for an app with cards.
+     */
+    private void showShelfLogo(int position) {
+        if (shelfLogo == null) return;
+        boolean still = stillShelfFor(position);
+        heroName.animate().cancel();
+        heroName.setAlpha(still ? 0f : 1f);
+        if (cinematic) heroMeta.setAlpha(still ? 0f : 1f);
+        if (cinematic) heroDots.setAlpha(still ? 0f : 1f);
+        // Darker behind a still shelf, so a white banner (YouTube) does not wash out the clock.
+        heroArt.setColorFilter(still ? new android.graphics.PorterDuffColorFilter(0xFF7A7A7A,
+                android.graphics.PorterDuff.Mode.MULTIPLY) : null);
+        shelfLogo.animate().cancel();
+        if (!still) {
+            shelfLogo.setAlpha(0f);
+            return;
+        }
+        Drawable banner = adapter.artworkAt(position);
+        if (banner != null && banner.getConstantState() != null) banner = banner.getConstantState().newDrawable().mutate();
+        shelfLogo.setImageDrawable(banner);
+        int w = Math.round(rootWidth() * 0.30f), h = Math.round(w * 9f / 16f);
+        float headerBottom = ((View) clockBlock.getParent()).getBottom();
+        float top = headerBottom + Math.max(0f, (shelfDockTop - 26 * density - headerBottom - h) / 2f);
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) shelfLogo.getLayoutParams();
+        if (lp.width != w || lp.height != h || lp.topMargin != Math.round(top)) {
+            lp.width = w;
+            lp.height = h;
+            lp.leftMargin = (rootWidth() - w) / 2;
+            lp.topMargin = Math.round(top);
+            shelfLogo.setLayoutParams(lp);
+        }
+        float radius = AppAdapter.cornerRadius(w, density);
+        shelfLogo.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline outline) {
+                outline.setRoundRect(0, 0, v.getWidth(), v.getHeight(), radius < 0 ? 0 : radius);
+            }
+        });
+        if (!animations || reducedMotion) shelfLogo.setAlpha(1f);
+        else shelfLogo.animate().alpha(1f).setDuration(420).start();
+    }
+
+    private void hideShelfLogo(boolean fade) {
+        if (shelfLogo == null) return;
+        shelfLogo.animate().cancel();
+        if (fade && animations && !reducedMotion) shelfLogo.animate().alpha(0f).setDuration(300).start();
+        else shelfLogo.setAlpha(0f);
     }
 
     /** "Last opened yesterday, 9:40 PM", the time in white; nothing (but the same height) when it was never seen. */
@@ -2748,6 +2839,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         hero.setAlpha(0f);
         heroArt.animate().cancel();
         heroArt.setAlpha(0f);
+        hideShelfLogo(false);
         heroShown = false;
         if (!ambientGlow) return;
         if (!animations || reducedMotion) {
@@ -2782,10 +2874,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             hero.animate().alpha(0f).setDuration(160).start();
             if (ambientGlow) ambient.animate().alpha(0f).setDuration(300).start();
             heroArt.animate().alpha(0f).setDuration(300).start();
+            hideShelfLogo(true);
         } else {
             hero.setAlpha(0f);
             ambient.setAlpha(0f);
             heroArt.setAlpha(0f);
+            hideShelfLogo(false);
         }
     }
 

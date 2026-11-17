@@ -256,6 +256,8 @@ final class Config {
     final boolean continueWatching;
     /** continue_watching_channels (theme only): per app, the names of its recommendation lists to show, in order. */
     final Map<String, List<String>> continueWatchingChannels;
+    /** continue_watching_static (theme only): a dock app with no cards fills the shelf with its artwork and logo. */
+    final boolean continueWatchingStatic;
     /** Opacity of the app's artwork behind the cinematic shelf, 0 to 100 (config.xml, cinematic_art); 50 as before. */
     final int cinematicArt;
     /** Strength of the cinematic shelf's dark scrim, 0 to 100 percent (config.xml, cinematic_scrim); 100 as before. */
@@ -309,7 +311,7 @@ final class Config {
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
                    Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean volumePausesFilter, boolean homeIgnoreChannelKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
                    int openOnStartNetworkWait, boolean openOnStartOnWake, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean glowSnap,
-                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur, boolean continueWatching, Map<String, List<String>> continueWatchingChannels) {
+                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur, boolean continueWatching, Map<String, List<String>> continueWatchingChannels, boolean continueWatchingStatic) {
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -407,6 +409,7 @@ final class Config {
         this.wifiStatusColor = wifiStatusColor;
         this.continueWatching = continueWatching;
         this.continueWatchingChannels = continueWatchingChannels;
+        this.continueWatchingStatic = continueWatchingStatic;
         this.cinematicArt = cinematicArt;
         this.cinematicScrim = cinematicScrim;
         this.wallpaperMoods = wallpaperMoods;
@@ -553,6 +556,7 @@ final class Config {
         boolean wifiStatusColor = res.getBoolean(R.bool.wifi_status_color);
         boolean continueWatching = res.getBoolean(R.bool.continue_watching);
         Map<String, List<String>> continueWatchingChannels = Collections.emptyMap();
+        boolean continueWatchingStatic = false;
         int cinematicArt = res.getInteger(R.integer.cinematic_art);
         int cinematicScrim = res.getInteger(R.integer.cinematic_scrim);
         Map<String, Set<String>> wallpaperMoods = moods(res.getString(R.string.wallpaper_moods));
@@ -674,6 +678,7 @@ final class Config {
             cinematicWhiteFocus = bool(json, "cinematic_white_focus", cinematicWhiteFocus);
             wifiStatusColor = bool(json, "wifi_status_color", wifiStatusColor);
             continueWatching = bool(json, "continue_watching", continueWatching);
+            continueWatchingStatic = bool(json, "continue_watching_static", continueWatchingStatic);
             JSONObject channels = json.optJSONObject("continue_watching_channels");
             if (channels != null) {
                 Map<String, List<String>> picked = new HashMap<>();
@@ -772,7 +777,7 @@ final class Config {
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap,
-                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur, continueWatching, continueWatchingChannels);
+                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur, continueWatching, continueWatchingChannels, continueWatchingStatic);
     }
 
     /**
