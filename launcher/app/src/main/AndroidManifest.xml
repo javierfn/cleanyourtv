@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- Reads the apps' Watch Next rows (docs/watch-next.md). Runtime, never requested: grant it with pm grant
+         com.gathin.tvhome android.permission.READ_TV_LISTINGS, or the cards stay off. -->
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS" />
     <!-- Needed since Android 10 to read the Wi-Fi network name for the network pill. Never requested at
          runtime: build-and-install grants it with pm grant, so lint's Android 12 "ask for COARSE with
          FINE" rule does not apply here. -->
@@ -28,6 +31,8 @@
     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
          apps that declare a module card (docs/specs/card.md). -->
     <queries>
+        <!-- continue_watching: the TV Posters add-on fetches the cards' https artwork, so the launcher has no INTERNET. -->
+        <provider android:authorities="com.gathin.tvhome.posters" />
         <!-- The Brightness add-on's night state (NightState), for the night wallpapers and the moon button. -->
         <package android:name="io.github.maxhayim.brightness" />
         <!-- cast_pill: Google TV's Cast receiver, bound to show (and keep awake) Chromecast in the Control Center. -->

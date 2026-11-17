@@ -1,0 +1,26 @@
+<!doctype html>
+<!-- Logos que sustituyen al nombre encima de las tarjetas del top shelf (continue_watching_logo).
+     Render: mi-tv/logos-shelf.sh. Fondo transparente, 240 px de alto. Prime Video y Plex: SVG de Wikimedia Commons. -->
+<html><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=block');
+html,body{margin:0;background:transparent}
+.l{display:none;height:240px;align-items:center}
+#prime img{height:240px;filter:brightness(0) invert(1)}
+#plex img{height:240px}
+#movistar img{height:240px;filter:brightness(0) invert(1)}
+#youtube{gap:24px}
+.play{width:300px;height:212px;border-radius:56px;background:#ff1f1f;position:relative}
+.play::after{content:"";position:absolute;left:118px;top:60px;border-left:84px solid #fff;border-top:46px solid transparent;border-bottom:46px solid transparent}
+.word{font-family:"Roboto Condensed",sans-serif;font-weight:700;font-size:256px;letter-spacing:-11px;color:#fff;line-height:1;margin-top:-18px}
+</style></head><body>
+<div class="l" id="prime"><img src="prime-logo.svg"></div>
+<div class="l" id="plex"><img src="plex-logo.svg"></div>
+<div class="l" id="movistar"><img src="movistar-logo.svg"></div>
+<div class="l" id="youtube"><div class="play"></div><div class="word">YouTube</div></div>
+<script>
+const el = document.getElementById(location.hash.slice(1));
+el.style.display = "inline-flex";
+document.title = el.getBoundingClientRect().width;
+</script>
+</body></html>

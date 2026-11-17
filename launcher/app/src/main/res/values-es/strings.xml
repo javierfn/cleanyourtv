@@ -212,4 +212,8 @@
     <string name="tvos_desc_animations">Movimientos suaves al mover el foco y abrir menús.</string>
     <string name="tvos_desc_open_on_start">Una app que se abre sola al encender el televisor.</string>
     <string name="tvos_desc_tv_settings">Los ajustes de Android TV del propio televisor.</string>
+    <string name="shelf_movie">Película</string>
+    <string name="shelf_series">Serie</string>
+    <string name="shelf_season_short">T</string>
+    <string name="shelf_episode_short">E</string>
 </resources>

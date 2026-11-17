@@ -252,6 +252,16 @@ final class Config {
     final boolean cinematicWhiteFocus;
     /** The Wi-Fi pill's icon green while the TV is online (config.xml, wifi_status_color); false keeps it white. */
     final boolean wifiStatusColor;
+    /** Continue watching cards under the top shelf's name on a dock app that has them (config.xml, continue_watching). */
+    final boolean continueWatching;
+    /** continue_watching_channels (theme only): per app, the names of its recommendation lists to show, in order. */
+    final Map<String, List<String>> continueWatchingChannels;
+    /** continue_watching_static (theme only): per app, a bundled drawable that fills the screen when it has no cards. */
+    final Map<String, String> continueWatchingStatic;
+    /** continue_watching_backdrop (theme only): per app, a bundled drawable behind its shelf, cards or not. */
+    final Map<String, String> continueWatchingBackdrop;
+    /** continue_watching_logo (theme only): per app, a bundled drawable shown instead of its name over its cards. */
+    final Map<String, String> continueWatchingLogo;
     /** Opacity of the app's artwork behind the cinematic shelf, 0 to 100 (config.xml, cinematic_art); 50 as before. */
     final int cinematicArt;
     /** Strength of the cinematic shelf's dark scrim, 0 to 100 percent (config.xml, cinematic_scrim); 100 as before. */
@@ -305,7 +315,7 @@ final class Config {
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
                    Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean volumePausesFilter, boolean homeIgnoreChannelKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
                    int openOnStartNetworkWait, boolean openOnStartOnWake, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean glowSnap,
-                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur) {
+                   boolean settingsKeyClearTask, String weatherNow, boolean weatherNowPlace, boolean dockBlur, boolean continueWatching, Map<String, List<String>> continueWatchingChannels, Map<String, String> continueWatchingStatic, Map<String, String> continueWatchingBackdrop, Map<String, String> continueWatchingLogo) {
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -401,6 +411,11 @@ final class Config {
         this.cinematicDots = cinematicDots;
         this.cinematicWhiteFocus = cinematicWhiteFocus;
         this.wifiStatusColor = wifiStatusColor;
+        this.continueWatching = continueWatching;
+        this.continueWatchingChannels = continueWatchingChannels;
+        this.continueWatchingStatic = continueWatchingStatic;
+        this.continueWatchingBackdrop = continueWatchingBackdrop;
+        this.continueWatchingLogo = continueWatchingLogo;
         this.cinematicArt = cinematicArt;
         this.cinematicScrim = cinematicScrim;
         this.wallpaperMoods = wallpaperMoods;
@@ -545,6 +560,11 @@ final class Config {
         boolean cinematicDots = res.getBoolean(R.bool.cinematic_dots);
         boolean cinematicWhiteFocus = res.getBoolean(R.bool.cinematic_white_focus);
         boolean wifiStatusColor = res.getBoolean(R.bool.wifi_status_color);
+        boolean continueWatching = res.getBoolean(R.bool.continue_watching);
+        Map<String, List<String>> continueWatchingChannels = Collections.emptyMap();
+        Map<String, String> continueWatchingStatic = Collections.emptyMap();
+        Map<String, String> continueWatchingBackdrop = Collections.emptyMap();
+        Map<String, String> continueWatchingLogo = Collections.emptyMap();
         int cinematicArt = res.getInteger(R.integer.cinematic_art);
         int cinematicScrim = res.getInteger(R.integer.cinematic_scrim);
         Map<String, Set<String>> wallpaperMoods = moods(res.getString(R.string.wallpaper_moods));
@@ -665,6 +685,35 @@ final class Config {
             cinematicDots = bool(json, "cinematic_dots", cinematicDots);
             cinematicWhiteFocus = bool(json, "cinematic_white_focus", cinematicWhiteFocus);
             wifiStatusColor = bool(json, "wifi_status_color", wifiStatusColor);
+            continueWatching = bool(json, "continue_watching", continueWatching);
+            continueWatchingBackdrop = drawableNames(json.optJSONObject("continue_watching_backdrop"));
+            continueWatchingLogo = drawableNames(json.optJSONObject("continue_watching_logo"));
+            JSONObject still = json.optJSONObject("continue_watching_static");
+            if (still != null) {
+                Map<String, String> picked = new HashMap<>();
+                for (java.util.Iterator<String> it = still.keys(); it.hasNext(); ) {
+                    String pkg = it.next();
+                    String name = still.optString(pkg, "").trim();
+                    if (name.matches("[a-z0-9_]+")) picked.put(pkg, name);
+                }
+                continueWatchingStatic = picked;
+            }
+            JSONObject channels = json.optJSONObject("continue_watching_channels");
+            if (channels != null) {
+                Map<String, List<String>> picked = new HashMap<>();
+                for (java.util.Iterator<String> it = channels.keys(); it.hasNext(); ) {
+                    String pkg = it.next();
+                    JSONArray names = channels.optJSONArray(pkg);
+                    if (names == null) continue;
+                    List<String> list = new ArrayList<>();
+                    for (int i = 0; i < names.length(); i++) {
+                        String n = names.optString(i, "").trim();
+                        if (!n.isEmpty()) list.add(n);
+                    }
+                    picked.put(pkg, list);
+                }
+                continueWatchingChannels = picked;
+            }
             cinematicArt = integer(json, "cinematic_art", cinematicArt, 0, 100);
             cinematicScrim = integer(json, "cinematic_scrim", cinematicScrim, 0, 100);
             JSONObject moods = json.optJSONObject("wallpaper_moods");
@@ -747,7 +796,7 @@ final class Config {
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap,
-                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur);
+                settingsKeyClearTask, weatherNow, weatherNowPlace, dockBlur, continueWatching, continueWatchingChannels, continueWatchingStatic, continueWatchingBackdrop, continueWatchingLogo);
     }
 
     /**
@@ -859,6 +908,18 @@ final class Config {
             Log.w(TAG, "ignoring " + file + ": " + e.getMessage());
             return null;
         }
+    }
+
+    /** {"package": "drawable_name"} from a theme; names that are not plain resource names are dropped. */
+    private static Map<String, String> drawableNames(JSONObject json) {
+        if (json == null) return Collections.emptyMap();
+        Map<String, String> picked = new HashMap<>();
+        for (java.util.Iterator<String> it = json.keys(); it.hasNext(); ) {
+            String pkg = it.next();
+            String name = json.optString(pkg, "").trim();
+            if (name.matches("[a-z0-9_]+")) picked.put(pkg, name);
+        }
+        return picked;
     }
 
     /** wallpaper_moods as JSON text (config.xml); empty or unreadable is no groups. */

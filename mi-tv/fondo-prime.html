@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Fondos del top shelf para Prime Video. Con logo (shelf_prime, continue_watching_static) cuando no hay
+     sugerencias; sin logo (shelf_prime_fondo, continue_watching_backdrop) detrás de la fila.
+     Render: mi-tv/fondo-youtube.sh prime [sinlogo]. Logo: prime-logo.svg (Wikimedia Commons). Resto, diseño propio. -->
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#06121f}
+svg{position:absolute;inset:0}
+.logo{position:absolute;left:50%;top:500px;height:250px;transform:translate(-50%,-50%);filter:brightness(0) invert(1) drop-shadow(0 18px 40px rgba(0,0,0,.45))}
+</style></head><body>
+<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1a2e"/><stop offset=".55" stop-color="#071424"/><stop offset="1" stop-color="#040b16"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="82%" cy="8%" r="55%">
+      <stop offset="0" stop-color="#1f8fff" stop-opacity=".55"/><stop offset="1" stop-color="#1f8fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="8%" cy="95%" r="50%">
+      <stop offset="0" stop-color="#00a8e1" stop-opacity=".35"/><stop offset="1" stop-color="#00a8e1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="50%" cy="40%" r="40%">
+      <stop offset="0" stop-color="#16314f" stop-opacity=".6"/><stop offset="1" stop-color="#16314f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1a98ff" stop-opacity="0"/><stop offset=".5" stop-color="#4fb3ff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#1a98ff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#base)"/>
+  <rect width="1920" height="1080" fill="url(#glow3)"/>
+  <rect width="1920" height="1080" fill="url(#glow1)"/>
+  <rect width="1920" height="1080" fill="url(#glow2)"/>
+  <!-- la sonrisa de Prime, como arcos de luz muy suaves -->
+  <g fill="none" stroke="url(#arc)" stroke-linecap="round">
+    <path d="M-120 860 Q960 1240 2040 760" stroke-width="5"/>
+    <path d="M-120 900 Q960 1300 2040 820" stroke-width="2" opacity=".6"/>
+    <path d="M1180 -60 Q1660 260 2060 120" stroke-width="3" opacity=".7"/>
+    <path d="M1260 -80 Q1720 300 2080 180" stroke-width="1.5" opacity=".5"/>
+  </g>
+  <!-- puntitos de luz -->
+  <g fill="#8fd0ff">
+    <circle cx="1530" cy="170" r="2.2" opacity=".7"/><circle cx="1640" cy="90" r="1.6" opacity=".5"/>
+    <circle cx="1780" cy="250" r="2" opacity=".6"/><circle cx="1420" cy="60" r="1.4" opacity=".5"/>
+    <circle cx="210" cy="930" r="2" opacity=".5"/><circle cx="330" cy="1010" r="1.5" opacity=".4"/>
+  </g>
+</svg>
+<img class="logo" src="prime-logo.svg">
+<script>if (location.hash === "#sinlogo") document.querySelector(".logo").style.display = "none";</script>
+</body></html>

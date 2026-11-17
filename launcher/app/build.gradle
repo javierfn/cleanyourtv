@@ -14,7 +14,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 14
-        versionName '3.5-tv.2'
+        versionName '3.5-tv.3'
     }
 
     buildTypes {
