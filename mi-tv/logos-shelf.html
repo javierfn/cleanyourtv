@@ -8,6 +8,7 @@ html,body{margin:0;background:transparent}
 .l{display:none;height:240px;align-items:center}
 #prime img{height:240px;filter:brightness(0) invert(1)}
 #plex img{height:240px}
+#movistar img{height:240px;filter:brightness(0) invert(1)}
 #youtube{gap:24px}
 .play{width:300px;height:212px;border-radius:56px;background:#ff1f1f;position:relative}
 .play::after{content:"";position:absolute;left:118px;top:60px;border-left:84px solid #fff;border-top:46px solid transparent;border-bottom:46px solid transparent}
@@ -15,6 +16,7 @@ html,body{margin:0;background:transparent}
 </style></head><body>
 <div class="l" id="prime"><img src="prime-logo.svg"></div>
 <div class="l" id="plex"><img src="plex-logo.svg"></div>
+<div class="l" id="movistar"><img src="movistar-logo.svg"></div>
 <div class="l" id="youtube"><div class="play"></div><div class="word">YouTube</div></div>
 <script>
 const el = document.getElementById(location.hash.slice(1));
