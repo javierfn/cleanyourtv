@@ -15,7 +15,9 @@ ls mi-tv/theme-glass-oscuro/wallpapers/*.jpg >/dev/null 2>&1 || mi-tv/fotos.sh
 
 # 1. Custom Live TV banner, bundled into the launcher (themes can only name bundled banner_* drawables).
 mkdir -p launcher/app/src/main/res/drawable-nodpi
-cp mi-tv/banner_tvenvivo.png launcher/app/src/main/res/drawable-nodpi/banner_tvenvivo.png
+# WebP (from banner_tvenvivo.png with cwebp -q 92): keeps the APK small. A PNG of the same name next to it would break the build.
+rm -f launcher/app/src/main/res/drawable-nodpi/banner_tvenvivo.png
+cp mi-tv/banner_tvenvivo.webp launcher/app/src/main/res/drawable-nodpi/banner_tvenvivo.webp
 
 # 1a. Build folders outside the synced Desktop: its sync makes "X 2.xml" copies that break the build.
 C="$HOME/Library/Caches/cleanyourtv-build"
