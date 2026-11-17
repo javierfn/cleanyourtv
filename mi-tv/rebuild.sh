@@ -22,7 +22,8 @@ cp mi-tv/banner_tvenvivo.webp launcher/app/src/main/res/drawable-nodpi/banner_tv
 # 1a. Build folders outside the synced Desktop: its sync makes "X 2.xml" copies that break the build.
 C="$HOME/Library/Caches/cleanyourtv-build"
 for d in launcher/app/build launcher/build launcher/.gradle addons/weather/app/build addons/weather/.gradle addons/brightness/app/build addons/brightness/.gradle \
-         addons/bluetooth-connect/app/build addons/bluetooth-connect/.gradle mi-tv/hdmi-appletv/app/build mi-tv/hdmi-appletv/.gradle; do
+         addons/bluetooth-connect/app/build addons/bluetooth-connect/.gradle mi-tv/hdmi-appletv/app/build mi-tv/hdmi-appletv/.gradle \
+         addons/posters/app/build addons/posters/.gradle; do
   [ -L "$d" ] && continue
   rm -rf "$d"; mkdir -p "$C/$d"; ln -s "$C/$d" "$d"
 done
@@ -52,6 +53,13 @@ addons/bluetooth-connect/install.sh
 # 3d. Brightness add-on: night mode 21:00-08:00 at 60 %, warmth 30 %, day undimmed; its toggle flips day/night
 #     until the next schedule change (addon-brightness.patch). The launcher's moon button (night_button) calls it.
 addons/brightness/install.sh
+
+# 3e. TV Posters add-on (de burnhamrobertp): trae las imágenes https del top shelf (continue_watching), así el launcher
+#     sigue sin INTERNET. Firmado con la misma clave que el launcher. El launcher necesita READ_TV_LISTINGS para leer
+#     Seguir viendo y los recomendados de cada app.
+(cd addons/posters && echo "sdk.dir=$ANDROID_HOME" > local.properties && ./gradlew assembleRelease -q --console=plain)
+adb -s "$TV_HOST:5555" install -r addons/posters/app/build/outputs/apk/release/app-release.apk
+adb -s "$TV_HOST:5555" shell pm grant com.gathin.tvhome android.permission.READ_TV_LISTINGS
 
 # 4. Theme: dock order, labels, banners, wallpaper, hidden apps, 6 columns...
 tools/theme.sh "mi-tv/${TEMA:-theme-glass-oscuro}"   # otro tema: TEMA=theme-halloween mi-tv/rebuild.sh
