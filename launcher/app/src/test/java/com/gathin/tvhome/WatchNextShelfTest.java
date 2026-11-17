@@ -39,10 +39,10 @@ public class WatchNextShelfTest {
     }
 
     @Test
-    public void aRowLastEngagedOverSixtyDaysAgoIsDropped() {
+    public void aRowLastEngagedOver180DaysAgoIsDropped() {
         Map<String, List<WatchNextShelf.Item>> shelf = WatchNextShelf.select(rows(
-                row("a", "Old", "intent:#Intent;end", 1, NOW - 61 * DAY, -1, -1),
-                row("a", "Fresh", "intent:#Intent;end", 1, NOW - 59 * DAY, -1, -1),
+                row("a", "Old", "intent:#Intent;end", 1, NOW - 181 * DAY, -1, -1),
+                row("a", "Fresh", "intent:#Intent;end", 1, NOW - 179 * DAY, -1, -1),
                 row("a", "Never dated", "intent:#Intent;end", 1, -1, -1, -1)), NOW);
         assertEquals(2, shelf.get("a").size());
         assertEquals("Fresh", shelf.get("a").get(0).title);
@@ -119,5 +119,18 @@ public class WatchNextShelfTest {
         assertEquals("https://x/t.jpg", thumbOnly.art());
         assertEquals("https://x/p.jpg", row("a", "t", "i", 0, NOW, -1, -1).art());
         assertNull(new WatchNextShelf.Item("a", "t", null, null, null, null, null, "i", 0, NOW, -1, -1, 0, null).art());
+    }
+
+    @Test
+    public void recommendationsComeAfterTheAppsContinueRowsUpToTwelveCards() {
+        List<WatchNextShelf.Item> list = rows(
+                row("a", "Rec 0", "intent:#Intent;end", WatchNextShelf.TYPE_RECOMMENDED, -1, -1, -1),
+                row("a", "Continue", "intent:#Intent;end", 0, NOW - DAY, 10, 100));
+        for (int i = 1; i < 20; i++) list.add(row("a", "Rec " + i, "intent:#Intent;end", WatchNextShelf.TYPE_RECOMMENDED, -1, -1, -1));
+        List<WatchNextShelf.Item> shelf = WatchNextShelf.select(list, NOW).get("a");
+        assertEquals(WatchNextShelf.MAX_CARDS, shelf.size());
+        assertEquals("Continue", shelf.get(0).title);
+        assertEquals("Rec 0", shelf.get(1).title);
+        assertTrue(shelf.get(1).recommended());
     }
 }
