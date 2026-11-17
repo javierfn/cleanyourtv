@@ -2204,8 +2204,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         float room = shelfDockTop - 14 * density - 26 * density - headerBottom - 8 * density;
         float nameH = heroName.getLineHeight() + 12 * density;
         float artRoom = room - nameH - ContinueRow.TEXT_DP * density;
-        int width = Math.round(Math.max(112f * density, Math.min(176f * density, artRoom * 16f / 9f)));
         int rowW = (root.getWidth() > 0 ? root.getWidth() : getResources().getDisplayMetrics().widthPixels) - Math.round(136 * density);
+        // Exactly four cards across the row (as wide as the dock), so none is cut at the edge; smaller only when the
+        // room above the dock is too short for that height.
+        int four = Math.round((rowW - 3 * ContinueRow.GAP_DP * density) / 4f);
+        int width = Math.round(Math.max(112f * density, Math.min(four, artRoom * 16f / 9f)));
         ViewGroup.LayoutParams lp = shelfCards.getLayoutParams();
         lp.width = rowW;
         lp.height = ContinueRow.rowHeightPx(width, density);
