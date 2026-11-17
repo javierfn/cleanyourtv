@@ -209,6 +209,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** That still picture, full screen behind the header and the dock; null when no app has one. */
     private ImageView shelfLogo;
     private String shelfLogoName;
+    /** dock_blur's copy of the wallpaper; null without dock_blur. A still shelf picture lends it its own. */
+    private DockBackdrop dockBackdrop;
+    /** Blurred copies of the still shelf pictures for the dock band, by drawable name. */
+    private final Map<String, Bitmap> stillBlurred = new HashMap<>();
+    private int stillPictureW, stillPictureH;
+    private boolean stillShown;
     /** What heroArt fades to for the focused app. */
     private float artTarget;
     /** The focus glow's colour while the cinematic shelf tints it, 0 for plain white glass. */
@@ -557,7 +563,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // black under it is a second full-screen fill on every frame for nothing. The starting window still uses
         // the theme's background, so launch looks the same.
         getWindow().setBackgroundDrawable(null);
-        DockBackdrop dockBackdrop = cfg.dockBlur ? new DockBackdrop() : null;
+        dockBackdrop = cfg.dockBlur ? new DockBackdrop() : null;
         wallpaperPlayer = new WallpaperPlayer(this, root, cfg, dockBackdrop);
         sky = findViewById(R.id.sky);
         sky.setIntensity(cfg.skyIntensity);
@@ -2664,7 +2670,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 shelfLogo.setImageResource(res);
                 shelfLogoName = name;
             }
+            if (still) blurDockWith(name, res);
         }
+        if (!still && dockBackdrop != null) dockBackdrop.clearOverride();
+        stillShown = still;
         heroName.animate().cancel();
         heroName.setAlpha(still ? 0f : 1f);
         if (cinematic) heroMeta.setAlpha(still ? 0f : 1f);
@@ -2675,7 +2684,34 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else shelfLogo.animate().alpha(to).setDuration(still ? 420 : 300).start();
     }
 
+    /** dock_blur: the band blurs the still picture, not the wallpaper it covers; made once, off the main thread. */
+    private void blurDockWith(String name, int res) {
+        if (dockBackdrop == null) return;
+        Bitmap ready = stillBlurred.get(name);
+        if (ready != null) {
+            dockBackdrop.setOverride(ready, stillPictureW, stillPictureH, shelfLogo);
+            return;
+        }
+        android.graphics.drawable.Drawable d = shelfLogo.getDrawable();
+        int w = d == null ? 0 : d.getIntrinsicWidth(), h = d == null ? 0 : d.getIntrinsicHeight();
+        if (w <= 0 || h <= 0) return;
+        android.content.res.Resources resources = getResources();
+        new Thread(() -> {
+            Bitmap copy = DockBackdrop.blur(resources, res);
+            if (copy == null) return;
+            handler.post(() -> {
+                stillBlurred.put(name, copy);
+                stillPictureW = w;
+                stillPictureH = h;
+                // Still on that picture: lend it to the band now.
+                if (stillShown && name.equals(shelfLogoName)) dockBackdrop.setOverride(copy, w, h, shelfLogo);
+            });
+        }, "still-blur").start();
+    }
+
     private void hideShelfLogo(boolean fade) {
+        stillShown = false;
+        if (dockBackdrop != null) dockBackdrop.clearOverride();
         if (shelfLogo == null) return;
         shelfLogo.animate().cancel();
         if (fade && animations && !reducedMotion) shelfLogo.animate().alpha(0f).setDuration(300).start();

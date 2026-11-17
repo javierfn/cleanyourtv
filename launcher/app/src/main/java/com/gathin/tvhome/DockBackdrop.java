@@ -36,14 +36,44 @@ final class DockBackdrop {
     /** @param dimColor wallpaper_dim's black, laid over the copy as WallpaperPlayer paints it into the picture. */
     void setSource(View wallpaperView, int dimColor) {
         source = wallpaperView;
+        wallSource = wallpaperView;
         if (dimColor != 0) paint.setColorFilter(new PorterDuffColorFilter(dimColor, PorterDuff.Mode.SRC_ATOP));
     }
 
+    /** The wallpaper's own copy, kept while a still shelf picture (continue_watching_static) covers it. */
+    private Bitmap wallBlurred;
+    private int wallWidth, wallHeight;
+    private View wallSource;
+    private boolean overridden;
+
     /** Main thread: the blurred copy of the picture now on screen, and that picture's size. */
     void set(Bitmap blurredCopy, int width, int height) {
+        wallBlurred = blurredCopy;
+        wallWidth = width;
+        wallHeight = height;
+        if (!overridden) use(blurredCopy, width, height, wallSource);
+    }
+
+    /**
+     * Main thread: a full-screen picture now covers the wallpaper (a still top shelf); the band blurs that one,
+     * as cover-cropped in pictureView, until clearOverride.
+     */
+    void setOverride(Bitmap blurredCopy, int width, int height, View pictureView) {
+        overridden = true;
+        use(blurredCopy, width, height, pictureView);
+    }
+
+    void clearOverride() {
+        if (!overridden) return;
+        overridden = false;
+        use(wallBlurred, wallWidth, wallHeight, wallSource);
+    }
+
+    private void use(Bitmap blurredCopy, int width, int height, View from) {
         blurred = blurredCopy;
         pictureWidth = width;
         pictureHeight = height;
+        source = from;
         paint.setShader(blurredCopy == null ? null
                 : new BitmapShader(blurredCopy, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
         if (target != null) target.invalidate();
@@ -76,7 +106,29 @@ final class DockBackdrop {
             options.inJustDecodeBounds = false;
             // The decoder rounds this down to a power of two.
             options.inSampleSize = Math.max(1, options.outWidth / WIDTH);
-            Bitmap small = BitmapFactory.decodeFile(file.getPath(), options);
+            return blurSmall(BitmapFactory.decodeFile(file.getPath(), options));
+        } catch (Exception | OutOfMemoryError failure) {
+            return null;
+        }
+    }
+
+    /** Background thread: the same for a bundled drawable (a still top shelf picture). */
+    static Bitmap blur(android.content.res.Resources res, int id) {
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(res, id, options);
+            options.inJustDecodeBounds = false;
+            options.inScaled = false;
+            options.inSampleSize = Math.max(1, options.outWidth / WIDTH);
+            return blurSmall(BitmapFactory.decodeResource(res, id, options));
+        } catch (Exception | OutOfMemoryError failure) {
+            return null;
+        }
+    }
+
+    private static Bitmap blurSmall(Bitmap small) {
+        try {
             if (small == null) return null;
             int width = small.getWidth(), height = small.getHeight();
             int[] pixels = new int[width * height];
