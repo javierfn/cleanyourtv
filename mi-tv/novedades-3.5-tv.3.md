@@ -45,14 +45,13 @@ leer; Movistar+ y el Apple TV por HDMI no publican nada.
 
 ## Cómo se integró
 
-- Rama `top-shelf` desde 3.5-tv.2, fusionada en `javi-tv`.
-- `launcher-mods.patch` regenerado contra `v3.5.0`, y nuevo `addon-posters.patch` (el complemento entero).
+- Rama `feature/top-shelf` desde 3.5-tv.2.
 - `rebuild.sh` compila e instala TV Posters y da `READ_TV_LISTINGS` al launcher.
 - Tests del launcher: 338 de 338 (uno nuevo de recomendados en `WatchNextShelfTest`).
 - El APK pasa de 680 KB a unos 1,45 MB por los ocho fondos y cuatro logos en 4K.
 
 ## Capturas
 
-`capturas/top-shelf/`: fila y vista grande de Prime, YouTube, Plex y Movistar+ con su fondo.
+En el README del fork (`docs/fork/top-shelf-*.jpg`).
 
 Para quitarlo: `"continue_watching": false` en `mi-tv/theme-glass-oscuro/config.json` y `mi-tv/rebuild.sh`.
