@@ -1,7 +1,7 @@
-# Una TV con estilo Apple TV, sobre Clean Your TV 3.4
+# Una TV con estilo Apple TV, sobre Clean Your TV 3.5
 
 Configuración personal de un Panasonic Google TV LCD (kowloon, Vestel/MediaTek, Android 14) con el launcher de
-[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.4 (versión de la rama: 3.4-tv.1) con los cambios ya
+[Clean Your TV](https://github.com/Gathin23/cleanyourtv). Esta rama está basada en Clean Your TV 3.5 (versión de la rama: 3.5-tv.1) con los cambios ya
 aplicados en el código; la carpeta `mi-tv/` tiene el tema, los iconos, una mini-app y los scripts.
 
 ```bash
@@ -41,6 +41,9 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 - **Al día con Clean Your TV 3.4** (3.4-tv.1): relojes que no se paran tras el reposo, botones del mando asignados a
   una entrada que abren el sintonizador, la opción `inputs_cec_state_only`, cinco temas y dos complementos nuevos,
   con todo lo de esta rama intacto (ver `novedades-3.4-tv.1.md`).
+- **Al día con Clean Your TV 3.5** (3.5-tv.1): un inicio que libera la memoria tras cada cambio de ajustes, reloj
+  con cifras fijas, arreglos del mando, el menú Entradas legible y los ajustes del tiempo en español, con todo lo de
+  esta rama intacto; los iconos tvOS pasan a WebP y el APK baja de 1,23 MB a 663 KB (ver `novedades-3.5-tv.1.md`).
 - La VPN como píldora con texto, el nombre del fondo sin recuadro y menús que no se activan solos con el OK
   mantenido de los mandos de infrarrojos.
 
@@ -58,7 +61,7 @@ descarga los fondos la primera vez (`fotos.sh`) y aplica el tema. Necesita JDK 1
 | `hdmi-appletv/` | Mini-app "Apple TV" que abre la entrada HDMI 1 |
 | `debloat.txt` | Apps desactivadas en esta TV |
 | `rebuild.sh`, `fotos.sh` | Compilar e instalar todo; bajar los fondos |
-| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md`, `novedades-3.3-tv.7.md`, `novedades-3.3-tv.8.md`, `novedades-3.3-tv.9.md`, `novedades-3.3-tv.10.md`, `novedades-3.4-tv.1.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9, Ajustes del lanzador estilo tvOS = 3.3-tv.10, paso a Clean Your TV 3.4 = 3.4-tv.1; los archivos `novedades-*` antiguos conservan su nombre). Con cada versión oficial nueva vuelve a empezar (3.4 → 3.4-tv.1). |
+| `novedades-3.1.md`, `novedades-3.2.md`, `novedades-3.3.md`, `novedades-3.3.1.md`, `novedades-3.4.md`, `novedades-3.4.1.md`, `novedades-3.3-tv.5.md`, `novedades-3.3-tv.6.md`, `novedades-3.3-tv.7.md`, `novedades-3.3-tv.8.md`, `novedades-3.3-tv.9.md`, `novedades-3.3-tv.10.md`, `novedades-3.4-tv.1.md`, `novedades-3.5-tv.1.md` | Resumen en español de las notas de cada versión. Numeración: la versión oficial es la de Clean Your TV; detrás, `-tv.N` cuenta las entregas de esta rama sobre ella (3.3.1 = 3.3-tv.1, 3.4 = 3.3-tv.2, 3.4.1 = 3.3-tv.3, fondos de España y Portugal = 3.3-tv.4, iconos tvOS = 3.3-tv.5, fondos al azar = 3.3-tv.6, fondos desde el espacio = 3.3-tv.7, el tiempo con lluvia y nieve = 3.3-tv.8, Chromecast en el Centro de control = 3.3-tv.9, Ajustes del lanzador estilo tvOS = 3.3-tv.10, paso a Clean Your TV 3.4 = 3.4-tv.1, paso a Clean Your TV 3.5 = 3.5-tv.1; los archivos `novedades-*` antiguos conservan su nombre). Con cada versión oficial nueva vuelve a empezar (3.5 → 3.5-tv.1). |
 
 `vpn_app` en el tema es un ejemplo (`com.example.vpn`): pon el paquete de tu app de VPN. La ciudad del tiempo se
 elige en la app "El tiempo" de la TV.
