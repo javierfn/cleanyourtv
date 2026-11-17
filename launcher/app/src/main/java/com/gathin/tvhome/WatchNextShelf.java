@@ -351,23 +351,34 @@ final class WatchNextShelf {
      * allowed, so the filtering is done here.
      */
     private static void readPreviews(ContentResolver resolver, List<Item> rows) {
+        // A channel the viewer hid stays out, but only for apps with some channel showing: with the stock home
+        // screen disabled nobody ever approves an app's channels, and then every one of them is "hidden".
         Set<Long> hidden = new HashSet<>();
+        Map<String, List<Long>> off = new java.util.HashMap<>();
+        Set<String> anyOn = new HashSet<>();
         try (Cursor c = resolver.query(TvContract.Channels.CONTENT_URI,
-                new String[]{TvContract.Channels._ID, TvContract.Channels.COLUMN_TYPE, TvContract.Channels.COLUMN_BROWSABLE},
+                new String[]{TvContract.Channels._ID, TvContract.Channels.COLUMN_TYPE, TvContract.Channels.COLUMN_BROWSABLE,
+                        TvContract.Channels.COLUMN_PACKAGE_NAME},
                 null, null, null)) {
             while (c != null && c.moveToNext()) {
-                if (TvContract.Channels.TYPE_PREVIEW.equals(c.getString(1)) && !c.isNull(2) && c.getInt(2) == 0) {
-                    hidden.add(c.getLong(0));
+                if (!TvContract.Channels.TYPE_PREVIEW.equals(c.getString(1))) continue;
+                String pkg = c.getString(3);
+                if (!c.isNull(2) && c.getInt(2) == 0) {
+                    List<Long> ids = off.get(pkg);
+                    if (ids == null) off.put(pkg, ids = new ArrayList<>());
+                    ids.add(c.getLong(0));
+                } else {
+                    anyOn.add(pkg);
                 }
             }
         } catch (RuntimeException ignored) {
             // Channels unreadable: keep every preview row.
         }
+        for (Map.Entry<String, List<Long>> e : off.entrySet()) if (anyOn.contains(e.getKey())) hidden.addAll(e.getValue());
         List<Item> previews = new ArrayList<>();
         try (Cursor c = resolver.query(TvContract.PreviewPrograms.CONTENT_URI, PREVIEW_PROJECTION, null, null, null)) {
             while (c != null && c.moveToNext()) {
                 if (!c.isNull(11) && hidden.contains(c.getLong(11))) continue;
-                if (!c.isNull(12) && c.getInt(12) == 0) continue;
                 previews.add(new Item(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4),
                         c.getString(5), c.getString(6), c.getString(7), TYPE_RECOMMENDED, -1, -1,
                         c.isNull(8) ? -1 : c.getLong(8), c.isNull(9) ? -1 : c.getInt(9), c.getString(10)));
