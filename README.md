@@ -20,9 +20,9 @@
 
 *Top shelf como el de Apple TV (`continue_watching`, 3.5-tv.3; fila y vista grande de ProfetGit, complemento de pósters de burnhamrobertp): al enfocar una app del dock, su fondo propio y, si tiene, sus sugerencias; si no, su logo · Apple TV-style top shelf: each dock app's own background, with its suggestions when it has some, its logo when not*
 
-| YouTube (sin Suscripciones) | Plex | Movistar Plus+ | Prime Video (fondo sin sugerencias) |
-|---|---|---|---|
-| ![YouTube enfocado: fondo de collage de colores con su logo en el centro](docs/fork/top-shelf-youtube.jpg) | ![Plex enfocado: fondo negro con chevrones dorados y su logo](docs/fork/top-shelf-plex.jpg) | ![Movistar Plus+ enfocado: fondo negro con cintas azul y violeta y su logo](docs/fork/top-shelf-movistar.jpg) | ![Fondo de Prime Video con su logo; con sugerencias, la fila de Seguir viendo va encima del mismo fondo sin logo](docs/fork/top-shelf-prime-fondo.jpg) |
+| YouTube (sin Suscripciones) | Plex | Movistar Plus+ |
+|---|---|---|
+| ![YouTube enfocado: fondo de collage de colores con su logo en el centro](docs/fork/top-shelf-youtube.jpg) | ![Plex enfocado: fondo negro con chevrones dorados y su logo](docs/fork/top-shelf-plex.jpg) | ![Movistar Plus+ enfocado: fondo negro con cintas azul y violeta y su logo](docs/fork/top-shelf-movistar.jpg) ||
 
 *Dock con el fondo desenfocado (`dock_blur`, 3.5-tv.2; idea y código de devSviat, PR #3688 de Clean Your TV) · Dock with the wallpaper blurred behind it (idea and code by devSviat)*
 
