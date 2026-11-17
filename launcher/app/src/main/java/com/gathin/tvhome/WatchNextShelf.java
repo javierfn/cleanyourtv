@@ -13,10 +13,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,8 +32,24 @@ final class WatchNextShelf {
 
     static final String PERMISSION = "android.permission.READ_TV_LISTINGS";
     static final int MAX_PER_APP = 8;
+    /** Continue rows plus the app's recommendations (its preview channels), at most this many cards an app. */
+    static final int MAX_CARDS = 12;
     /** A row last engaged longer ago than this is stale (rows linger for months on some apps). */
-    static final long MAX_AGE_MS = 60L * 24 * 60 * 60 * 1000;
+    static final long MAX_AGE_MS = 180L * 24 * 60 * 60 * 1000;
+    /** watch_next_type stand-in for a row from the app's preview channels (a recommendation, not Watch Next). */
+    static final int TYPE_RECOMMENDED = -2;
+
+    /** The words the cards use, from the launcher's strings (Labels.load); English for the JVM tests. */
+    static final class Labels {
+        static String movie = "Movie", series = "Series", season = "S", episode = "E";
+
+        static void load(Context c) {
+            movie = c.getString(R.string.shelf_movie);
+            series = c.getString(R.string.shelf_series);
+            season = c.getString(R.string.shelf_season_short);
+            episode = c.getString(R.string.shelf_episode_short);
+        }
+    }
     /** A "continue" row this far into its video is as good as finished. */
     static final float DONE_AT = 0.95f;
     private static final long DEBOUNCE_MS = 500;
@@ -82,6 +100,10 @@ final class WatchNextShelf {
             this.description = description;
         }
 
+        boolean recommended() {
+            return watchNextType == TYPE_RECOMMENDED;
+        }
+
         /** Share of the video watched, 0 to 1, or -1 when the app did not say. */
         float progress() {
             if (durationMs <= 0 || positionMs < 0) return -1f;
@@ -96,9 +118,9 @@ final class WatchNextShelf {
         /** "S1 · E4", "E4" or "S1", or null for a film (no display numbers). */
         String episodeLabel() {
             boolean s = !isEmpty(season), e = !isEmpty(episode);
-            if (s && e) return "S" + season.trim() + " · E" + episode.trim();
-            if (e) return "E" + episode.trim();
-            if (s) return "S" + season.trim();
+            if (s && e) return Labels.season + season.trim() + " · " + Labels.episode + episode.trim();
+            if (e) return Labels.episode + episode.trim();
+            if (s) return Labels.season + season.trim();
             return null;
         }
 
@@ -106,11 +128,11 @@ final class WatchNextShelf {
         String kind() {
             switch (mediaType) {
                 case TvContract.PreviewPrograms.TYPE_MOVIE:
-                    return "Movie";
+                    return Labels.movie;
                 case TvContract.PreviewPrograms.TYPE_TV_SERIES:
                 case TvContract.PreviewPrograms.TYPE_TV_SEASON:
                 case TvContract.PreviewPrograms.TYPE_TV_EPISODE:
-                    return "Series";
+                    return Labels.series;
                 default:
                     return null;
             }
@@ -180,7 +202,9 @@ final class WatchNextShelf {
         Collections.sort(kept, new Comparator<Item>() {
             @Override
             public int compare(Item a, Item b) {
-                return Long.compare(b.engagedMs, a.engagedMs);   // stable: rows without a time keep the table's order
+                // Recommendations after the app's own Continue rows; stable, so rows without a time keep the table's order.
+                if (a.recommended() != b.recommended()) return a.recommended() ? 1 : -1;
+                return Long.compare(b.engagedMs, a.engagedMs);
             }
         });
         Map<String, List<Item>> byApp = new LinkedHashMap<>();
@@ -190,7 +214,9 @@ final class WatchNextShelf {
                 list = new ArrayList<>();
                 byApp.put(r.pkg, list);
             }
-            if (list.size() < MAX_PER_APP) list.add(r);
+            int continuing = 0;
+            for (Item i : list) if (!i.recommended()) continuing++;
+            if (list.size() < MAX_CARDS && (r.recommended() || continuing < MAX_PER_APP)) list.add(r);
         }
         return byApp;
     }
@@ -215,6 +241,7 @@ final class WatchNextShelf {
         this.context = context.getApplicationContext();
         this.main = main;
         this.onChanged = onChanged;
+        Labels.load(this.context);
         observer = new ContentObserver(main) {
             @Override
             public void onChange(boolean selfChange) {
@@ -240,6 +267,8 @@ final class WatchNextShelf {
             try {
                 context.getContentResolver().registerContentObserver(
                         TvContract.WatchNextPrograms.CONTENT_URI, true, observer);
+                context.getContentResolver().registerContentObserver(
+                        TvContract.PreviewPrograms.CONTENT_URI, true, observer);
                 observing = true;
             } catch (SecurityException ignored) {
                 // Permission taken away since the check: the read below reports nothing.
@@ -296,7 +325,57 @@ final class WatchNextShelf {
             // SecurityException without the permission, SQLiteException on a TV whose table lacks a column.
             rows.clear();
         }
+        readPreviews(resolver, rows);
         return rows;
+    }
+
+    private static final String[] PREVIEW_PROJECTION = {
+            TvContract.PreviewPrograms.COLUMN_PACKAGE_NAME,
+            TvContract.PreviewPrograms.COLUMN_TITLE,
+            TvContract.PreviewPrograms.COLUMN_EPISODE_TITLE,
+            TvContract.PreviewPrograms.COLUMN_SEASON_DISPLAY_NUMBER,
+            TvContract.PreviewPrograms.COLUMN_EPISODE_DISPLAY_NUMBER,
+            TvContract.PreviewPrograms.COLUMN_POSTER_ART_URI,
+            TvContract.PreviewPrograms.COLUMN_THUMBNAIL_URI,
+            TvContract.PreviewPrograms.COLUMN_INTENT_URI,
+            TvContract.PreviewPrograms.COLUMN_DURATION_MILLIS,
+            TvContract.PreviewPrograms.COLUMN_TYPE,
+            TvContract.PreviewPrograms.COLUMN_SHORT_DESCRIPTION,
+            TvContract.PreviewPrograms.COLUMN_CHANNEL_ID,
+            TvContract.PreviewPrograms.COLUMN_BROWSABLE,
+    };
+
+    /**
+     * The apps' own recommendation rows (their preview channels, the rows the stock home screen shows under each
+     * app), as TYPE_RECOMMENDED items, from channels the viewer has not hidden. As with Watch Next no selection is
+     * allowed, so the filtering is done here.
+     */
+    private static void readPreviews(ContentResolver resolver, List<Item> rows) {
+        Set<Long> hidden = new HashSet<>();
+        try (Cursor c = resolver.query(TvContract.Channels.CONTENT_URI,
+                new String[]{TvContract.Channels._ID, TvContract.Channels.COLUMN_TYPE, TvContract.Channels.COLUMN_BROWSABLE},
+                null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                if (TvContract.Channels.TYPE_PREVIEW.equals(c.getString(1)) && !c.isNull(2) && c.getInt(2) == 0) {
+                    hidden.add(c.getLong(0));
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Channels unreadable: keep every preview row.
+        }
+        List<Item> previews = new ArrayList<>();
+        try (Cursor c = resolver.query(TvContract.PreviewPrograms.CONTENT_URI, PREVIEW_PROJECTION, null, null, null)) {
+            while (c != null && c.moveToNext()) {
+                if (!c.isNull(11) && hidden.contains(c.getLong(11))) continue;
+                if (!c.isNull(12) && c.getInt(12) == 0) continue;
+                previews.add(new Item(c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4),
+                        c.getString(5), c.getString(6), c.getString(7), TYPE_RECOMMENDED, -1, -1,
+                        c.isNull(8) ? -1 : c.getLong(8), c.isNull(9) ? -1 : c.getInt(9), c.getString(10)));
+            }
+        } catch (RuntimeException e) {
+            previews.clear();
+        }
+        rows.addAll(previews);
     }
 
     /** The deep link as an Intent, or null when it does not parse. */

@@ -1,6 +1,8 @@
 package com.gathin.tvhome;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -10,8 +12,6 @@ import android.util.LruCache;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Artwork for the shelf's cards: https (HttpURLConnection) and content:// or android.resource:// (ContentResolver),
+ * Artwork for the shelf's cards: https through the TV Posters add-on, and content:// or android.resource://,
  * decoded down to card size, kept in a small memory cache and fetched by two background threads. Everything public
  * runs on the main thread, and a callback runs there too.
  */
@@ -114,21 +114,31 @@ final class ShelfImages {
         }
     }
 
+    static final String POSTER_AUTHORITY = "com.gathin.tvhome.posters";
+    private volatile Boolean posterFetcher;
+
+    /** The add-on is installed and signed like the launcher: a poster's address names what was watched. */
+    private boolean hasPosterFetcher() {
+        Boolean known = posterFetcher;
+        if (known == null) {
+            PackageManager pm = context.getPackageManager();
+            ProviderInfo p = pm.resolveContentProvider(POSTER_AUTHORITY, 0);
+            known = p != null && pm.checkSignatures(p.packageName, context.getPackageName()) == PackageManager.SIGNATURE_MATCH;
+            posterFetcher = known;
+        }
+        return known;
+    }
+
     private byte[] readBytes(String uri) throws IOException {
         Uri parsed = Uri.parse(uri);
         String scheme = parsed.getScheme();
         if (scheme == null) return null;
-        HttpURLConnection http = null;
         InputStream in;
-        if (scheme.equals("https") || scheme.equals("http")) {
-            http = (HttpURLConnection) new URL(uri).openConnection();
-            http.setConnectTimeout(5000);
-            http.setReadTimeout(8000);
-            if (http.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                http.disconnect();
-                return null;
-            }
-            in = http.getInputStream();
+        if (scheme.equals("https")) {
+            // The launcher has no INTERNET: the TV Posters add-on fetches https artwork for it (docs/modules.md).
+            if (!hasPosterFetcher()) return null;
+            in = context.getContentResolver().openInputStream(Uri.parse("content://" + POSTER_AUTHORITY + "/poster")
+                    .buildUpon().appendQueryParameter("url", uri).build());
         } else if (scheme.equals("content") || scheme.equals("android.resource")) {
             in = context.getContentResolver().openInputStream(parsed);
         } else {
@@ -146,7 +156,6 @@ final class ShelfImages {
             return out.toByteArray();
         } finally {
             in.close();
-            if (http != null) http.disconnect();
         }
     }
 }
