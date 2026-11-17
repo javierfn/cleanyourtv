@@ -205,6 +205,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private String heroArtKey;
     /** continue_watching_static: per app, a bundled drawable over the whole screen while it has no cards. */
     private Map<String, String> stillArt = Collections.emptyMap();
+    /** continue_watching_backdrop: per app, a bundled drawable behind its shelf whether or not it has cards. */
+    private Map<String, String> backdropArt = Collections.emptyMap();
     private boolean staticShelf;
     /** That still picture, full screen behind the header and the dock; null when no app has one. */
     private ImageView shelfLogo;
@@ -593,7 +595,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroArtAlpha = cfg.cinematicArt / 100f;
         artTarget = heroArtAlpha;
         stillArt = cfg.continueWatchingStatic;
-        staticShelf = cfg.continueWatching && !stillArt.isEmpty();
+        backdropArt = cfg.continueWatchingBackdrop;
+        staticShelf = cfg.continueWatching && (!stillArt.isEmpty() || !backdropArt.isEmpty());
         if (cinematic) setUpCinematicShelf(cfg.cinematicScrim);
         // dock_title false: the name above the dock (and the cinematic lines under it) never shows; the glow
         // still follows the dock.
@@ -2661,28 +2664,35 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private void showShelfLogo(int position) {
         if (shelfLogo == null) return;
         boolean still = stillShelfFor(position);
+        // A backdrop app keeps its name (and its cards) over the picture; a still one shows the picture alone.
+        String backdropName = !still && staticShelf && position >= 0 && position < adapter.appCount()
+                && DockSlots.inDockRow(dockRow, singleRow, position, COLUMNS) ? backdropArt.get(adapter.packageAt(position)) : null;
+        boolean picture = still || backdropName != null;
         int res = 0;
-        if (still) {
-            String name = stillArt.get(adapter.packageAt(position));
+        if (picture) {
+            String name = still ? stillArt.get(adapter.packageAt(position)) : backdropName;
             res = getResources().getIdentifier(name, "drawable", getPackageName());
-            still = res != 0;
-            if (still && !name.equals(shelfLogoName)) {
+            if (res == 0) {
+                still = false;
+                picture = false;
+            }
+            if (picture && !name.equals(shelfLogoName)) {
                 shelfLogo.setImageResource(res);
                 shelfLogoName = name;
             }
-            if (still) blurDockWith(name, res);
+            if (picture) blurDockWith(name, res);
         }
-        if (!still && dockBackdrop != null) dockBackdrop.clearOverride();
-        stillShown = still;
-        wallpaperPlayer.coverCaption(still);
+        if (!picture && dockBackdrop != null) dockBackdrop.clearOverride();
+        stillShown = picture;
+        wallpaperPlayer.coverCaption(picture);
         heroName.animate().cancel();
         heroName.setAlpha(still ? 0f : 1f);
         if (cinematic) heroMeta.setAlpha(still ? 0f : 1f);
         if (cinematic) heroDots.setAlpha(still ? 0f : 1f);
         shelfLogo.animate().cancel();
-        float to = still ? 1f : 0f;
+        float to = picture ? 1f : 0f;
         if (!animations || reducedMotion) shelfLogo.setAlpha(to);
-        else shelfLogo.animate().alpha(to).setDuration(still ? 420 : 300).start();
+        else shelfLogo.animate().alpha(to).setDuration(picture ? 420 : 300).start();
     }
 
     /** dock_blur: the band blurs the still picture, not the wallpaper it covers; made once, off the main thread. */

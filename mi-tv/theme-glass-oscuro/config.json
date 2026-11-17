@@ -14,6 +14,7 @@
   "cinematic_home": true,
   "cinematic_art": 0,
   "continue_watching": true,
+  "continue_watching_backdrop": {"com.amazon.amazonvideo.livingroom": "shelf_prime"},
   "continue_watching_static": {"com.google.android.youtube.tv": "shelf_youtube", "com.plexapp.android": "shelf_plex"},
   "continue_watching_channels": {"com.google.android.youtube.tv": ["Suscripciones"]},
   "dock_glass": true,
